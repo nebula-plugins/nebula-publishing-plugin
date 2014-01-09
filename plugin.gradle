@@ -1,0 +1,25 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "com.netflix.nebula:nebula-plugin-plugin:1.0-SNAPSHOT"
+    }
+
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+    }
+}
+
+repositories {
+    mavenLocal()
+}
+
+description 'Gradle plugin to publish to bintray'
+apply plugin: 'nebula-plugin'
+
+dependencies {
+    compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+}

@@ -1,0 +1,46 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+group = 'com.netflix.nebula'
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+task install(dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
+    logger.info "Installed $project.name"
+}
+
+plugins.withType(JavaPlugin) {
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+    testCompile 'com.netflix.nebula:nebula-tests:1.0-SNAPSHOT'
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '1.9'
+}
