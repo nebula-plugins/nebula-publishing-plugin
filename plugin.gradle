@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.netflix.nebula:nebula-plugin-plugin:1.0-SNAPSHOT"
+        classpath "com.netflix.nebula:nebula-plugin-plugin:1.9.+"
     }
 
     configurations.all {
