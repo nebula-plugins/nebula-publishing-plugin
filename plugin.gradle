@@ -22,3 +22,28 @@ apply plugin: 'nebula-plugin'
 
 dependencies {
 }
+
+def pomConfig = {
+    inceptionYear '2014'
+
+    developers {
+        developer {
+            id 'quidryan'
+            name 'Justin Ryan'
+            email 'justin@halfempty.org'
+            roles{
+                role 'Developer'
+            }
+            timezone '-8'
+        }
+    }
+}
+
+import nebula.plugin.publishing.NebulaBaseMavenPublishingPlugin
+plugins.withType(NebulaBaseMavenPublishingPlugin) {
+    withMavenPublication {
+        pom.withXml {
+            asNode().children().last() + pomConfig
+        }
+    }
+}
