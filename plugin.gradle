@@ -21,5 +21,4 @@ description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
 
 dependencies {
-    compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
 }

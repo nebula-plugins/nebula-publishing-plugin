@@ -18,6 +18,5 @@ class NebulaPublishingPlugin implements Plugin<Project> {
         this.project = project
 
         project.plugins.apply(NebulaMavenPublishingPlugin)
-        project.plugins.apply(NebulaBintrayPublishingPlugin)
     }
 }

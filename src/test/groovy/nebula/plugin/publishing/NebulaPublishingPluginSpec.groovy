@@ -9,7 +9,6 @@ class NebulaPublishingPluginSpec extends ProjectSpec {
 
         then:
         project.plugins.getPlugin(NebulaMavenPublishingPlugin)
-        project.plugins.getPlugin(NebulaBintrayPublishingPlugin)
         project.plugins.getPlugin(NebulaBaseMavenPublishingPlugin)
     }
 }

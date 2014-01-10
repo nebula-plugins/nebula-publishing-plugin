@@ -13,12 +13,14 @@ import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 /**
+ * Opininated plugin that creates a default publication called mavenJava
  * TODO Break into smaller plugins
  */
 class NebulaMavenPublishingPlugin implements Plugin<Project> {
@@ -56,7 +58,10 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         project.plugins.withType(JavaPlugin) {
             includeJavaComponent()
         }
-        refreshPom()
+        project.plugins.withType(WarPlugin) {
+            includeWarComponent()
+        }
+        refreshPomDescription()
         aliasInstallTask()
         excludesAndResolved()
     }
@@ -85,29 +90,15 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    def refreshPom() {
-//
-
-
-        def repoName = project.name.startsWith('nebula') ? "${project.name}-plugin" : "gradle-${project.name}-plugin"
-        def pomConfig = {
-            // TODO Call scmprovider plugin for values
-            url "https://github.com/nebula-plugins/${repoName}"
-
-            scm {
-                url "scm:git://github.com/nebula-plugins/${repoName}.git"
-                connection "scm:git://github.com/nebula-plugins/${repoName}.git"
-            }
-
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
+    def includeWarComponent() {
+        basePlugin.withMavenPublication { MavenPublication t ->
+            def webComponent = project.components.getByName('web')
+            // TODO Include deps somehow
+            t.from(webComponent)
         }
+    }
 
+    def refreshPomDescription() {
         basePlugin.withMavenPublication { MavenPublication t ->
             t.pom.withXml(new Action<XmlProvider>() {
                 @Override
@@ -115,7 +106,6 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                     def root = x.asNode()
                     root.appendNode('description', project.description)
                     // TODO Replace node instead of appendNode
-                    root.children().last() + pomConfig
                 }
             })
         }

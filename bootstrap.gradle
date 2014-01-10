@@ -1,3 +1,5 @@
+import org.gradle.api.publish.maven.MavenPublication
+
 buildscript {
     repositories {
         mavenLocal()
@@ -38,7 +40,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-    testCompile 'com.netflix.nebula:nebula-tests:1.0-SNAPSHOT'
+    compile 'com.netflix.nebula:nebula-core:1.0-SNAPSHOT'
 }
 
 task createWrapper(type: Wrapper) {
