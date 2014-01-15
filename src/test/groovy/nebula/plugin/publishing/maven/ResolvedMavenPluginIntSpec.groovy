@@ -1,8 +1,8 @@
-package nebula.plugin.publishing
+package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationSpec
 
-class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
+class ResolvedMavenPluginIntSpec extends IntegrationSpec {
     def pomLocation = 'build/publications/mavenJava/pom-default.xml'
     def 'produces pom after resolution'() {
         writeHelloWorld('nebula.hello')

@@ -1,7 +1,7 @@
-package nebula.plugin.publishing
+package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.ProjectSpec
-import org.gradle.api.publish.ivy.tasks.GenerateIvyDescriptor
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 

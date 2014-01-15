@@ -1,5 +1,6 @@
-package nebula.plugin.publishing
+package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
 import nebula.test.ProjectSpec
 import org.gradle.api.plugins.MavenPlugin
 import org.gradle.api.publish.PublishingExtension

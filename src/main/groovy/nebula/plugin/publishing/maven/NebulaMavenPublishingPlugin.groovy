@@ -1,5 +1,6 @@
-package nebula.plugin.publishing
+package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.xml.NodeEnhancement
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -7,9 +8,6 @@ import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.result.ResolutionResult
-import org.gradle.api.artifacts.result.ResolvedModuleVersionResult
-import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
@@ -48,39 +46,29 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         //            }
         //        }
 
-        PublishingExtension pubExt = project.getExtensions().getByType(PublishingExtension)
-        pubExt.publications.create('mavenJava', MavenPublication)
+        project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
+            @Override
+            void execute(PublishingExtension pubExt) {
 
-        // Make sure we have somewhere to publish to
-        pubExt.repositories.mavenLocal()
+                pubExt.publications.create('mavenJava', MavenPublication)
 
-        refreshCoordinate()
+                excludes()
+
+                // Make sure we have somewhere to publish to
+                installTask(pubExt)
+
+            }
+        })
+
         project.plugins.withType(JavaPlugin) {
             includeJavaComponent()
         }
         project.plugins.withType(WarPlugin) {
             includeWarComponent()
         }
-        refreshPomDescription()
-        aliasInstallTask()
-        excludesAndResolved()
-    }
+        refreshDescription()
 
-    /**
-     * Add Maven side. Creating a publication and establishing pom values
-     * @param project
-     * @return
-     */
-    def refreshCoordinate() {
-        // Post-pone until version and group are known to be good.
-        basePlugin.withMavenPublication { DefaultMavenPublication mavenPub ->
-            // When IvyPublication is created, it captures the version, which wasn't ready at the time
-            // Refreshing the version to what the user set
-            mavenPub.version = project.version
-
-            // Might as well refresh group, in-case the user has set the group after applying publication plugin
-            mavenPub.groupId = project.group
-        }
+        project.plugins.apply(ResolvedMavenPlugin)
     }
 
     def includeJavaComponent() {
@@ -98,36 +86,26 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    def refreshPomDescription() {
+    def refreshDescription() {
         basePlugin.withMavenPublication { MavenPublication t ->
             t.pom.withXml(new Action<XmlProvider>() {
                 @Override
                 void execute(XmlProvider x) {
                     def root = x.asNode()
-                    root.appendNode('description', project.description)
-                    // TODO Replace node instead of appendNode
+                    if (project.description) {
+                        use(NodeEnhancement) {
+                            (root / 'description') <<  project.description
+                        }
+                    }
                 }
             })
         }
     }
 
-    def aliasInstallTask() {
-        // Mimic, mvn install task
-        project.tasks.create(name: 'install', dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
-            logger.info "Installed $project.name to ~/.m2/repository"
-        }
-    }
-
-
-    // This is more of a Responsible plugin thing
-    def excludesAndResolved() {
+    def excludes() {
         project.plugins.withType(JavaPlugin) { // Wait for runtime conf
             basePlugin.withMavenPublication { DefaultMavenPublication mavenJava ->
                 Configuration runtimeConfiguration = project.configurations.getByName('runtime')
-                ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
-                def resolutionMap = resolution.getAllModuleVersions().collectEntries { ResolvedModuleVersionResult versionResult ->
-                    [versionResult.id.module, versionResult]
-                }
 
                 // TODO This assumes that no resolution rules were in place.
                 Map<String, ModuleDependency> dependenciesMap = runtimeConfiguration.allDependencies.findAll { it instanceof ModuleDependency }.collectEntries { ModuleDependency dep ->
@@ -138,12 +116,6 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                     root?.dependencies?.dependency.each { Node dep ->
                         def org = dep.groupId.text()
                         def name = dep.artifactId.text()
-
-                        def id = new DefaultModuleIdentifier(org, name)
-                        ResolvedModuleVersionResult versionResult = resolutionMap.get(id)
-                        if(versionResult != null) {
-                            dep.version[0].value = versionResult.id.version
-                        }
 
                         def coord = "$org:$name".toString()
                         ModuleDependency moduleDependency = dependenciesMap.get(coord)
@@ -166,4 +138,17 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
             }
         }
     }
+
+    def installTask(PublishingExtension pubExt) {
+        // Mimic, mvn install task
+
+        pubExt.repositories.mavenLocal()
+
+        project.tasks.create(name: 'install', dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
+            // TODO Correct the name to which we really published to
+            // TODO Include artifacts that were published, since we commonly want to confirm that
+            logger.info "Installed $project.name to ~/.m2/repository"
+        }
+    }
+
 }
