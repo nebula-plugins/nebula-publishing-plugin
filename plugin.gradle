@@ -21,6 +21,11 @@ description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
 
 dependencies {
+    compile('org.semver:api:0.9.18') {
+        exclude group: 'asm', module: 'asm-commons'
+        exclude group: 'asm', module: 'asm'
+        exclude group: 'de.tototec', module: 'de.tototec.cmdoption'
+    }
 }
 
 def pomConfig = {
@@ -39,7 +44,7 @@ def pomConfig = {
     }
 }
 
-import nebula.plugin.publishing.NebulaBaseMavenPublishingPlugin
+import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
 plugins.withType(NebulaBaseMavenPublishingPlugin) {
     withMavenPublication {
         pom.withXml {
