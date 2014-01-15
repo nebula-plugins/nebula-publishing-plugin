@@ -1,5 +1,7 @@
 package nebula.plugin.publishing
 
+import nebula.plugin.publishing.component.CustomComponentPlugin
+import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -18,6 +20,7 @@ class NebulaSourceJarPlugin implements Plugin<Project>{
         this.project = project
 
         project.plugins.withType(JavaPlugin) {
+            // TODO Look at multiple sourceSets, is groovy another sourceSet?
             def sourceJar = project.tasks.create([name: 'sourceJar', type: Jar]) {
                 dependsOn project.tasks.getByName('classes')
                 from project.sourceSets.main.allSource
@@ -29,7 +32,7 @@ class NebulaSourceJarPlugin implements Plugin<Project>{
             def sourcesConf = project.configurations.create('sources')
             project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(sourcesConf)
 
-            project.artifacts.add('sources', sourceJar)
+            CustomComponentPlugin.addArtifact(project, sourcesConf.name, sourceJar, 'sources')
 
             project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
                 it.withMavenPublication { mavenPub ->

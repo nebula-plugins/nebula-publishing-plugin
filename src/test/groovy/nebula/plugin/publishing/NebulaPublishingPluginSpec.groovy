@@ -1,5 +1,7 @@
 package nebula.plugin.publishing
 
+import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
+import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.ProjectSpec
 
 class NebulaPublishingPluginSpec extends ProjectSpec {
