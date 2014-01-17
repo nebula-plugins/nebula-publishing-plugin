@@ -14,9 +14,9 @@ class NebulaBaseIvyPublishingPluginSpec extends ProjectSpec {
 
         when:
         project.plugins.apply(IvyPublishPlugin)
+        def plugin = project.plugins.apply(NebulaBaseIvyPublishingPlugin)
         project.getExtensions().getByType(PublishingExtension).publications.create('nebula', IvyPublication)
 
-        def plugin = project.plugins.apply(NebulaBaseIvyPublishingPlugin)
         plugin.withIvyPublication {
             marker.set(true)
         }
