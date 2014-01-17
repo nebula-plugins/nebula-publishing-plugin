@@ -62,19 +62,6 @@ class NebulaSignPlugin implements Plugin<Project> {
         // call signJar task before publish task, aka bintrayUpload
         project.task('preparePublish').dependsOn(signJarsTask)
 
-        // extract signature file and give them proper name
-//        def getSignatureFiles = {
-//            def allFiles = signJarsTask.signatureFiles.collect { it }
-//            def signedSources = allFiles.find { it.name.contains('-sources') }
-//            def signedJavadoc = allFiles.find { it.name.contains('-javadoc') }
-//            def signedJar = (allFiles - [signedSources, signedJavadoc])[0]
-//            return [
-//                    [archive: signedSources, classifier: 'sources', extension: 'jar.asc'],
-//                    [archive: signedJavadoc, classifier: 'javadoc', extension: 'jar.asc'],
-//                    [archive: signedJar,     classifier: null,      extension: 'jar.asc']
-//            ]
-//        }
-
         project.plugins.withType(NebulaBaseMavenPublishingPlugin) { NebulaBaseMavenPublishingPlugin basePlugin ->
             basePlugin.withMavenPublication { MavenPublication mavenJava ->
                 // give signature files to artifact method
@@ -83,19 +70,10 @@ class NebulaSignPlugin implements Plugin<Project> {
                         @Override
                         void execute(MavenArtifact t) {
                             t.classifier = signature.toSignArtifact.classifier
-                            t.extension = 'jar.asc'
+                            t.extension = signature.getType() // 'jar.asc'
                         }
                     })
                 }
-//                getSignatureFiles().each {signature ->
-//                    mavenJava.artifact(signature.archive, new Action<MavenArtifact>() {
-//                        @Override
-//                        void execute(MavenArtifact t) {
-//                            t.classifier = signature.classifier
-//                            t.extension = signature.extension
-//                        }
-//                    })
-//                }
             }
         }
 
