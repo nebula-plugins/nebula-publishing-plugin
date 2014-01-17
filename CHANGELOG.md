@@ -8,7 +8,7 @@
 * resolved-maven plugin, for replacing dynamic version ranges with their resolved values
 * Add groovy.util.Node classes to help updating a node easily
 * Add confs-visible plugin to make runtime and compile confs visible
-
+* Add nebula-sign plugin, to hide the details of signing while also supporting maven-publish
 
 1.9.0 / 2014-01-10
 =================
