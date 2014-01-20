@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.2' }
 }
 
 description 'Gradle plugin to publish to bintray'
