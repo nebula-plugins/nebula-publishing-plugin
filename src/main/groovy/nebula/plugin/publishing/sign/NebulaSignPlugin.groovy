@@ -27,6 +27,17 @@ import org.gradle.plugins.signing.SigningPlugin
  * </p>
  *
  * Instructions on how to create a key can be found at https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven
+ *
+ * Signing can falter in two way: it can fail to create a Signatory because of lack of keys or AbstractAntTaskBackedMavenPublisher.determineMainArtifact
+ * can't differentiate the primary .jar, it's signature or the pom file. AbstractAntTaskBackedMavenPublisher is only used in a few situations, but it is
+ * not used via the Bintray or Artifactory plugin. Though it is used for "install" which is unavoidable. To avoid these situations, there are three way
+ * which skip actual signing:
+ *
+ * <ul>
+ *     <li>Missing signing.keyId, signing.password, signing.secretKeyRingFile
+ *     <li>A property called signing.skip has a true value
+ *     <li>install task is present on the command line
+ * </ul>
  */
 class NebulaSignPlugin implements Plugin<Project> {
 
@@ -43,6 +54,10 @@ class NebulaSignPlugin implements Plugin<Project> {
                 project.hasProperty('signing.password') &&
                 project.hasProperty('signing.secretKeyRingFile')
 
+        // Provide two mechanism for avoiding signing.
+        // The first is just a backdoor-hatch incase it's just problematric for some.
+        boolean skipSigning = !hasSigningProps || (project.hasProperty('signing.skip') && Boolean.valueOf(project.skip)) || project.gradle.startParameter.taskNames.contains('install')
+
         // adding 'signing' plugin
         project.plugins.apply(SigningPlugin)
 
@@ -50,7 +65,7 @@ class NebulaSignPlugin implements Plugin<Project> {
         signJarsTask = project.tasks.create('signJars', Sign)
 
         // Conditionally sign.
-        if(hasSigningProps) {
+        if(!skipSigning) {
             // Only try to sign a configuration if we've got keys, otherwise we'll get artifacts into the archives
             // configurations with no bodies.
             signJarsTask.sign(project.configurations.getByName('archives'))
@@ -64,12 +79,13 @@ class NebulaSignPlugin implements Plugin<Project> {
 
         project.plugins.withType(NebulaBaseMavenPublishingPlugin) { NebulaBaseMavenPublishingPlugin basePlugin ->
             basePlugin.withMavenPublication { MavenPublication mavenJava ->
-                // give signature files to artifact method
+                // give signature files to artifact method. If the task's sign method is never called, then this callback
+                // will never be called.
                 signJarsTask.signatures.all { Signature signature ->
                     mavenJava.artifact(signature, new Action<MavenArtifact>() {
                         @Override
                         void execute(MavenArtifact t) {
-                            t.classifier = signature.toSignArtifact.classifier
+                            t.classifier = signature.toSignArtifact.classifier != ""?signature.toSignArtifact.classifier:null
                             t.extension = signature.getType() // 'jar.asc'
                         }
                     })
