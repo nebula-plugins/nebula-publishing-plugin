@@ -94,6 +94,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                     def root = x.asNode()
                     if (project.description) {
                         use(NodeEnhancement) {
+                            (root / 'name') << project.name
                             (root / 'description') <<  project.description
                         }
                     }
