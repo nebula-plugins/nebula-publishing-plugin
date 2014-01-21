@@ -1,12 +1,13 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.2' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.3' }
 }
 
 description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
 
 dependencies {
+    compile 'com.netflix.nebula:nebula-core:1.9.1'
     compile('org.semver:api:0.9.18') {
         exclude group: 'asm', module: 'asm-commons'
         exclude group: 'asm', module: 'asm'
