@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.publish.internal.DefaultPublishingExtension
+import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -25,6 +26,8 @@ class NebulaBaseMavenPublishingPlugin implements Plugin<Project> {
         project.plugins.apply(MavenPublishPlugin)
 
         refreshCoordinate()
+
+        refreshMainArtifact()
     }
 
     def refreshCoordinate() {
@@ -39,6 +42,24 @@ class NebulaBaseMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
+    def refreshMainArtifact() {
+        project.tasks.matching { it.name == 'generatePomFileForMavenJavaPublication' }.all {
+            withMavenPublication { MavenPublication mavenPub ->
+                Set<MavenArtifact> candidateMainArtifacts = mavenPub.getArtifacts().findAll {
+                    it.classifier == null || it.classifier.isEmpty()
+                }
+                def extMap = candidateMainArtifacts.collectEntries { [it.extension, it] }
+                def bestExt = ['war', 'jar', 'pom'].find { ext -> extMap[ext] != null }
+
+                if (bestExt == null && candidateMainArtifacts.size() == 1) {
+                    bestExt = candidateMainArtifacts.iterator().next().extension
+                }
+
+                // If bestExt is null, we'll just leave it up to Gradle to figure it out.
+                mavenPub.pom.packaging = bestExt
+            }
+        }
+    }
 
     /**
      * All Ivy Publications
