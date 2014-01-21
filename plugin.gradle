@@ -16,6 +16,7 @@ dependencies {
 }
 
 def pomConfig = {
+    name 'nebula-publishing-plugin'
     inceptionYear '2014'
 
     developers {
