@@ -32,5 +32,35 @@ class ConfsVisiblePlugin implements Plugin<Project>{
                 runtimeConfiguration.setVisible(true);
             }
         }
+
+        project.configurations.all {
+            fixConfigurationVisibility(it)
+        }
+    }
+
+
+    def fixConfigurationVisibility(Configuration visitConf) {
+        if (!visitConf.isVisible() ) {
+            return
+        }
+
+        Set<Configuration> visitedConfigs = new HashSet<Configuration>()
+        Queue<Configuration> visitConfigs = new LinkedList<Configuration>()
+        visitConfigs.offer(visitConf)
+        while( visitConfigs.peek() != null ) {
+            Configuration visit = visitConfigs.poll()
+            visitedConfigs.add(visit)
+            logger.debug("Visiting ${visit} with ${visit.extendsFrom}, is visible: ${visit.visible}")
+            visit.setVisible(true)
+            visit.extendsFrom.each { extendsConf ->
+                if(!visitedConfigs.contains(extendsConf)) {
+                    visitConfigs.offer(extendsConf)
+                    logger.debug "  Queue ${extendsConf}"
+                }
+            }
+            //String dump = ((org.gradle.api.internal.artifacts.configurations.DefaultConfiguration) visit).dump()
+            //logger.lifecycle(dump)
+        }
+
     }
 }
