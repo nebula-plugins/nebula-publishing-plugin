@@ -20,6 +20,7 @@ import org.gradle.api.tasks.bundling.Jar
 class NebulaTestJarPlugin implements Plugin<Project>{
     private static Logger logger = Logging.getLogger(NebulaTestJarPlugin);
 
+    public static final String FIXTURE_CONF = 'test'
     protected Project project
 
     @Override
@@ -27,24 +28,24 @@ class NebulaTestJarPlugin implements Plugin<Project>{
         this.project = project
 
         project.plugins.withType(JavaPlugin) { // needed for source sets
-            def testJar = project.tasks.create([name: 'testJar', type: Jar]) {
+            def jarTask = project.tasks.create([name: 'testJar', type: Jar]) {
                 classifier = 'tests'
                 extension = 'jar'
                 from project.sourceSets.test.output // Might want source files too, this is only the classes
                 group 'build'
             }
 
-            def testConf = project.configurations.create('test')
+            def conf = project.configurations.maybeCreate(FIXTURE_CONF)
             Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
-            testConf.extendsFrom(testRuntimeConf)
+            conf.extendsFrom(testRuntimeConf)
 
-            project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(testConf)
+            project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(conf)
 
-            CustomComponentPlugin.addArtifact(project, testConf.name, testJar, 'test-jar', testRuntimeConf)
+            CustomComponentPlugin.addArtifact(project, conf.name, jarTask, 'test-jar', testRuntimeConf)
 
             project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
                 it.withMavenPublication { mavenPub ->
-                    mavenPub.artifact(testJar)
+                    mavenPub.artifact(jarTask)
                 }
             }
 

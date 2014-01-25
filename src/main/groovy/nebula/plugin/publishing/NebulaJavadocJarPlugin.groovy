@@ -25,7 +25,7 @@ class NebulaJavadocJarPlugin implements Plugin<Project>{
             // TODO Conditionalize logic on project==rootProject, to know if we should aggregate the javadoc
 
             Javadoc javadocTask = (Javadoc) project.tasks.getByName('javadoc')
-            def javadocJar = project.tasks.create([name: 'javadocJar', type: Jar]) {
+            def jarTask = project.tasks.create([name: 'javadocJar', type: Jar]) {
                 dependsOn javadocTask
                 from javadocTask.destinationDir
                 classifier 'javadoc'
@@ -33,14 +33,14 @@ class NebulaJavadocJarPlugin implements Plugin<Project>{
                 group 'build'
             }
 
-            def javadocConf = project.configurations.create('javadoc')
-            project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(javadocConf)
+            def conf = project.configurations.maybeCreate('javadoc')
+            project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(conf)
 
-            CustomComponentPlugin.addArtifact(project, javadocConf.name, javadocJar, 'javadoc')
+            CustomComponentPlugin.addArtifact(project, conf.name, jarTask, 'javadoc')
 
             project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
                 it.withMavenPublication { mavenPub ->
-                    mavenPub.artifact(javadocJar)
+                    mavenPub.artifact(jarTask)
                 }
             }
         }
