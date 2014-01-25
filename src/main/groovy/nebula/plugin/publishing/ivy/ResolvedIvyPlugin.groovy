@@ -3,9 +3,12 @@ package nebula.plugin.publishing.ivy
 import groovy.xml.QName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolutionResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.artifacts.result.ResolvedModuleVersionResult
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
+import org.gradle.api.internal.artifacts.result.DefaultResolvedDependencyResult
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -34,8 +37,8 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                 withXml {
                     def perConfigResolutionMap = project.configurations.collectEntries { conf ->
                         ResolutionResult resolution = conf.incoming.resolutionResult // Forces resolve of configuration
-                        def resolutionMap = resolution.getAllModuleVersions().collectEntries { ResolvedModuleVersionResult versionResult ->
-                            [versionResult.id.module, versionResult]
+                        def resolutionMap = resolution.getAllDependencies().findAll { it instanceof ResolvedDependencyResult }.collectEntries {ResolvedDependencyResult versionResult ->
+                            [versionResult.selected.id.id, versionResult]
                         }
                         [conf.name, resolutionMap]
                     }
@@ -58,14 +61,17 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                         def id = new DefaultModuleIdentifier(dep.@org, dep.@name)
                         def confs = extractConfs(dep.@conf)
                         def results = confs.collect { perConfigResolutionMap[it][id] }.findAll { it != null }
-                        def versionMap = results.collectEntries { [VersionFactory.create(it.id.version), it] }
+                        def versionMap = results.collectEntries { [VersionFactory.create(it.selected.id.version), it] }
                         def versionMax = versionMap.keySet().max()
-                        def version = versionMap[versionMax]
-                        def oldVersion = dep.@rev
+                        def versionResult = versionMap[versionMax]
 
-                        dep.@revConstraint = oldVersion
-                        if (version != null) {
-                            dep.@rev = version.id.version
+                        if (versionResult != null) {
+                            def version = versionResult.selected.id.version
+                            def oldVersion = dep.@rev
+                            if (oldVersion != version) {
+                                dep.@revConstraint = oldVersion
+                            }
+                            dep.@rev = version
                         }
                     }
                 }
