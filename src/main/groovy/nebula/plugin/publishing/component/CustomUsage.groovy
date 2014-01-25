@@ -37,10 +37,10 @@ class CustomUsage implements Usage {
         DeferredDependencies(String dependencyConfName, Configuration dependencyConfiguration, Set<String> confsToSkip) {
             this.dependencyConfName = dependencyConfName
             this.dependencyConfiguration = dependencyConfiguration
-            this.confsToSkip = confsToSkip
+            this.confsToSkip = confsToSkip?:([] as Set)
         }
 
-        private DefaultDependencySet collectPublicDependencies() {
+        DefaultDependencySet collectPublicDependencies() {
             return collectPublicDependencies(dependencyConfiguration, confsToSkip)
         }
 

@@ -1,5 +1,8 @@
 package nebula.plugin.publishing.ivy
 
+import nebula.plugin.publishing.NebulaJavadocJarPlugin
+import nebula.plugin.publishing.NebulaSourceJarPlugin
+import nebula.plugin.publishing.NebulaTestJarPlugin
 import nebula.test.ProjectSpec
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.gradle.api.publish.ivy.IvyPublication
@@ -90,5 +93,38 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         def httpclient = deps.find { it.@name == 'httpclient' }
         httpclient.exclude.find { it.@module == 'httpcore' && it.@org == 'org.apache.httpcomponents' }
         httpclient.exclude.find { it.@module == 'commons-logging' }
+    }
+
+    def 'md has other usages'() {
+        when:
+        project.group = 'test'
+        project.plugins.apply(NebulaIvyPublishingPlugin)
+        project.plugins.apply(NebulaJavadocJarPlugin)
+        project.plugins.apply(NebulaTestJarPlugin)
+        project.plugins.apply(NebulaSourceJarPlugin)
+        project.apply plugin: 'java'
+        project.dependencies {
+            compile 'asm:asm:3.1'
+            runtime 'org.apache.httpcomponents:httpclient:4.3.1'
+            testCompile 'org.apache.httpcomponents:httpcore:4.3.1'
+            testRuntime 'commons-logging:commons-logging:1.1.3'
+
+        }
+        project.evaluate()
+        GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
+        generateTask.doGenerate()
+
+        then:
+        println generateTask.destination.text
+        def pom = new XmlSlurper().parse(generateTask.destination)
+        def artifacts = pom.publications.artifact
+
+        artifacts.size() == 4
+        def correctName = artifacts.findAll { it.@name == canonicalName }
+        correctName.size() == 4
+        artifacts.any {
+            it.@type == 'javadoc' && it.@ext == 'jar' && it.@conf == 'javadoc' && it.@'e:classifier' == 'javadoc'
+        }
+
     }
 }

@@ -3,6 +3,7 @@ package nebula.plugin.publishing.component
 import com.google.common.base.Preconditions
 import nebula.core.AlternativeArchiveTask
 import nebula.plugin.publishing.ConfsVisiblePlugin
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -26,6 +27,7 @@ class CustomComponentPlugin implements Plugin<Project> {
     protected Project project
     protected CustomUsage javaUsage
     protected CustomUsage webUsage
+    protected DomainObjectSet<CustomUsage> usages
 
     CustomSoftwareComponent component
 
@@ -43,7 +45,7 @@ class CustomComponentPlugin implements Plugin<Project> {
         project.plugins.apply(ConfsVisiblePlugin)
 
         // Create the NamedDomainObjectContainers
-        def usages = new DefaultDomainObjectSet<CustomUsage>(CustomUsage)
+        usages = new DefaultDomainObjectSet<CustomUsage>(CustomUsage)
 
         // Create and install the extension object
         // TODO Why is this better than project.extensions.create?
@@ -129,6 +131,11 @@ class CustomComponentPlugin implements Plugin<Project> {
             }
         }
         publishArtifact
+    }
+
+    public static addArtifact(Project project, String confName, Task jarTask, String artifactType, String dependenciesConfName, Set<String> confsToSkip = null) {
+        def dependenciesConf = project.configurations.getByName(dependenciesConfName)
+        addArtifact(project, confName, jarTask, artifactType, dependenciesConf, confsToSkip)
     }
 
     /**

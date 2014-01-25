@@ -1,17 +1,29 @@
 package nebula.plugin.publishing.ivy
 
+import com.google.common.collect.HashMultimap
+import com.google.common.collect.Multimap
+import nebula.plugin.publishing.component.CustomComponentPlugin
+import nebula.plugin.publishing.component.CustomSoftwareComponent
+import nebula.plugin.publishing.component.CustomUsage
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
+import org.gradle.api.internal.component.Usage
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.internal.ProjectDependencyPublicationResolver
+import org.gradle.api.publish.ivy.IvyConfiguration
 import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.publish.ivy.internal.dependency.DefaultIvyDependency
+import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
 
 /**
  * Anagolous to NebulaMavenPublishingPlugin, but for Ivy. Netflix has some very specific requirements for the resulting
@@ -23,13 +35,21 @@ class NebulaIvyPublishingPlugin implements Plugin<Project> {
 
     protected Project project
     NebulaBaseIvyPublishingPlugin basePlugin
+    IvyPublication ivyPublication
+
+    private Map<String, Set<String>> confExclusions = [:].withDefault { [] as Set }
 
     void apply(Project project) {
         this.project = project
 
         basePlugin = project.plugins.apply(NebulaBaseIvyPublishingPlugin)
 
-        project.plugins.apply(MavenPublishPlugin) // redundant given above
+        // Use a more flexible Component, which will already hook up with known Components.
+        def customComponentPlugin = project.plugins.apply(CustomComponentPlugin)
+        // this might have to be in generateDescriptorTask.doFirst
+        basePlugin.withIvyPublication { IvyPublication ivyPub ->
+            fromSoftwareComponent(ivyPub, customComponentPlugin.component)
+        }
 
         // Creating the publication, essentially we're creating this:
         //        project.publishing {
@@ -47,45 +67,89 @@ class NebulaIvyPublishingPlugin implements Plugin<Project> {
             @Override
             void execute(PublishingExtension pubExt) {
                 // The name of the publication is a legacy factor from the internal system
-                pubExt.publications.create('nebula', IvyPublication)
+                ivyPublication = pubExt.publications.create('nebula', IvyPublication)
 
                 installTask(pubExt)
             }
         })
 
-        // The from method will force the File in any artifact, forcing their conventions to run too early since we have version in the name,
-        // and the version isn't available yet.
-        // WebApplication SoftwareComponent has no dependencies, since they're in the .war, Netflix doesn't model them as such.
-        // if (project.plugins.hasPlugin(WarPlugin)) {
-        //     from project.components.web
-        // } else if (project.plugins.hasPlugin(JavaPlugin)) {
-        //     from project.components.getByName('java')
-        // }
-
-        project.plugins.withType(JavaPlugin) {
-            includeJavaComponent()
-        }
-        project.plugins.withType(WarPlugin) {
-            includeWarComponent()
-        }
-
         project.plugins.apply(ResolvedIvyPlugin)
     }
 
+    /**
+     * Copy from DefaultIvyPublication.from.
+     * @param pub
+     * @param component
+     */
+    public void fromSoftwareComponent(DefaultIvyPublication pub, CustomSoftwareComponent component) {
 
-    def includeJavaComponent() {
-        basePlugin.withIvyPublication { IvyPublication t ->
-            def javaComponent = project.components.getByName('java')
-            t.from(javaComponent)
+        component.usages.all { Usage usage ->
+            String archiveConf = usage.getName(); // Not unique?
+            String dependencyConf = (usage instanceof CustomUsage && usage.deferredDependencies?.dependencyConfName )?usage.deferredDependencies?.dependencyConfName:archiveConf
+
+            ensureConfigurations(pub, archiveConf, dependencyConf)
+
+            // Gradle implicitly has this conf extend 'default' with doesn't fit most use cases
+
+            for (PublishArtifact publishArtifact : usage.getArtifacts()) {
+                pub.artifact(publishArtifact).setConf(archiveConf);
+            }
+
+            for (ModuleDependency dependency : usage.getDependencies()) {
+                String confMapping = String.format("%s->%s", dependencyConf, dependency.getConfiguration());
+                if (dependency instanceof ProjectDependency) {
+                    addProjectDependency(pub, (ProjectDependency) dependency, confMapping);
+                } else {
+                    addModuleDependency(pub, dependency, confMapping);
+                }
+            }
         }
     }
 
-    def includeWarComponent() {
-        basePlugin.withIvyPublication { IvyPublication t ->
-            def webComponent = project.components.getByName('web')
-            // TODO Include deps somehow, since that's how Netflix likes it
-            t.from(webComponent)
+    def ensureConfigurations(DefaultIvyPublication pub, String archiveConf, String dependencyConf) {
+        Multimap<String, String> confExtends = HashMultimap.create()
+        if (archiveConf != dependencyConf) {
+            // TODO This might be optional
+            confExtends.put(archiveConf, dependencyConf)
         }
+
+        def confsProcessed = [] as Set
+        Queue<String> confQueue = new LinkedList<String>()
+        confQueue.addAll([archiveConf, dependencyConf])
+
+        while(confQueue.peek()) {
+            String confToAdd = confQueue.remove()
+            if (!confsProcessed.contains(confToAdd)) {
+                IvyConfiguration ivyConf = pub.configurations.maybeCreate(confToAdd)
+                if (confToAdd == archiveConf && archiveConf != dependencyConf) {
+                    ivyConf.extend(dependencyConf)
+                }
+
+                Configuration gradleConf = project.configurations.findByName(confToAdd)
+                if (gradleConf) {
+                    gradleConf.extendsFrom.each {
+                        if (!confExclusions[confToAdd].contains(it.name)) {
+                            ivyConf.extends.add(it.name)
+                            confQueue << it.name
+                        }
+                    }
+                }
+                confsProcessed << confToAdd
+            }
+        }
+    }
+
+    void addConfExclusion(String conf, String exclusion) {
+        confExclusions[conf] << exclusion
+    }
+
+    private void addProjectDependency(DefaultIvyPublication pub, ProjectDependency dependency, String confMapping) {
+        ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
+        pub.dependencies.add(new DefaultIvyDependency(identifier.getGroup(), identifier.getName(), identifier.getVersion(), confMapping));
+    }
+
+    private void addModuleDependency(DefaultIvyPublication pub, ModuleDependency dependency, String confMapping) {
+        pub.dependencies.add(new DefaultIvyDependency(dependency.getGroup(), dependency.getName(), dependency.getVersion(), confMapping, dependency.getArtifacts()));
     }
 
     /**
