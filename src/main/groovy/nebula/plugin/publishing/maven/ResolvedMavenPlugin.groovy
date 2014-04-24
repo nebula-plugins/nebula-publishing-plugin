@@ -4,8 +4,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.result.ResolutionResult
-import org.gradle.api.artifacts.result.ResolvedModuleVersionResult
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -38,8 +39,8 @@ class ResolvedMavenPlugin implements Plugin<Project> {
             basePlugin.withMavenPublication { DefaultMavenPublication mavenJava ->
                 Configuration runtimeConfiguration = project.configurations.getByName('runtime')
                 ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
-                def resolutionMap = resolution.getAllModuleVersions().collectEntries { ResolvedModuleVersionResult versionResult ->
-                    [versionResult.id.module, versionResult]
+                Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
+                    [versionResult.moduleVersion.module, versionResult]
                 }
 
                 mavenJava.pom.withXml { XmlProvider xmlProvider ->
@@ -49,9 +50,9 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                         def name = dep.artifactId.text()
 
                         def id = new DefaultModuleIdentifier(org, name)
-                        ResolvedModuleVersionResult versionResult = resolutionMap.get(id)
+                        ResolvedComponentResult versionResult = resolutionMap.get(id)
                         if(versionResult != null) {
-                            dep.version[0].value = versionResult.id.version
+                            dep.version[0].value = versionResult.moduleVersion.version
                         }
                     }
                 }

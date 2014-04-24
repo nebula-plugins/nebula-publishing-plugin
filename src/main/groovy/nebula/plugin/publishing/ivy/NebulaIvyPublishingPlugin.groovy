@@ -8,11 +8,7 @@ import nebula.plugin.publishing.component.CustomUsage
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.artifacts.PublishArtifact
+import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.internal.component.Usage

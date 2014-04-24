@@ -3,12 +3,9 @@ package nebula.plugin.publishing.ivy
 import groovy.xml.QName
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolutionResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
-import org.gradle.api.artifacts.result.ResolvedModuleVersionResult
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
-import org.gradle.api.internal.artifacts.result.DefaultResolvedDependencyResult
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -38,7 +35,8 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                     def perConfigResolutionMap = project.configurations.collectEntries { conf ->
                         ResolutionResult resolution = conf.incoming.resolutionResult // Forces resolve of configuration
                         def resolutionMap = resolution.getAllDependencies().findAll { it instanceof ResolvedDependencyResult }.collectEntries {ResolvedDependencyResult versionResult ->
-                            [versionResult.selected.id.id, versionResult]
+                            // DefaultModuleComponentIdentifier is a ModuleComponentIdentifier
+                            return [versionResult.selected.moduleVersion.module, versionResult]
                         }
                         [conf.name, resolutionMap]
                     }
