@@ -1,7 +1,7 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.+' } // TODO Use a 1.12 based plugin-plugin
-    dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.11.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.+' } // TODO Use a 1.12 based plugin-plugin
+    dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.12.+' }
 }
 
 description 'Gradle plugin to publish to bintray'
@@ -15,7 +15,7 @@ contacts {
 }
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.9.4'
+    compile 'com.netflix.nebula:nebula-core:1.12.+'
     compile('org.semver:api:0.9.18') {
         exclude group: 'asm', module: 'asm-commons'
         exclude group: 'asm', module: 'asm'
@@ -23,4 +23,4 @@ dependencies {
     }
 }
 
-createWrapper.gradleVersion = '1.11'
+createWrapper.gradleVersion = '1.12-rc-2'
