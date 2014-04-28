@@ -1,7 +1,7 @@
 buildscript {
     repositories { jcenter() }
     dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.+' } // TODO Use a 1.12 based plugin-plugin
-    dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.12.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.11.+' }
 }
 
 description 'Gradle plugin to publish to bintray'
