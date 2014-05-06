@@ -1,7 +1,7 @@
-1.9.7 / 2014-05-xx
+1.9.7 / 2014-05-06
 ==================
 
-* Remove semantic version sorting of ivy dependencies, to make it work
+* Remove semantic version sorting of ivy dependencies, to make it work with non semantic version strings
 
 1.9.6 / 2014-01-24
 ==================
