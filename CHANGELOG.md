@@ -1,5 +1,36 @@
+1.9.7 / 2014-05-xx
+==================
+
+* Remove semantic version sorting of ivy dependencies, to make it work
+
+1.9.6 / 2014-01-24
+==================
+
+* Introduce a CustomComponent
+
+1.9.5 / 2014-01-21
+==================
+
+* Make publish valid
+* Include name in pom
+
+1.9.4 / 2014-01-21
+==================
+
+* Upgrade nebula-plugin-plugin
+
+1.9.3 / 2014-01-20
+==================
+
+* Ensuring packaging is set correct for normal projects
+
+1.9.2 / 2014-01-20
+==================
+
+* bug fixes
+
 1.9.1 / 2014-01-14
-=================
+==================
 
 * Refactor into separate maven and ivy packages
 * Add NebulaBaseIvyPublishingPlugin for good patterns for generating ivy files

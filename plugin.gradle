@@ -1,42 +1,24 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.3' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.11' }
 }
 
 description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
+apply plugin: 'idea'
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.9.3'
-    compile('org.semver:api:0.9.18') {
-        exclude group: 'asm', module: 'asm-commons'
-        exclude group: 'asm', module: 'asm'
-        exclude group: 'de.tototec', module: 'de.tototec.cmdoption'
-    }
+    compile 'com.netflix.nebula:nebula-core:1.9.+'
+    testCompile 'com.netflix.nebula:nebula-test:1.9.+'
 }
 
-def pomConfig = {
-    name 'nebula-publishing-plugin'
-    inceptionYear '2014'
-
-    developers {
-        developer {
-            id 'quidryan'
-            name 'Justin Ryan'
-            email 'justin@halfempty.org'
-            roles{
-                role 'Developer'
-            }
-            timezone '-8'
-        }
+contacts {
+    'justin@halfempty.org' {
+        moniker 'Justin Ryan'
+        github 'quidryan'
     }
-}
-
-import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
-plugins.withType(NebulaBaseMavenPublishingPlugin) {
-    withMavenPublication {
-        pom.withXml {
-            asNode().children().last() + pomConfig
-        }
+    'rob.spieldenner@gmail.com' {
+        moniker 'Rob Spieldenner'
+        github 'rspieldenner'
     }
 }
