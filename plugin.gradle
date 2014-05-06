@@ -8,7 +8,8 @@ apply plugin: 'nebula-plugin'
 apply plugin: 'idea'
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.9.3'
+    compile 'com.netflix.nebula:nebula-core:1.9.+'
+    testCompile 'com.netflix.nebula:nebula-test:1.9.+'
 }
 
 contacts {
