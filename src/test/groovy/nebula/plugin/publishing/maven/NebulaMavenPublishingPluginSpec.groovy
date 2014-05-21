@@ -1,7 +1,7 @@
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.ProjectSpec
+import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 
@@ -74,10 +74,24 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
         println generateTask.destination.text
         def pom = new XmlSlurper().parse(generateTask.destination)
         def deps = pom.dependencies.dependency
-        deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+        deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm' }
         def httpclient = deps.find { it.artifactId.text() == 'httpclient' }
-        httpclient.exclusions.exclusion.find { it.artifactId.text() == 'httpcore' && it.groupId.text() == 'org.apache.httpcomponents' }
+        httpclient.exclusions.exclusion.find {
+            it.artifactId.text() == 'httpcore' && it.groupId.text() == 'org.apache.httpcomponents'
+        }
         httpclient.exclusions.exclusion.find { it.artifactId.text() == 'commons-logging' }
     }
 
+    def 'skip java component if web project'() {
+        given:
+        project.plugins.apply(NebulaMavenPublishingPlugin)
+        project.plugins.apply(WarPlugin)
+
+        when:
+        project.evaluate()
+
+        then:
+        project.publishing.publications.size() == 1
+        project.publishing.publications.getByName('mavenJava').artifacts.size() == 1
+    }
 }
