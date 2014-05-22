@@ -1,6 +1,7 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.ProjectSpec
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
@@ -83,15 +84,35 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
     }
 
     def 'skip java component if web project'() {
-        given: 'the war plugin is added after the nebulaMavenPublishingPlugin'
-        project.plugins.apply(NebulaMavenPublishingPlugin)
+        given: 'the WarPlugin and the NebulaMavenPublishingPlugin are applied'
         project.plugins.apply(WarPlugin)
+        project.plugins.apply(NebulaMavenPublishingPlugin)
 
-        when: 'the project is evaluated'
+        when: 'the project is configured'
         project.evaluate()
 
-        then: 'make sure there were not any configuration exceptions'
+        then: 'make sure the configuration did not fail due to the java component blocking the web component publication'
         project.publishing.publications.size() == 1
-        project.publishing.publications.getByName('mavenJava').artifacts.size() == 1
+
+        and: 'the mavenWeb publication is configured properly'
+        project.publishing.publications.getByName('mavenWeb').artifacts.size() == 1
+    }
+
+    def 'web component wins if added after java component'() {
+        given: 'the java plugin is added first'
+        project.plugins.apply(JavaPlugin)
+
+        and: 'then the NebulaMavenPublishingPlugin is added next'
+        project.plugins.apply(NebulaMavenPublishingPlugin)
+
+        and: 'and then the WarPlugin is added after the publication is configured'
+        project.plugins.apply(WarPlugin)
+
+        when: 'the project is configured'
+        project.evaluate()
+
+        then: 'the mavenWeb publication is configured properly'
+        project.publishing.publications.size() == 1
+        project.publishing.publications.getByName('mavenWeb').artifacts.size() == 1
     }
 }

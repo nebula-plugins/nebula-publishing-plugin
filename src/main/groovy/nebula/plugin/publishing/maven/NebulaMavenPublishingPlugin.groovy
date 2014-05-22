@@ -27,69 +27,61 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     protected Project project
     NebulaBaseMavenPublishingPlugin basePlugin
 
+    String component = 'java'
+
     @Override
     void apply(Project project) {
         this.project = project
 
         basePlugin = (NebulaBaseMavenPublishingPlugin) project.plugins.apply(NebulaBaseMavenPublishingPlugin)
-        project.plugins.apply(MavenPublishPlugin) // redundant given above
 
-        // Creating the publication, essentially we're creating this:
-        //        project.publishing {
-        //            repositories {
-        //                mavenLocal()
-        //            }
-        //            publications {
-        //                mavenJava(MavenPublication) {
-        //                    from project.components.java
-        //                }
-        //            }
-        //        }
-
-        project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
-            @Override
-            void execute(PublishingExtension pubExt) {
-
-                pubExt.publications.create('mavenJava', MavenPublication)
-
-                excludes()
-
-                // Make sure we have somewhere to publish to
-                installTask(pubExt)
-
-            }
-        })
-
-        project.plugins.withType(JavaPlugin) {
-            includeJavaComponent()
-        }
-        project.plugins.withType(WarPlugin) {
-            includeWarComponent()
-        }
+        configurePublishingExtension()
         refreshDescription()
 
         project.plugins.apply(ResolvedMavenPlugin)
     }
 
-    def includeJavaComponent() {
-        basePlugin.withMavenPublication { MavenPublication t ->
-            if( project.plugins.findPlugin(WarPlugin) == null) {
-                def javaComponent = project.components.getByName('java')
-                t.from(javaComponent)
+    /**
+     * Creates a publication based on the plugins that have been applied.  Currently only supports the JavaPlugin and
+     * the WarPlugin.  This block essentially does the same as this Gradle DSL block:
+     *        project.publishing {
+     *            repositories {
+     *                mavenLocal()
+     *            }
+     *            publications {
+     *                mavenJava(MavenPublication) {
+     *                    from project.components.java
+     *                }
+     *            }
+     *        }
+     */
+    void configurePublishingExtension() {
+        project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
+            @Override
+            void execute(PublishingExtension pubExt) {
+
+                if (project.plugins.findPlugin(WarPlugin) != null) {
+                    component = 'web'
+                    MavenPublication webPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
+                    webPub.from(project.components.getByName(component))
+                } else {
+                    MavenPublication javaPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
+                    if (project.plugins.findPlugin(JavaPlugin) != null) {
+                        javaPub.from(project.components.getByName(component))
+                    }
+                }
+
+                excludes()
+
+                installTask(pubExt)
             }
-        }
+        })
     }
 
-    def includeWarComponent() {
-        basePlugin.withMavenPublication { MavenPublication t ->
-
-            def webComponent = project.components.getByName('web')
-            // TODO Include deps somehow
-            t.from(webComponent)
-        }
-    }
-
-    def refreshDescription() {
+    /**
+     * Updates the publication's pom file with the project.name and project.description from Gradle.
+     */
+    void refreshDescription() {
         basePlugin.withMavenPublication { MavenPublication t ->
             t.pom.withXml(new Action<XmlProvider>() {
                 @Override
@@ -143,13 +135,16 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    def installTask(PublishingExtension pubExt) {
-        // Mimic, mvn install task
-
+    /**
+     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.  This will also make sure that
+     * there at least one publish tasks created if there aren't any repositories defined.
+     *
+     * @param pubExt the PublishingExtension instance to add the repository to
+     */
+    void installTask(PublishingExtension pubExt) {
         pubExt.repositories.mavenLocal()
 
-        project.tasks.create(name: 'install', dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
-            // TODO Correct the name to which we really published to
+        project.tasks.create(name: 'install', dependsOn: "publishMaven${component.capitalize()}PublicationToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
         }
