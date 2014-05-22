@@ -73,13 +73,16 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
 
     def includeJavaComponent() {
         basePlugin.withMavenPublication { MavenPublication t ->
-            def javaComponent = project.components.getByName('java')
-            t.from(javaComponent)
+            if( project.plugins.findPlugin(WarPlugin) == null) {
+                def javaComponent = project.components.getByName('java')
+                t.from(javaComponent)
+            }
         }
     }
 
     def includeWarComponent() {
         basePlugin.withMavenPublication { MavenPublication t ->
+
             def webComponent = project.components.getByName('web')
             // TODO Include deps somehow
             t.from(webComponent)

@@ -83,14 +83,14 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
     }
 
     def 'skip java component if web project'() {
-        given:
+        given: 'the war plugin is added after the nebulaMavenPublishingPlugin'
         project.plugins.apply(NebulaMavenPublishingPlugin)
         project.plugins.apply(WarPlugin)
 
-        when:
+        when: 'the project is evaluated'
         project.evaluate()
 
-        then:
+        then: 'make sure there were not any configuration exceptions'
         project.publishing.publications.size() == 1
         project.publishing.publications.getByName('mavenJava').artifacts.size() == 1
     }
