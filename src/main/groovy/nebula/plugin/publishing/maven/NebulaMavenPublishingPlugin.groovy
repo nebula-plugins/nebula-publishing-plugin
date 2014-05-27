@@ -60,15 +60,19 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
             @Override
             void execute(PublishingExtension pubExt) {
 
-                if (project.plugins.findPlugin(WarPlugin) != null) {
+                // Do we always want to add a publication, or only when a war or java plugin is applied
+                MavenPublication javaPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
+
+                project.plugins.withType(WarPlugin) {
                     component = 'web'
-                    MavenPublication webPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
+                    def publications = pubExt.publications
+                    publications.remove(publications.findByName("mavenJava"))
+                    MavenPublication webPub = publications.create("maven${component.capitalize()}", MavenPublication)
                     webPub.from(project.components.getByName(component))
-                } else {
-                    MavenPublication javaPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
-                    if (project.plugins.findPlugin(JavaPlugin) != null) {
-                        javaPub.from(project.components.getByName(component))
-                    }
+                }
+
+                project.plugins.withType(JavaPlugin) {
+                    javaPub.from(project.components.getByName(component))
                 }
 
                 excludes()
