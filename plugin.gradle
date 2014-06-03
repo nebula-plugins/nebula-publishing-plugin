@@ -6,21 +6,26 @@ buildscript {
 
 description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
+apply plugin: 'idea'
 
 contacts {
     'justin@halfempty.org' {
         moniker 'Justin Ryan'
         github 'quidryan'
     }
+    'rob.spieldenner@gmail.com' {
+        moniker 'Rob Spieldenner'
+        github 'rspieldenner'
+    }
+}
+
+release {
+    git.pushToCurrentBranch = true
 }
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.9.4'
-    compile('org.semver:api:0.9.18') {
-        exclude group: 'asm', module: 'asm-commons'
-        exclude group: 'asm', module: 'asm'
-        exclude group: 'de.tototec', module: 'de.tototec.cmdoption'
-    }
+    compile 'com.netflix.nebula:nebula-core:1.11.+'
+    testCompile 'com.netflix.nebula:nebula-test:1.11.+'
 }
 
 createWrapper.gradleVersion = '1.11'
