@@ -3,7 +3,9 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationSpec
 
 class ResolvedMavenPluginIntSpec extends IntegrationSpec {
+
     def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
+
     def 'produces pom after resolution'() {
         writeHelloWorld('nebula.hello')
         buildFile << '''
@@ -54,6 +56,28 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         def deps = pom.dependencies.dependency
         def asmDep = deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
         asmDep.version.text() == '2.2.3'
+    }
+
+    def 'does not resolve config too early'() {
+        given: 'A plugin attempts to configure the JavaPlugin runtime config after the ResolvedMavenPlugin resolves it'
+        writeHelloWorld('nebula.hello')
+        buildFile << '''
+            apply plugin: 'java'
+            apply plugin: 'nebula-maven-publishing'
+            repositories { jcenter() }
+            dependencies {
+                compile 'asm:asm:2.2.3'
+            }
+            afterEvaluate {
+                project.configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).extendsFrom(project.configurations.create('FOOBAR'));
+            }
+        '''.stripIndent()
+
+        when: 'any task is executed'
+        runTasksSuccessfully('tasks')
+
+        then: 'the task completes successfully without any configuration failure.'
+        notThrown(Exception)
     }
 
 }
