@@ -1,5 +1,8 @@
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.component.CustomComponentPlugin
+import nebula.plugin.publishing.component.CustomSoftwareComponent
+import nebula.plugin.publishing.component.CustomUsage
 import nebula.plugin.publishing.xml.NodeEnhancement
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -8,17 +11,23 @@ import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.PublishArtifact
+import org.gradle.api.internal.component.Usage
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.internal.ProjectDependencyPublicationResolver
+import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.internal.dependencies.DefaultMavenDependency
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 /**
- * Opininated plugin that creates a default publication called mavenJava
+ * Opininated plugin that creates a default publication called mavenNebula
  * TODO Break into smaller plugins
  */
 class NebulaMavenPublishingPlugin implements Plugin<Project> {
@@ -27,18 +36,28 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     protected Project project
     NebulaBaseMavenPublishingPlugin basePlugin
 
-    String component = 'java'
-
     @Override
     void apply(Project project) {
         this.project = project
 
         basePlugin = (NebulaBaseMavenPublishingPlugin) project.plugins.apply(NebulaBaseMavenPublishingPlugin)
 
+        def customComponentPlugin = project.plugins.apply(CustomComponentPlugin)
+        basePlugin.withMavenPublication { MavenPublication mavenPub ->
+            fromSoftwareComponent(mavenPub, customComponentPlugin.component)
+        }
+
         configurePublishingExtension()
         refreshDescription()
 
         project.plugins.apply(ResolvedMavenPlugin)
+
+        project.plugins.withType(WarPlugin) {
+            basePlugin.withMavenPublication { MavenPublication mavenPublication ->
+                MavenArtifact artifactToRemove = mavenPublication.artifacts.find{ it.extension == 'jar' && it.classifier == null }
+                mavenPublication.artifacts.remove(artifactToRemove)
+            }
+        }
     }
 
     /**
@@ -59,24 +78,8 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
             @Override
             void execute(PublishingExtension pubExt) {
-
-                // Do we always want to add a publication, or only when a war or java plugin is applied
-                MavenPublication javaPub = pubExt.publications.create("maven${component.capitalize()}", MavenPublication)
-
-                project.plugins.withType(WarPlugin) {
-                    component = 'web'
-                    def publications = pubExt.publications
-                    publications.remove(publications.findByName("mavenJava"))
-                    MavenPublication webPub = publications.create("maven${component.capitalize()}", MavenPublication)
-                    webPub.from(project.components.getByName(component))
-                }
-
-                project.plugins.withType(JavaPlugin) {
-                    javaPub.from(project.components.getByName(component))
-                }
-
+                pubExt.publications.create("mavenNebula", MavenPublication)
                 excludes()
-
                 installTask(pubExt)
             }
         })
@@ -148,10 +151,44 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     void installTask(PublishingExtension pubExt) {
         pubExt.repositories.mavenLocal()
 
-        project.tasks.create(name: 'install', dependsOn: "publishMaven${component.capitalize()}PublicationToMavenLocal") << {
+        project.tasks.create(name: 'install', dependsOn: "publishMavenNebulaPublicationToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
         }
+    }
+
+    /**
+     * Note: This logic was pulled from the DefaultMavenPublication.from method.
+     * @param pub
+     * @param component
+     */
+    public void fromSoftwareComponent(DefaultMavenPublication pub, CustomSoftwareComponent component) {
+
+        component.usages.all{ Usage usage ->
+            usage.artifacts.each{ PublishArtifact publishArtifact ->
+                MavenArtifact existingArtifact = pub.artifacts.find{ it.extension == publishArtifact.extension && it.classifier == publishArtifact.classifier }
+                if( !existingArtifact ) {
+                    pub.artifact(publishArtifact)
+                }
+            }
+
+            usage.dependencies.each{ ModuleDependency dependency ->
+                if (dependency instanceof ProjectDependency) {
+                    addProjectDependency(pub, (ProjectDependency) dependency)
+                } else {
+                    addModuleDependency(pub, dependency)
+                }
+            }
+        }
+    }
+
+    private void addProjectDependency(DefaultMavenPublication pub, ProjectDependency dependency) {
+        ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
+        pub.runtimeDependencies.add(new DefaultMavenDependency(identifier.group, identifier.name, identifier.version));
+    }
+
+    private void addModuleDependency(DefaultMavenPublication pub, ModuleDependency dependency) {
+        pub.runtimeDependencies.add(new DefaultMavenDependency(dependency.group, dependency.name, dependency.version, dependency.artifacts));
     }
 
 }
