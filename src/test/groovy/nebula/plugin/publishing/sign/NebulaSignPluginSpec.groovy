@@ -69,13 +69,13 @@ class NebulaSignPluginSpec extends ProjectSpec {
             compile 'asm:asm:3.1'
         }
         project.evaluate()
-        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenJavaPublication')
+        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenNebulaPublication')
         generateTask.doGenerate()
 
         then:
-        MavenPublication mavenJava = project.publishing.publications.getByName('mavenJava')
-        mavenJava.groupId == 'test'
-        mavenJava.artifacts.size() == 3 // .jar .jar.asc .pom
+        MavenPublication mavenNebula = project.publishing.publications.getByName('mavenNebula')
+        mavenNebula.groupId == 'test'
+        mavenNebula.artifacts.size() == 4 // .jar .jar.asc .pom .pom.asc
 
         def pom = generateTask.destination.text
         pom.contains("<packaging>asm</packaging>") || !pom.contains('<packaging>')

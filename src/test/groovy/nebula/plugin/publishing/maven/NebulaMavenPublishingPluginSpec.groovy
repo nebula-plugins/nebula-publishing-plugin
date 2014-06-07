@@ -23,7 +23,7 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
         project.evaluate()
 
         then:
-        MavenPublication mavenJava = project.publishing.publications.getByName('mavenJava')
+        MavenPublication mavenJava = project.publishing.publications.getByName('mavenNebula')
         mavenJava.groupId == 'group2'
     }
 
@@ -31,7 +31,7 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
         when:
         project.plugins.apply(NebulaMavenPublishingPlugin)
         project.evaluate()
-        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenJavaPublication')
+        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenNebulaPublication')
         generateTask.doGenerate()
 
         then:
@@ -47,7 +47,7 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
             compile 'asm:asm:3.1'
         }
         project.evaluate()
-        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenJavaPublication')
+        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenNebulaPublication')
         generateTask.doGenerate()
 
         then:
@@ -68,7 +68,7 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
             }
         }
         project.evaluate()
-        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenJavaPublication')
+        GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenNebulaPublication')
         generateTask.doGenerate()
 
         then:
@@ -95,7 +95,7 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
         project.publishing.publications.size() == 1
 
         and: 'the mavenWeb publication is configured properly'
-        project.publishing.publications.getByName('mavenWeb').artifacts.size() == 1
+        project.publishing.publications.getByName('mavenNebula').artifacts.size() == 1
     }
 
     def 'web component wins if added after java component'() {
@@ -113,6 +113,6 @@ class NebulaMavenPublishingPluginSpec extends ProjectSpec {
 
         then: 'the mavenWeb publication is configured properly'
         project.publishing.publications.size() == 1
-        project.publishing.publications.getByName('mavenWeb').artifacts.size() == 1
+        project.publishing.publications.getByName('mavenNebula').artifacts.size() == 1
     }
 }
