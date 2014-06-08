@@ -37,13 +37,14 @@ class ResolvedMavenPlugin implements Plugin<Project> {
     def resolved() {
         project.plugins.withType(JavaPlugin) { // Wait for runtime conf
             basePlugin.withMavenPublication { DefaultMavenPublication mavenJava ->
-                Configuration runtimeConfiguration = project.configurations.getByName('runtime')
-                ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
-                Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
-                    [versionResult.moduleVersion.module, versionResult]
-                }
 
                 mavenJava.pom.withXml { XmlProvider xmlProvider ->
+                
+                    Configuration runtimeConfiguration = project.configurations.getByName('runtime')
+                    ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
+                    Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
+                        [versionResult.moduleVersion.module, versionResult]
+                    }
                     Node root = xmlProvider.asNode()
                     root?.dependencies?.dependency.each { Node dep ->
                         def org = dep.groupId.text()

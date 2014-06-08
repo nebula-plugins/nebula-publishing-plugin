@@ -193,4 +193,53 @@ class ResolvedIvyPluginIntSpec extends IntegrationSpec {
         dd.dependencyId.organisation == 'com.google.template'
         dd.dependencyRevisionId.revision == '2012-12-21'
     }
+
+    def 'handle 1.0-r706900_3 version'() {
+        buildFile << '''
+            repositories { jcenter() }
+
+            apply plugin: 'java'
+            apply plugin: 'ivy-publish'
+            apply plugin: 'resolved-ivy'
+
+            group='test'
+            version = '1.1.1'
+
+            dependencies {
+                compile 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.commons-csv:1.0-r706900_3'
+            }
+
+            configurations {
+                distribute.extendsFrom(archives)
+            }
+
+            publishing {
+                publications {
+                    java(IvyPublication) {
+                        from components.java
+                    }
+                }
+            }
+
+            publishing {
+                repositories {
+                    ivy {
+                        url "file://$buildDir/repo"
+                    }
+                }
+            }
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('publish')
+
+        then:
+        File ivyxml = new File(projectDir, 'build/repo/test/handle-1-0-r706900-version/1.1.1/ivy-1.1.1.xml')
+        ivyxml.exists()
+        ModuleDescriptor md = IvyHacker.readModuleDescriptor(ivyxml)
+
+        // dependencies
+        DependencyDescriptor dd = md.getDependencies().find { it.dependencyId.name == 'org.apache.servicemix.bundles.commons-csv'}
+        dd.dependencyRevisionId.revision == '1.0-r706900_3'
+    }
 }

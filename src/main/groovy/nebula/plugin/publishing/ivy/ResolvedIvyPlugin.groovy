@@ -59,12 +59,9 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                         def id = new DefaultModuleIdentifier(dep.@org, dep.@name)
                         def confs = extractConfs(dep.@conf)
                         def results = confs.collect { perConfigResolutionMap[it][id] }.findAll { it != null }
-                        def versionMap = results.collectEntries { [VersionFactory.create(it.selected.id.version), it] }
-                        def versionMax = versionMap.keySet().max()
-                        def versionResult = versionMap[versionMax]
 
-                        if (versionResult != null) {
-                            def version = versionResult.selected.id.version
+                        if (!results.isEmpty()) {
+                            def version = results[0].selected.id.version
                             def oldVersion = dep.@rev
                             if (oldVersion != version) {
                                 dep.@revConstraint = oldVersion
