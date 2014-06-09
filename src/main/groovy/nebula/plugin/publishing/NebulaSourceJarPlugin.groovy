@@ -33,12 +33,6 @@ class NebulaSourceJarPlugin implements Plugin<Project>{
             project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(conf)
 
             CustomComponentPlugin.addArtifact(project, conf.name, jarTask, 'sources')
-
-            project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
-                it.withMavenPublication { mavenPub ->
-                    mavenPub.artifact(jarTask)
-                }
-            }
         }
     }
 }

@@ -37,12 +37,6 @@ class NebulaJavadocJarPlugin implements Plugin<Project>{
             project.configurations.getByName(Dependency.ARCHIVES_CONFIGURATION).extendsFrom(conf)
 
             CustomComponentPlugin.addArtifact(project, conf.name, jarTask, 'javadoc')
-
-            project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
-                it.withMavenPublication { mavenPub ->
-                    mavenPub.artifact(jarTask)
-                }
-            }
         }
     }
 

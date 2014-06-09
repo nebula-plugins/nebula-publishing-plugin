@@ -9,7 +9,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.PublishArtifact
-import org.gradle.api.internal.DefaultDomainObjectSet
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
 import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact
 import org.gradle.api.logging.Logger
@@ -45,7 +44,7 @@ class CustomComponentPlugin implements Plugin<Project> {
         project.plugins.apply(ConfsVisiblePlugin)
 
         // Create the NamedDomainObjectContainers
-        usages = new DefaultDomainObjectSet<CustomUsage>(CustomUsage)
+        usages = new HashSafeDomainObjectSet<CustomUsage>(CustomUsage)
 
         // Create and install the extension object
         // TODO Why is this better than project.extensions.create?
