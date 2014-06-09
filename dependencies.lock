@@ -1,0 +1,4 @@
+{
+  "com.netflix.nebula:nebula-core": { "locked": "1.12.0-RC2", "requested": "1.12.+" },
+  "com.netflix.nebula:nebula-test": { "locked": "1.12.0-RC3", "requested": "1.12.+" }
+}
