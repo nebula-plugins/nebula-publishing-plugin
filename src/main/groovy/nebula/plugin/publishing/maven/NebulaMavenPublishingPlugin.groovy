@@ -52,12 +52,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
 
         project.plugins.apply(ResolvedMavenPlugin)
 
-        project.plugins.withType(WarPlugin) {
-            basePlugin.withMavenPublication { MavenPublication mavenPublication ->
-                MavenArtifact artifactToRemove = mavenPublication.artifacts.find{ it.extension == 'jar' && it.classifier == null }
-                mavenPublication.artifacts.remove(artifactToRemove)
-            }
-        }
+        cleanupMavenArtifacts()
     }
 
     /**
@@ -154,6 +149,19 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         project.tasks.create(name: 'install', dependsOn: "publishMavenNebulaPublicationToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
+        }
+    }
+
+    /**
+     * Ensures that no plugin will come in and add a jar artifact to the MavenPublication that will cause a war
+     * publication to fail.
+     */
+    private void cleanupMavenArtifacts() {
+        project.plugins.withType(WarPlugin) {
+            basePlugin.withMavenPublication { MavenPublication mavenPublication ->
+                MavenArtifact artifactToRemove = mavenPublication.artifacts.find{ it.extension == 'jar' && it.classifier == null }
+                mavenPublication.artifacts.remove(artifactToRemove)
+            }
         }
     }
 
