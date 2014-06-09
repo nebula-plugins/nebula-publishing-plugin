@@ -6,7 +6,9 @@ import org.apache.ivy.core.module.descriptor.DependencyDescriptor
 import org.apache.ivy.core.module.descriptor.ModuleDescriptor
 
 class ResolvedIvyPluginIntSpec extends IntegrationSpec {
+
     def ivyLocation = 'build/publications/nebula/ivy.xml'
+
     def 'produces md after resolution'() {
         writeHelloWorld('nebula.hello')
         buildFile << '''
@@ -57,83 +59,54 @@ class ResolvedIvyPluginIntSpec extends IntegrationSpec {
         pom.dependencies.dependency.@rev == '2.2.3'
     }
 
-    def 'confirm task exists'() {
-        setup:
-        buildFile << '''
-apply plugin: 'java'
-apply plugin: 'resolved-ivy'
-apply plugin: 'ivy-publish'
-
-repositories { jcenter() }
-
-publishing {
-    publications {
-        java(IvyPublication) {
-            from components.java
-        }
-    }
-}
-'''
-
-        when:
-        def result = analyze('generateDescriptorFileForJavaPublication')
-
-        then:
-        def project = result.gradle.getRootProject()
-        project.plugins.hasPlugin(ResolvedIvyPlugin)
-
-        result.gradle.taskGraph.hasTask(':generateDescriptorFileForJavaPublication')
-    }
-
     def 'inspect output'() {
         buildFile << '''
-apply plugin: 'java'
-apply plugin: 'ivy-publish'
-apply plugin: 'resolved-ivy'
+            apply plugin: 'java'
+            apply plugin: 'ivy-publish'
+            apply plugin: 'resolved-ivy'
 
-repositories { jcenter() }
+            repositories { jcenter() }
 
-group='test'
-version = '1.1.1'
+            group='test'
+            version = '1.1.1'
 
-dependencies {
-    compile(
-        [group: 'commons-collections', name: 'commons-collections', version: '3.2.+'],
-        [group: 'commons-configuration', name: 'commons-configuration', version: '1.+'],
-    )
-    testCompile(
-        [group: 'junit', name: 'junit', version: '4.+'],
-    )
-}
+            dependencies {
+                compile(
+                    [group: 'commons-collections', name: 'commons-collections', version: '3.2.+'],
+                    [group: 'commons-configuration', name: 'commons-configuration', version: '1.+'],
+                )
+                testCompile(
+                    [group: 'junit', name: 'junit', version: '4.+'],
+                )
+            }
 
-configurations {
-    distribute.extendsFrom(archives)
-}
+            configurations {
+                distribute.extendsFrom(archives)
+            }
 
-publishing {
-    publications {
-        java(IvyPublication) {
-            from components.java
-        }
-    }
-}
+            publishing {
+                publications {
+                    java(IvyPublication) {
+                        from components.java
+                    }
+                }
+            }
 
-publishing {
-    repositories {
-        ivy {
-            url "file://$buildDir/repo"
-        }
-    }
-}
-'''
+            publishing {
+                repositories {
+                    ivy {
+                        url "file://$buildDir/repo"
+                    }
+                }
+            }
+            '''.stripIndent()
 
         when:
         def result = runTasksSuccessfully('publish')
 
         then:
-        def project = result.gradle.getRootProject()
-        def distTask = project.getTasks().getByName('publishJavaPublicationToIvyRepository')
-        File ivyxml = new File(new File(distTask.repository.url), 'test/inspect-output/1.1.1/ivy-1.1.1.xml')
+        result.wasExecuted(':publishJavaPublicationToIvyRepository')
+        File ivyxml = new File(projectDir, 'build/repo/test/inspect-output/1.1.1/ivy-1.1.1.xml')
         ivyxml.exists()
 
         // Confirm contents
@@ -208,12 +181,10 @@ publishing {
         '''.stripIndent()
 
         when:
-        def result = runTasksSuccessfully('publish')
+        runTasksSuccessfully('publish')
 
         then:
-        def project = result.gradle.getRootProject()
-        def distTask = project.getTasks().getByName('publishJavaPublicationToIvyRepository')
-        File ivyxml = new File(new File(distTask.repository.url), 'test/handle-date-strings/1.1.1/ivy-1.1.1.xml')
+        File ivyxml = new File(projectDir, 'build/repo/test/handle-date-strings/1.1.1/ivy-1.1.1.xml')
         ivyxml.exists()
         ModuleDescriptor md = IvyHacker.readModuleDescriptor(ivyxml)
 
@@ -260,12 +231,10 @@ publishing {
         '''.stripIndent()
 
         when:
-        def result = runTasksSuccessfully('publish')
+        runTasksSuccessfully('publish')
 
         then:
-        def project = result.gradle.getRootProject()
-        def distTask = project.getTasks().getByName('publishJavaPublicationToIvyRepository')
-        File ivyxml = new File(new File(distTask.repository.url), 'test/handle-1-0-r706900-version/1.1.1/ivy-1.1.1.xml')
+        File ivyxml = new File(projectDir, 'build/repo/test/handle-1-0-r706900-version/1.1.1/ivy-1.1.1.xml')
         ivyxml.exists()
         ModuleDescriptor md = IvyHacker.readModuleDescriptor(ivyxml)
 

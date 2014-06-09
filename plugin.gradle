@@ -1,20 +1,12 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.11' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.+' } // TODO Use a 1.12 based plugin-plugin
+    dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.12.+' }
 }
 
 description 'Gradle plugin to publish to bintray'
 apply plugin: 'nebula-plugin'
 apply plugin: 'idea'
-
-release {
-    git.pushToCurrentBranch = true
-}
-
-dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.9.+'
-    testCompile 'com.netflix.nebula:nebula-test:1.9.+'
-}
 
 contacts {
     'justin@halfempty.org' {
@@ -26,3 +18,14 @@ contacts {
         github 'rspieldenner'
     }
 }
+
+release {
+    git.pushToCurrentBranch = true
+}
+
+dependencies {
+    compile 'com.netflix.nebula:nebula-core:1.12.+'
+    testCompile 'com.netflix.nebula:nebula-test:1.12.+'
+}
+
+createWrapper.gradleVersion = '1.12'
