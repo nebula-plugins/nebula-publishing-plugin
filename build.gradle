@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.0-RC2' } // TODO Use a 1.12 based plugin-plugin
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.1' }
     dependencies { classpath 'com.netflix.nebula:nebula-publishing-plugin:1.12.+' }
 }
 
