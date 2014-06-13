@@ -11,7 +11,7 @@ import org.gradle.api.internal.CompositeDomainObjectSet
 import org.gradle.api.internal.artifacts.DefaultDependencySet
 import org.gradle.api.internal.component.Usage
 
-@Canonical
+@Canonical( excludes = "deferredDependencies" )
 class CustomUsage implements Usage {
     final String confName
     final Set<PublishArtifact> artifacts
