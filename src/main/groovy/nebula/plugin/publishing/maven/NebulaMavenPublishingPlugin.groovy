@@ -25,6 +25,7 @@ import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.dependencies.DefaultMavenDependency
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
+import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 
 /**
  * Opininated plugin that creates a default publication called mavenNebula
@@ -170,7 +171,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
      * @param pub
      * @param component
      */
-    public void fromSoftwareComponent(DefaultMavenPublication pub, CustomSoftwareComponent component) {
+    public void fromSoftwareComponent(MavenPublication pub, CustomSoftwareComponent component) {
 
         component.usages.all{ Usage usage ->
             usage.artifacts.each{ PublishArtifact publishArtifact ->
@@ -190,13 +191,13 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    private void addProjectDependency(DefaultMavenPublication pub, ProjectDependency dependency) {
+    private void addProjectDependency(MavenPublication pub, ProjectDependency dependency) {
         ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
-        pub.runtimeDependencies.add(new DefaultMavenDependency(identifier.group, identifier.name, identifier.version));
+        ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(identifier.group, identifier.name, identifier.version));
     }
 
-    private void addModuleDependency(DefaultMavenPublication pub, ModuleDependency dependency) {
-        pub.runtimeDependencies.add(new DefaultMavenDependency(dependency.group, dependency.name, dependency.version, dependency.artifacts));
+    private void addModuleDependency(MavenPublication pub, ModuleDependency dependency) {
+        ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(dependency.group, dependency.name, dependency.version, dependency.artifacts));
     }
 
 }
