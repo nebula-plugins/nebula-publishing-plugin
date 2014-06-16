@@ -4,7 +4,7 @@ import nebula.test.IntegrationSpec
 
 class ResolvedMavenPluginIntSpec extends IntegrationSpec {
 
-    def pomLocation = 'build/publications/mavenJava/pom-default.xml'
+    def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
 
     def 'produces pom after resolution'() {
         writeHelloWorld('nebula.hello')
@@ -22,7 +22,7 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForMavenJavaPublication')
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
 
         then:
         fileExists(pomLocation)
@@ -47,7 +47,7 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForMavenJavaPublication')
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
 
         then:
         fileExists(pomLocation)

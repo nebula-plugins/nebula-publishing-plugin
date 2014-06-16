@@ -1,5 +1,8 @@
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.component.CustomComponentPlugin
+import nebula.plugin.publishing.component.CustomSoftwareComponent
+import nebula.plugin.publishing.component.CustomUsage
 import nebula.plugin.publishing.xml.NodeEnhancement
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -8,17 +11,24 @@ import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.PublishArtifact
+import org.gradle.api.internal.component.Usage
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.internal.ProjectDependencyPublicationResolver
+import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.internal.dependencies.DefaultMavenDependency
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 
 /**
- * Opininated plugin that creates a default publication called mavenJava
+ * Opininated plugin that creates a default publication called mavenNebula
  * TODO Break into smaller plugins
  */
 class NebulaMavenPublishingPlugin implements Plugin<Project> {
@@ -32,61 +42,49 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         this.project = project
 
         basePlugin = (NebulaBaseMavenPublishingPlugin) project.plugins.apply(NebulaBaseMavenPublishingPlugin)
-        project.plugins.apply(MavenPublishPlugin) // redundant given above
 
-        // Creating the publication, essentially we're creating this:
-        //        project.publishing {
-        //            repositories {
-        //                mavenLocal()
-        //            }
-        //            publications {
-        //                mavenJava(MavenPublication) {
-        //                    from project.components.java
-        //                }
-        //            }
-        //        }
-
-        project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
-            @Override
-            void execute(PublishingExtension pubExt) {
-
-                pubExt.publications.create('mavenJava', MavenPublication)
-
-                excludes()
-
-                // Make sure we have somewhere to publish to
-                installTask(pubExt)
-
-            }
-        })
-
-        project.plugins.withType(JavaPlugin) {
-            includeJavaComponent()
+        def customComponentPlugin = project.plugins.apply(CustomComponentPlugin)
+        basePlugin.withMavenPublication { MavenPublication mavenPub ->
+            fromSoftwareComponent(mavenPub, customComponentPlugin.component)
         }
-        project.plugins.withType(WarPlugin) {
-            includeWarComponent()
-        }
+
+        configurePublishingExtension()
         refreshDescription()
 
         project.plugins.apply(ResolvedMavenPlugin)
+
+        cleanupMavenArtifacts()
     }
 
-    def includeJavaComponent() {
-        basePlugin.withMavenPublication { MavenPublication t ->
-            def javaComponent = project.components.getByName('java')
-            t.from(javaComponent)
-        }
+    /**
+     * Creates a publication based on the plugins that have been applied.  Currently only supports the JavaPlugin and
+     * the WarPlugin.  This block essentially does the same as this Gradle DSL block:
+     *        project.publishing {
+     *            repositories {
+     *                mavenLocal()
+     *            }
+     *            publications {
+     *                mavenJava(MavenPublication) {
+     *                    from project.components.java
+     *                }
+     *            }
+     *        }
+     */
+    void configurePublishingExtension() {
+        project.getExtensions().configure(PublishingExtension, new Action<PublishingExtension>() {
+            @Override
+            void execute(PublishingExtension pubExt) {
+                pubExt.publications.create("mavenNebula", MavenPublication)
+                excludes()
+                installTask(pubExt)
+            }
+        })
     }
 
-    def includeWarComponent() {
-        basePlugin.withMavenPublication { MavenPublication t ->
-            def webComponent = project.components.getByName('web')
-            // TODO Include deps somehow
-            t.from(webComponent)
-        }
-    }
-
-    def refreshDescription() {
+    /**
+     * Updates the publication's pom file with the project.name and project.description from Gradle.
+     */
+    void refreshDescription() {
         basePlugin.withMavenPublication { MavenPublication t ->
             t.pom.withXml(new Action<XmlProvider>() {
                 @Override
@@ -140,16 +138,66 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    def installTask(PublishingExtension pubExt) {
-        // Mimic, mvn install task
-
+    /**
+     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.  This will also make sure that
+     * there at least one publish tasks created if there aren't any repositories defined.
+     *
+     * @param pubExt the PublishingExtension instance to add the repository to
+     */
+    void installTask(PublishingExtension pubExt) {
         pubExt.repositories.mavenLocal()
 
-        project.tasks.create(name: 'install', dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
-            // TODO Correct the name to which we really published to
+        project.tasks.create(name: 'install', dependsOn: "publishMavenNebulaPublicationToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
         }
+    }
+
+    /**
+     * Ensures that no plugin will come in and add a jar artifact to the MavenPublication that will cause a war
+     * publication to fail.
+     */
+    private void cleanupMavenArtifacts() {
+        project.plugins.withType(WarPlugin) {
+            basePlugin.withMavenPublication { MavenPublication mavenPublication ->
+                MavenArtifact artifactToRemove = mavenPublication.artifacts.find{ it.extension == 'jar' && it.classifier == null }
+                mavenPublication.artifacts.remove(artifactToRemove)
+            }
+        }
+    }
+
+    /**
+     * Note: This logic was pulled from the DefaultMavenPublication.from method.
+     * @param pub
+     * @param component
+     */
+    public void fromSoftwareComponent(MavenPublication pub, CustomSoftwareComponent component) {
+
+        component.usages.all{ Usage usage ->
+            usage.artifacts.each{ PublishArtifact publishArtifact ->
+                MavenArtifact existingArtifact = pub.artifacts.find{ it.extension == publishArtifact.extension && it.classifier == publishArtifact.classifier }
+                if( !existingArtifact ) {
+                    pub.artifact(publishArtifact)
+                }
+            }
+
+            usage.dependencies.each{ ModuleDependency dependency ->
+                if (dependency instanceof ProjectDependency) {
+                    addProjectDependency(pub, (ProjectDependency) dependency)
+                } else {
+                    addModuleDependency(pub, dependency)
+                }
+            }
+        }
+    }
+
+    private void addProjectDependency(MavenPublication pub, ProjectDependency dependency) {
+        ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
+        ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(identifier.group, identifier.name, identifier.version));
+    }
+
+    private void addModuleDependency(MavenPublication pub, ModuleDependency dependency) {
+        ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(dependency.group, dependency.name, dependency.version, dependency.artifacts));
     }
 
 }
