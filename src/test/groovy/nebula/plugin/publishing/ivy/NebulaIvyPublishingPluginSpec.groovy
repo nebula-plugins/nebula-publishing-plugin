@@ -5,7 +5,6 @@ import nebula.plugin.publishing.NebulaSourceJarPlugin
 import nebula.plugin.publishing.NebulaTestJarPlugin
 import nebula.test.ProjectSpec
 import org.apache.commons.lang3.reflect.FieldUtils
-import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublicationIdentity
 import org.gradle.api.publish.ivy.tasks.GenerateIvyDescriptor
@@ -60,10 +59,10 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         generateTask.doGenerate()
 
         then:
-        def pom = generateTask.destination.text
-        pom.contains('<description>Description</description>')
-        pom.contains('organisation="test"')
-        pom.contains('org="asm" name="asm"')
+        def ivy = generateTask.destination.text
+        ivy.contains('<description>Description</description>')
+        ivy.contains('organisation="test"')
+        ivy.contains('org="asm" name="asm"')
     }
 
     /**
@@ -87,8 +86,8 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
 
         then:
         println generateTask.destination.text
-        def pom = new XmlSlurper().parse(generateTask.destination)
-        def deps = pom.dependencies.dependency
+        def ivy = new XmlSlurper().parse(generateTask.destination)
+        def deps = ivy.dependencies.dependency
         deps.find { it.@org == 'asm' && it.@name == 'asm'}
         def httpclient = deps.find { it.@name == 'httpclient' }
         httpclient.exclude.find { it.@module == 'httpcore' && it.@org == 'org.apache.httpcomponents' }
@@ -116,8 +115,8 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
 
         then:
         println generateTask.destination.text
-        def pom = new XmlSlurper().parse(generateTask.destination)
-        def artifacts = pom.publications.artifact
+        def ivy = new XmlSlurper().parse(generateTask.destination)
+        def artifacts = ivy.publications.artifact
 
         artifacts.size() == 4
         def correctName = artifacts.findAll { it.@name == canonicalName }
