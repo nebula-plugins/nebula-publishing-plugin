@@ -32,14 +32,14 @@ class ResolvedIvyPlugin implements Plugin<Project> {
         basePlugin.withIvyPublication {
             descriptor {
                 withXml {
-                    def perConfigResolutionMap = project.configurations.collectEntries { conf ->
+                    def perConfigResolutionMap = project.configurations.collectEntries({ conf ->
                         ResolutionResult resolution = conf.incoming.resolutionResult // Forces resolve of configuration
-                        def resolutionMap = resolution.getAllDependencies().findAll { it instanceof ResolvedDependencyResult }.collectEntries {ResolvedDependencyResult versionResult ->
+                        def resolutionMap = resolution.getAllDependencies().findAll { it instanceof ResolvedDependencyResult }.collectEntries { ResolvedDependencyResult versionResult ->
                             // DefaultModuleComponentIdentifier is a ModuleComponentIdentifier
                             return [versionResult.selected.moduleVersion.module, versionResult]
                         }
                         [conf.name, resolutionMap]
-                    }
+                    })
 
                     def md = asNode()
 
@@ -61,7 +61,7 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                         def results = confs.collect { perConfigResolutionMap[it][id] }.findAll { it != null }
 
                         if (!results.isEmpty()) {
-                            def version = results[0].selected.id.version
+                            def version = ((ResolvedDependencyResult) results[0]).selected.moduleVersion.version
                             def oldVersion = dep.@rev
                             if (oldVersion != version) {
                                 dep.@revConstraint = oldVersion
