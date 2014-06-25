@@ -9,7 +9,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.Signature
 import org.gradle.plugins.signing.SigningPlugin
@@ -105,20 +107,37 @@ class NebulaSignPlugin implements Plugin<Project> {
 
             // Have GenerateMavenPom have a destination that we can sign, with a nice name
             def pubName = (pomGenerator.name =~ /For(.*)Publication/)[0][1]
-            pomGenerator.destination = project.file("${project.buildDir}/poms/${WordUtils.uncapitalize(pubName)}.pom")
+
+            final def pomDestination = project.file("${project.buildDir}/poms/${WordUtils.uncapitalize(pubName)}.pom")
+            pomGenerator.destination = pomDestination
+
             AlternativeArchiveTask wrappedPom = project.tasks.create(taskName, AlternativeArchiveTask, new Action<AlternativeArchiveTask>() {
 
                 @Override
                 void execute(AlternativeArchiveTask t) {
                     t.dependsOn(pomGenerator)
 
-                    def outputFile = pomGenerator.destination
-                    t.setDestinationDir(outputFile.parentFile)
-                    t.setArchiveName(outputFile.name)
+                    t.setDestinationDir(pomDestination.parentFile)
+                    t.setArchiveName(pomDestination.name)
                     t.setExtension('pom')
                 }
             })
-            CustomComponentPlugin.addArtifact(project, 'pom', wrappedPom, 'pom')
+
+            // Add wrappedPom to pom configurations
+            project.artifacts.add('pom', CustomComponentPlugin.wrapTaskAsArtifact(wrappedPom, 'pom'))
+
+            project.plugins.withType(NebulaBaseMavenPublishingPlugin) { NebulaBaseMavenPublishingPlugin basePlugin ->
+                basePlugin.withMavenPublication { MavenPublication mavenJava ->
+                    // Instead of creating a new Usage, set the POM. Otherwise ValidatingMavenPublisher will pick
+                    // up on the pom artifact and throw an exception in checkNoDuplicateArtifacts
+                    ((DefaultMavenPublication) mavenJava).setPomFile( project.files(pomDestination) )
+
+                    project.tasks.matching { it instanceof PublishToMavenRepository && it.publication == mavenJava }.all {
+                        // Since the publication now requires our POM, we need to generate it first
+                        it.dependsOn wrappedPom
+                    }
+                }
+            }
         }
 
     }

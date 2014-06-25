@@ -75,7 +75,7 @@ class NebulaSignPluginSpec extends ProjectSpec {
         then:
         MavenPublication mavenNebula = project.publishing.publications.getByName('mavenNebula')
         mavenNebula.groupId == 'test'
-        mavenNebula.artifacts.size() == 4 // .jar .jar.asc .pom .pom.asc
+        mavenNebula.artifacts.size() == 3 // .jar .jar.asc .pom.asc
 
         def pom = generateTask.destination.text
         pom.contains("<packaging>asm</packaging>") || !pom.contains('<packaging>')

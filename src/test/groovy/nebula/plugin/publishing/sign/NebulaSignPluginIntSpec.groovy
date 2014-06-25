@@ -1,47 +1,39 @@
 package nebula.plugin.publishing.sign
 
 import nebula.test.IntegrationSpec
+import spock.lang.Ignore
 
 class NebulaSignPluginIntSpec extends IntegrationSpec {
-    // I just can't get this to work via the GradleLauncher. Command line works fine.
-    /**
+
+    @Ignore('GRADLE-2999 We cant publish locally AND sign')
     def 'applies'() {
         writeHelloWorld('nebula.hello')
         directory('build/gpg')
-        copyResources('nebula/plugin/publishing/sign/test_sec.gpg', 'build/gpg/test_sec.gpg')
+        copyResources('nebula/plugin/publishing/sign/test_secring.gpg', 'build/gpg/test_sec.gpg')
         buildFile << '''
             ext.'signing.keyId' = '21239086'
             ext.'signing.password' = ''
             ext.'signing.secretKeyRingFile' = 'build/gpg/test_sec.gpg'
             version='1.0.0'
-            apply plugin: 'signing'
+            group='test'
+
             apply plugin: 'java'
+            apply plugin: 'nebula-sign'
+            apply plugin: 'nebula-source-jar'
+            apply plugin: 'nebula-maven-publishing'
+            apply plugin: 'nebula-maven-distribute'
 
-configurations {
-    jarholder
-}
-artifacts {
-    jarholder tasks.jar
-}
-            signing {
-                sign configurations.jarholder
-            }
-
-            //apply plugin: 'nebula-sign'
-            //apply plugin: 'nebula-source-jar'
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('build')
-//        runTasksSuccessfully('preparePublish')
+        runTasksSuccessfully('distribute')
 
         then:
-        fileExists('build/libs/applies-1.0.0.jar')
-        fileExists('build/libs/applies-1.0.0.jar.asc')
-        fileExists('build/libs/applies-1.0.0-sources.jar')
-        fileExists('build/libs/applies-1.0.0-sources.jar.asc')
-        fileExists('build/libs/applies-1.0.0.pom')
-        fileExists('build/libs/applies-1.0.0.pom.asc')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0.jar')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0.jar.asc')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0-sources.jar')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0-sources.jar.asc')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0.pom')
+        fileExists('distMaven/test/applies/1.0.0/applies-1.0.0.pom.asc')
     }
-     */
 }

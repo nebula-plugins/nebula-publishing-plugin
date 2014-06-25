@@ -159,8 +159,6 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.2'
 
-
-
             repositories { jcenter() }
             dependencies {
                 compile 'asm:asm:3.1'

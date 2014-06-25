@@ -43,12 +43,6 @@ class NebulaTestJarPlugin implements Plugin<Project>{
 
             CustomComponentPlugin.addArtifact(project, conf.name, jarTask, 'test-jar', testRuntimeConf)
 
-            project.plugins.withType(NebulaBaseMavenPublishingPlugin) {
-                it.withMavenPublication { mavenPub ->
-                    mavenPub.artifact(jarTask)
-                }
-            }
-
         }
     }
 }
