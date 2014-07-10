@@ -11,7 +11,7 @@ Provides publishing related plugins. Current plugins:
   * Updates versions in the pom to resolved version, if a dynamic version was used.
 * NebulaBaseMavenPublishingPlugin - Applies maven-publish plugin and provide a way of lazily contributing to a publication
 * 'nebula-publishing' - Currently only applies nebula-maven-publishing plugin and can contains a ivy plugin too someday
-* 'nebula-source' - Creates a sources jar, that contains the source files
-* 'nebula-javadoc' - Create a javadoc jar, that contains the html files from javadoc
-* 'nebula-test' - Creates a test jar, that contains test classes, and a "test" configuration that other projects can depend on
+* 'nebula-source-jar' - Creates a sources jar, that contains the source files
+* 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc
+* 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block.
 
