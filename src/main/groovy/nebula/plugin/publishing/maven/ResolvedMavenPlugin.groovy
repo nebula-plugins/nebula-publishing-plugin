@@ -39,7 +39,8 @@ class ResolvedMavenPlugin implements Plugin<Project> {
             basePlugin.withMavenPublication { DefaultMavenPublication mavenJava ->
 
                 mavenJava.pom.withXml { XmlProvider xmlProvider ->
-                
+
+                    // TODO We need to index by configuration, and correlate with scope
                     Configuration runtimeConfiguration = project.configurations.getByName('runtime')
                     ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
                     Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
@@ -49,6 +50,7 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                     root?.dependencies?.dependency.each { Node dep ->
                         def org = dep.groupId.text()
                         def name = dep.artifactId.text()
+                        def scope = dep.scope.text()
 
                         def id = new DefaultModuleIdentifier(org, name)
                         ResolvedComponentResult versionResult = resolutionMap.get(id)
