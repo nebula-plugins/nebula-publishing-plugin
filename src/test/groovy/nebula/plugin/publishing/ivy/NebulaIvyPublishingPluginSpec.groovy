@@ -126,4 +126,24 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         }
 
     }
+
+    def 'handle providedCompile'() {
+        project.group = 'test'
+        project.apply plugin: 'war'
+        project.plugins.apply(NebulaIvyPublishingPlugin)
+        project.dependencies {
+            providedCompile 'asm:asm:3.1'
+        }
+
+        when:
+        project.evaluate()
+        GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
+        generateTask.doGenerate()
+
+        then:
+        def ivy = new XmlSlurper().parse(generateTask.destination)
+        def deps = ivy.dependencies.dependency
+        def asm = deps.find { it?.@org == 'asm' && it?.@name == 'asm' }
+        asm?.@conf?.text() == 'provided'
+    }
 }
