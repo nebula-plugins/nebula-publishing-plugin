@@ -247,4 +247,27 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.war").exists()
     }
+
+    def 'handle providedCompile'() {
+        writeHelloWorld('nebula.hello')
+        buildFile << '''
+            apply plugin: 'war'
+            apply plugin: 'nebula-maven-publishing'
+            repositories { jcenter() }
+            dependencies {
+                providedCompile 'asm:asm:2.2.3'
+            }
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
+
+        then:
+        def pomFile = file('build/publications/mavenNebula/pom-default.xml')
+        pomFile.exists()
+        def pom = new XmlSlurper().parse(pomFile)
+        def deps = pom.dependencies.dependency
+        def asm = deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+        asm.scope == 'provided'
+    }
 }
