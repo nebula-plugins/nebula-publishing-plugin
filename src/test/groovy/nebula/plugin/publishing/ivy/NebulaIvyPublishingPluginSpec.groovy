@@ -4,12 +4,27 @@ import nebula.plugin.publishing.NebulaJavadocJarPlugin
 import nebula.plugin.publishing.NebulaSourceJarPlugin
 import nebula.plugin.publishing.NebulaTestJarPlugin
 import nebula.test.ProjectSpec
+import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublicationIdentity
 import org.gradle.api.publish.ivy.tasks.GenerateIvyDescriptor
 
 class NebulaIvyPublishingPluginSpec extends ProjectSpec {
+    static String repo
+    def setupSpec() {
+        def myGraph = [
+          'test.example:foo:3.1',
+          'dep:a:4.3.1',
+          'dep:b:1.1.3',
+          'bar:baz:4.3.1 -> dep:a:4.3.1|dep:b:1.1.3'
+        ]
+
+        def generator = new GradleDependencyGenerator(new DependencyGraph(myGraph), 'build/nebulaivypublishingpluginspec')
+        generator.generateTestIvyRepo()
+        repo = new File('build/nebulaivypublishingpluginspec/ivyrepo').absolutePath
+    }
 
     def 'apply plugin'() {
         when:
@@ -51,8 +66,11 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         project.description = 'Description'
         project.plugins.apply(NebulaIvyPublishingPlugin)
         project.apply plugin: 'java'
+
+        setupIvyRepository(project)        
+
         project.dependencies {
-            compile 'asm:asm:3.1'
+            compile 'test.example:foo:3.1'
         }
         project.evaluate()
         GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
@@ -62,7 +80,7 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         def ivy = generateTask.destination.text
         ivy.contains('<description>Description</description>')
         ivy.contains('organisation="test"')
-        ivy.contains('org="asm" name="asm"')
+        ivy.contains('org="test.example" name="foo"')
     }
 
     /**
@@ -73,11 +91,12 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         project.group = 'test'
         project.plugins.apply(NebulaIvyPublishingPlugin)
         project.apply plugin: 'java'
+        setupIvyRepository(project)
         project.dependencies {
-            compile 'asm:asm:3.1'
-            compile('org.apache.httpcomponents:httpclient:4.3.1') {
-                exclude group: 'org.apache.httpcomponents', module: 'httpcore'
-                exclude module: 'commons-logging'
+            compile 'test.example:foo:3.1'
+            compile('bar:baz:4.3.1') {
+                exclude group: 'dep', module: 'a'
+                exclude module: 'b'
             }
         }
         project.evaluate()
@@ -88,10 +107,10 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         println generateTask.destination.text
         def ivy = new XmlSlurper().parse(generateTask.destination)
         def deps = ivy.dependencies.dependency
-        deps.find { it.@org == 'asm' && it.@name == 'asm'}
-        def httpclient = deps.find { it.@name == 'httpclient' }
-        httpclient.exclude.find { it.@module == 'httpcore' && it.@org == 'org.apache.httpcomponents' }
-        httpclient.exclude.find { it.@module == 'commons-logging' }
+        deps.find { it.@org == 'test.example' && it.@name == 'foo'}
+        def httpclient = deps.find { it.@name == 'baz' }
+        httpclient.exclude.find { it.@module == 'a' && it.@org == 'dep' }
+        httpclient.exclude.find { it.@module == 'b' }
     }
 
     def 'md has other usages'() {
@@ -102,12 +121,12 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
         project.plugins.apply(NebulaTestJarPlugin)
         project.plugins.apply(NebulaSourceJarPlugin)
         project.apply plugin: 'java'
+        setupIvyRepository(project)
         project.dependencies {
-            compile 'asm:asm:3.1'
-            runtime 'org.apache.httpcomponents:httpclient:4.3.1'
-            testCompile 'org.apache.httpcomponents:httpcore:4.3.1'
-            testRuntime 'commons-logging:commons-logging:1.1.3'
-
+            compile 'test.example:foo:3.1'
+            runtime 'bar:baz:4.3.1'
+            testCompile 'dep:a:4.3.1'
+            testRuntime 'dep:b:1.1.3'
         }
         project.evaluate()
         GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
@@ -125,5 +144,60 @@ class NebulaIvyPublishingPluginSpec extends ProjectSpec {
             it.@type == 'javadoc' && it.@ext == 'jar' && it.@conf == 'javadoc' && it.@'e:classifier' == 'javadoc'
         }
 
+    }
+
+    def 'handle providedCompile'() {
+        project.group = 'test'
+        project.apply plugin: 'war'
+        project.plugins.apply(NebulaIvyPublishingPlugin)
+        setupIvyRepository(project)
+        project.dependencies {
+            providedCompile 'test.example:foo:3.1'
+        }
+
+        when:
+        project.evaluate()
+        GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
+        generateTask.doGenerate()
+
+        then:
+        def ivy = new XmlSlurper().parse(generateTask.destination)
+        def deps = ivy.dependencies.dependency
+        def foo = deps.find { it?.@org == 'test.example' && it?.@name == 'foo' }
+        foo?.@conf?.text() == 'provided'
+    }
+
+    def 'handle providedRuntime'() {
+        project.group = 'test'
+        project.apply plugin: 'war'
+        project.plugins.apply(NebulaIvyPublishingPlugin)
+        setupIvyRepository(project)
+        project.dependencies {
+            providedRuntime 'test.example:foo:3.1'
+        }
+
+        when:
+        project.evaluate()
+        GenerateIvyDescriptor generateTask = project.tasks.getByName('generateDescriptorFileForNebulaPublication')
+        generateTask.doGenerate()
+
+        then:
+        def ivy = new XmlSlurper().parse(generateTask.destination)
+        def deps = ivy.dependencies.dependency
+        def foo = deps.find { it?.@org == 'test.example' && it?.@name == 'foo' }
+        foo?.@conf?.text() == 'provided'
+    }
+
+    static def setupIvyRepository(toSetup) {
+        toSetup.repositories {
+            ivy {
+                url repo
+                layout('pattern') {
+                    ivy '[organisation]/[module]/[revision]/[module]-[revision]-ivy.[ext]'
+                    artifact '[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'
+                    m2compatible = true
+                }
+            }
+        }
     }
 }

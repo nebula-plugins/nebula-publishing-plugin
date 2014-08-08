@@ -132,7 +132,16 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                                 }
                             }
                         }
+                    }
 
+                    if (project.plugins.findPlugin(WarPlugin)) {
+                        asNode().dependencies.dependency.findAll {
+                            it.scope.text() == JavaPlugin.RUNTIME_CONFIGURATION_NAME && project.configurations.getByName('providedCompile').allDependencies.find { dep ->
+                                dep.name == it.artifactId.text()
+                            }
+                        }.each { runtimeDep ->
+                            runtimeDep.scope*.value = 'provided'
+                        }
                     }
                 }
             }
