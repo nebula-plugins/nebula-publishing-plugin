@@ -79,5 +79,4 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         then: 'the task completes successfully without any configuration failure.'
         notThrown(Exception)
     }
-
 }

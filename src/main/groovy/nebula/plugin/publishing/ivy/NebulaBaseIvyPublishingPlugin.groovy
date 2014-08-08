@@ -11,6 +11,7 @@ import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.internal.DefaultPublishingExtension
 import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
@@ -33,7 +34,30 @@ class NebulaBaseIvyPublishingPlugin implements Plugin<Project> {
         refreshCoordinate()
         refreshDescription(project)
         excludes()
+        handleProvidedConf()
+    }
 
+    def handleProvidedConf() {
+        project.plugins.withType(WarPlugin) {
+            def providedConf = 'provided'
+            withIvyPublication { DefaultIvyPublication publication ->
+                publication.descriptor.withXml {
+                    def rootNode = asNode()
+
+                    if(!rootNode.configurations.find { it.@name == providedConf }) {
+                        rootNode.configurations[0].appendNode('conf', [name: providedConf, visibility: 'public'])
+                    }
+
+                    rootNode.dependencies.dependency.findAll {
+                        it.@conf == 'webapp->default' && project.configurations.getByName('providedRuntime').allDependencies.find { dep ->
+                            dep.name == it.@name
+                        }
+                    }.each { runtimeDep ->
+                        runtimeDep.@conf = providedConf
+                    }
+                }
+            }
+        }
     }
 
     /**

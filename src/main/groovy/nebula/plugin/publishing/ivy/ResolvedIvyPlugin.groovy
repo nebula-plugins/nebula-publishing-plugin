@@ -58,7 +58,7 @@ class ResolvedIvyPlugin implements Plugin<Project> {
                     md?.dependencies?.dependency.each { dep ->
                         def id = new DefaultModuleIdentifier(dep.@org, dep.@name)
                         def confs = extractConfs(dep.@conf)
-                        def results = confs.collect { perConfigResolutionMap[it][id] }.findAll { it != null }
+                        def results = confs.collect { perConfigResolutionMap[it]?.get(id) }.findAll { it != null }
 
                         if (!results.isEmpty()) {
                             def version = ((ResolvedDependencyResult) results[0]).selected.moduleVersion.version

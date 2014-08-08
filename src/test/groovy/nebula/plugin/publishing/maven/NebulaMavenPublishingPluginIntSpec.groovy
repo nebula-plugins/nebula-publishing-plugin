@@ -1,6 +1,8 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationSpec
+import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.GradleDependencyGenerator
 import org.junit.Ignore
 
 /**
@@ -9,6 +11,17 @@ import org.junit.Ignore
 class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
 
     String mavenLocal = "${System.env['HOME']}/.m2/repository"
+
+    static String repo
+    def setupSpec() {
+        def myGraph = [
+          'test.example:foo:3.1'
+        ]
+
+        def generator = new GradleDependencyGenerator(new DependencyGraph(myGraph), 'build/nebulamavenpublishingpluginintspec')
+        generator.generateTestMavenRepo()
+        repo = new File('build/nebulamavenpublishingpluginintspec/mavenrepo').absolutePath
+    }
 
     def setup() {
         File toBeCleaned = new File("$mavenLocal/nebula/hello")
@@ -22,19 +35,19 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'nebula-maven-publishing'
             apply plugin: 'java'
 
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
 
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('publishToMavenLocal')
@@ -55,18 +68,18 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'java'
             apply plugin: 'nebula-maven-publishing'
 
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('publishToMavenLocal')
@@ -87,18 +100,18 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'war'
             apply plugin: 'nebula-maven-publishing'
 
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('publishToMavenLocal')
@@ -119,18 +132,18 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'nebula-maven-publishing'
             apply plugin: 'war'
 
             group = 'nebula.hello'
             version = '1.2'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('publishToMavenLocal')
@@ -151,7 +164,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'nebula-ivy-publishing'
             apply plugin: 'war'
             apply plugin: 'nebula-maven-publishing'
@@ -159,11 +172,11 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.2'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('publishToMavenLocal')
@@ -184,19 +197,19 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'nebula-maven-publishing'
             apply plugin: 'java'
 
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
 
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('install')
@@ -217,7 +230,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
-        buildFile << '''
+        buildFile << """
             apply plugin: 'java'
             apply plugin: 'nebula-javadoc-jar'
             apply plugin: 'nebula-source-jar'
@@ -227,12 +240,12 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { jcenter() }
+            repositories { maven { url '${repo}' } }
 
             dependencies {
-                compile 'asm:asm:3.1'
+                compile 'test.example:foo:3.1'
             }
-        '''.stripIndent()
+        """.stripIndent()
 
         when:
         def results = runTasksSuccessfully('install')
@@ -246,5 +259,28 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         and:
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.war").exists()
+    }
+
+    def 'handle providedCompile'() {
+        writeHelloWorld('nebula.hello')
+        buildFile << """
+            apply plugin: 'war'
+            apply plugin: 'nebula-maven-publishing'
+            repositories { maven { url '${repo}' } }
+            dependencies {
+                providedCompile 'test.example:foo:2.2.3'
+            }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
+
+        then:
+        def pomFile = file('build/publications/mavenNebula/pom-default.xml')
+        pomFile.exists()
+        def pom = new XmlSlurper().parse(pomFile)
+        def deps = pom.dependencies.dependency
+        def asm = deps.find { it.artifactId.text() == 'foo' && it.groupId.text() == 'test.example'}
+        asm.scope == 'provided'
     }
 }
