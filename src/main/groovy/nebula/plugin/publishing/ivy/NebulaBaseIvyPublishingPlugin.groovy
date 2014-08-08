@@ -31,7 +31,7 @@ class NebulaBaseIvyPublishingPlugin implements Plugin<Project> {
         project.plugins.apply(IvyPublishPlugin)
 
         refreshCoordinate()
-        refreshDescription()
+        refreshDescription(project)
         excludes()
 
     }
@@ -53,7 +53,7 @@ class NebulaBaseIvyPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    def refreshDescription() {
+    def refreshDescription(Project project) {
         withIvyPublication { IvyPublication t ->
             t.descriptor.withXml(new Action<XmlProvider>() {
                 @Override

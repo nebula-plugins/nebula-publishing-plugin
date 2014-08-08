@@ -31,8 +31,6 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
             ${applyPlugin(ContactsPlugin)}
             ${applyPlugin(NebulaMavenPublishingPlugin)}
 
-            apply plugin: 'nebula-publishing'
-            apply plugin: 'contacts'
             contacts {
                 'benny@company.com' { } // when in a contacts block everyone needs brackets
                 'bobby@company.com' {

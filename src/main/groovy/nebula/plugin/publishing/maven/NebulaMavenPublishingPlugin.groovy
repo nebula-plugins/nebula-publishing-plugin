@@ -49,9 +49,10 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
 
         configurePublishingExtension()
-        refreshDescription()
+        refreshDescription(project)
 
         project.plugins.apply(ResolvedMavenPlugin)
+        project.plugins.apply(PomDevelopersPlugin)
 
         cleanupMavenArtifacts()
     }
@@ -84,7 +85,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     /**
      * Updates the publication's pom file with the project.name and project.description from Gradle.
      */
-    void refreshDescription() {
+    void refreshDescription(Project project) {
         basePlugin.withMavenPublication { MavenPublication t ->
             t.pom.withXml(new Action<XmlProvider>() {
                 @Override

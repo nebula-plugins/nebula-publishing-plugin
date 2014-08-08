@@ -24,8 +24,10 @@ release {
 }
 
 dependencies {
-    compile 'com.netflix.nebula:nebula-core:1.12.+'
-    testCompile 'com.netflix.nebula:nebula-test:1.12.+'
+    compile 'com.netflix.nebula:nebula-core:2.0.+'
+    testCompile('com.netflix.nebula:nebula-test:2.0.+') {
+        exclude group: 'org.codehaus.groovy'
+    }
 }
 
-createWrapper.gradleVersion = '1.12'
+createWrapper.gradleVersion = '2.0'
