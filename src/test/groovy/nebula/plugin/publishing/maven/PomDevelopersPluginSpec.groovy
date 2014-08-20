@@ -20,6 +20,6 @@ import nebula.test.PluginProjectSpec
 class PomDevelopersPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'contacts-pom'
+        'nebula-maven-developers'
     }
 }
