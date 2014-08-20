@@ -148,15 +148,12 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     }
 
     /**
-     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.  This will also make sure that
-     * there at least one publish tasks created if there aren't any repositories defined.
+     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.
      *
      * @param pubExt the PublishingExtension instance to add the repository to
      */
     void installTask(PublishingExtension pubExt) {
-        pubExt.repositories.mavenLocal()
-
-        project.tasks.create(name: 'install', dependsOn: "publishMavenNebulaPublicationToMavenLocal") << {
+        project.tasks.create(name: 'install', dependsOn: "publishToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
         }
