@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.maven
-import nebula.plugin.contacts.ContactsPlugin
-import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.IntegrationSpec
 
 /**
@@ -28,9 +26,6 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
     def 'look in pom'() {
 
         buildFile << """
-            ${applyPlugin(ContactsPlugin)}
-            ${applyPlugin(NebulaMavenPublishingPlugin)}
-
             apply plugin: 'nebula-publishing'
             apply plugin: 'contacts'
             contacts {
