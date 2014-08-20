@@ -7,6 +7,7 @@ import org.apache.commons.lang3.text.WordUtils
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
@@ -52,14 +53,6 @@ class NebulaSignPlugin implements Plugin<Project> {
         // can be configured with other values, it's best to stick with these well known names.
 
         // Conditionalize the actual signing on having the property settings. Otherwise leave the
-        boolean hasSigningProps = project.hasProperty('signing.keyId') &&
-                project.hasProperty('signing.password') &&
-                project.hasProperty('signing.secretKeyRingFile')
-
-        // Provide two mechanism for avoiding signing.
-        // The first is just a backdoor-hatch incase it's just problematric for some.
-        boolean skipSigning = !hasSigningProps || (project.hasProperty('signing.skip') && Boolean.valueOf(project.skip)) || project.gradle.startParameter.taskNames.contains('install')
-
         // adding 'signing' plugin
         project.plugins.apply(SigningPlugin)
 
@@ -67,13 +60,10 @@ class NebulaSignPlugin implements Plugin<Project> {
         signJarsTask = project.tasks.create('signJars', Sign)
 
         // Conditionally sign.
-        if(!skipSigning) {
-            // Only try to sign a configuration if we've got keys, otherwise we'll get artifacts into the archives
-            // configurations with no bodies.
-            signJarsTask.sign(project.configurations.getByName('archives'))
-        } else {
-            // Otherwise it'll complain that it has no signatories, even though it doesn't need any
-            signJarsTask.required = false
+        project.gradle.taskGraph.whenReady {
+            // Waiting for taskGraph, so that we can look for tasks to skip on
+
+            signConfigurationOrNot(project, signJarsTask, project.gradle.taskGraph.allTasks)
         }
 
         // call signJar task before publish task, aka bintrayUpload
@@ -140,5 +130,30 @@ class NebulaSignPlugin implements Plugin<Project> {
             }
         }
 
+    }
+
+    def signConfigurationOrNot(Project project, Sign signJarsTask, List<Task> allTasks) {
+        // Provide two mechanism for avoiding signing.
+        // The first is just a backdoor-hatch in-case it's just problematic for some.
+
+        boolean hasSigningProps = project.hasProperty('signing.keyId') &&
+                project.hasProperty('signing.password') &&
+                project.hasProperty('signing.secretKeyRingFile')
+
+        boolean skipProperty = (project.hasProperty('signing.skip') && Boolean.valueOf(project.property('signing-skip').toString()))
+        // We know that the AbstractAntTaskBackedMavenPublisher is used for local files, and it will reject out publications
+        // an InvalidMavenPublicationException. So we skip signing if we see a task that would trigger that publisher.
+        boolean skipOnTask = allTasks.any { it.name.contains('ToMavenLocal') }
+
+        boolean skipSigning = !hasSigningProps || skipProperty || skipOnTask
+
+        if (!skipSigning) {
+            // Only try to sign a configuration if we've got keys, otherwise we'll get artifacts into the archives
+            // configurations with no bodies.
+            signJarsTask.sign(project.configurations.getByName('archives'))
+        } else {
+            // Otherwise it'll complain that it has no signatories, even though it doesn't need any
+            signJarsTask.required = false
+        }
     }
 }

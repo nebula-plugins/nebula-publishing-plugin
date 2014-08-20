@@ -22,7 +22,7 @@ import org.gradle.api.publish.ivy.internal.dependency.DefaultIvyDependency
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
 
 /**
- * Anagolous to NebulaMavenPublishingPlugin, but for Ivy. Netflix has some very specific requirements for the resulting
+ * Analogous to NebulaMavenPublishingPlugin, but for Ivy. Netflix has some very specific requirements for the resulting
  * Ivy file which doesn't jive with how Gradle generates them. This plugin is around to provide a template for other's
  * who might want to publish to an Ivy file.
  */
