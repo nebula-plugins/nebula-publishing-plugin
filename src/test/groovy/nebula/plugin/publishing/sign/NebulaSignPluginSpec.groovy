@@ -3,6 +3,7 @@ package nebula.plugin.publishing.sign
 import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
+import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
@@ -27,8 +28,9 @@ class NebulaSignPluginSpec extends ProjectSpec {
         project.ext.setProperty('signing.keyId', keyId)
         project.ext.setProperty('signing.password', keyPassword)
         project.ext.setProperty('signing.secretKeyRingFile', keyRingFilename)
-        project.plugins.apply(NebulaSignPlugin)
+        def signPlugin = project.plugins.apply(NebulaSignPlugin)
         project.plugins.apply(JavaPlugin)
+        signPlugin.signConfigurationOrNot(project, (Sign) project.tasks.signJars, []) // Fake taskGraph being done
 
         then:
         Sign signJarTask = project.tasks.getByName('signJars')
@@ -63,12 +65,16 @@ class NebulaSignPluginSpec extends ProjectSpec {
         project.ext.setProperty('signing.secretKeyRingFile', keyRingFilename)
         project.group = 'test'
         project.plugins.apply(NebulaMavenPublishingPlugin)
-        project.plugins.apply(NebulaSignPlugin)
+        def signPlugin = project.plugins.apply(NebulaSignPlugin)
         project.apply plugin: 'java'
         project.dependencies {
             compile 'asm:asm:3.1'
         }
         project.evaluate()
+
+        def allTasks = []
+        signPlugin.signConfigurationOrNot(project, (Sign) project.tasks.signJars, allTasks) // Fake taskGraph being done
+
         GenerateMavenPom generateTask = project.tasks.getByName('generatePomFileForMavenNebulaPublication')
         generateTask.doGenerate()
 

@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.+' }
+   dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.3' } // Temporarily stay away from 1.12.4
 }
 
 description 'Gradle plugin to publish to bintray'
@@ -31,3 +31,7 @@ dependencies {
 }
 
 createWrapper.gradleVersion = '1.12'
+
+task showBuildscript << {
+   buildscript.configurations.classpath.each { println it }
+}
