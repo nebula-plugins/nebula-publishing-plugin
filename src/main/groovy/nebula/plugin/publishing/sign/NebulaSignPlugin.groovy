@@ -7,6 +7,7 @@ import org.apache.commons.lang3.text.WordUtils
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
@@ -62,7 +63,7 @@ class NebulaSignPlugin implements Plugin<Project> {
         project.gradle.taskGraph.whenReady {
             // Waiting for taskGraph, so that we can look for tasks to skip on
 
-            signConfigurationOrNot(project, signJarsTask)
+            signConfigurationOrNot(project, signJarsTask, project.gradle.taskGraph.allTasks)
         }
 
         // call signJar task before publish task, aka bintrayUpload
@@ -131,7 +132,7 @@ class NebulaSignPlugin implements Plugin<Project> {
 
     }
 
-    def signConfigurationOrNot(Project project, Sign signJarsTask) {
+    def signConfigurationOrNot(Project project, Sign signJarsTask, List<Task> allTasks) {
         // Provide two mechanism for avoiding signing.
         // The first is just a backdoor-hatch in-case it's just problematic for some.
 
@@ -142,7 +143,7 @@ class NebulaSignPlugin implements Plugin<Project> {
         boolean skipProperty = (project.hasProperty('signing.skip') && Boolean.valueOf(project.property('signing-skip').toString()))
         // We know that the AbstractAntTaskBackedMavenPublisher is used for local files, and it will reject out publications
         // an InvalidMavenPublicationException. So we skip signing if we see a task that would trigger that publisher.
-        boolean skipOnTask = project.gradle.taskGraph.allTasks.any { it.name.contains('ToMavenLocal') }
+        boolean skipOnTask = allTasks.any { it.name.contains('ToMavenLocal') }
 
         boolean skipSigning = !hasSigningProps || skipProperty || skipOnTask
 
