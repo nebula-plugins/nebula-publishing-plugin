@@ -26,6 +26,7 @@ dependencies {
     compile 'com.google.guava:guava:17.0'
     compile 'com.netflix.nebula:nebula-core:1.12.+'
     compile 'com.netflix.nebula:gradle-info-plugin:1.12.+'
+    compile 'com.netflix.nebula:gradle-contacts-plugin:1.12.+'
     testCompile 'com.netflix.nebula:nebula-test:1.12.+'
 }
 
