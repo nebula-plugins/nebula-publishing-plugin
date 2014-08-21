@@ -189,11 +189,51 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                 }
             }
 
-            usage.dependencies.each{ ModuleDependency dependency ->
-                if (dependency instanceof ProjectDependency) {
-                    addProjectDependency(pub, (ProjectDependency) dependency)
-                } else {
-                    addModuleDependency(pub, dependency)
+            String archiveConf = usage.getName(); // Not unique?
+            String dependencyConf = (usage instanceof CustomUsage && usage.deferredDependencies?.dependencyConfName )?usage.deferredDependencies?.dependencyConfName:archiveConf
+
+            if (dependencyConf == 'runtime') {
+                // MavenPublicationInternal only supports runtime dependencies
+                usage.dependencies.each { ModuleDependency dependency ->
+                    if (dependency instanceof ProjectDependency) {
+                        addProjectDependency(pub, (ProjectDependency) dependency)
+                    } else {
+                        addModuleDependency(pub, dependency)
+                    }
+                }
+            } else {
+                // Let's just hard code some mappings that we do know about.
+                def scopeToConfMapping = [test: 'test', webapp: 'runtime']
+                if (scopeToConfMapping[dependencyConf]) {
+                    basePlugin.withMavenPublication { MavenPublication t ->
+                        t.pom.withXml(new Action<XmlProvider>() {
+                            @Override
+                            void execute(XmlProvider x) {
+                                def root = x.asNode()
+                                use(NodeEnhancement) {
+                                    def dependenciesNode = root / 'dependencies'
+                                    usage.dependencies.each { ModuleDependency moduleDependency ->
+                                        if (moduleDependency instanceof ProjectDependency) {
+                                            ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
+                                            addProjectDependency(pub, (ProjectDependency) moduleDependency)
+                                            def dependency = dependenciesNode.appendNode('dependency')
+                                            dependency.appendNode('groupId', identifier.group)
+                                            dependency.appendNode('artifactId', identifier.name)
+                                            dependency.appendNode('version', identifier.version)
+                                            dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                        } else {
+                                            def dependency = dependenciesNode.appendNode('dependency')
+                                            dependency.appendNode('groupId', moduleDependency.group)
+                                            dependency.appendNode('artifactId', moduleDependency.name)
+                                            dependency.appendNode('version', moduleDependency.version)
+                                            dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                            // Artifacts missing
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }
                 }
             }
         }

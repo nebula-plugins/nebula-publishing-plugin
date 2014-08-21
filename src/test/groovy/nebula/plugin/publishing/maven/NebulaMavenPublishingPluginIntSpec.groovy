@@ -281,6 +281,6 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         def pom = new XmlSlurper().parse(pomFile)
         def deps = pom.dependencies.dependency
         def asm = deps.find { it.artifactId.text() == 'foo' && it.groupId.text() == 'test.example'}
-        asm.scope == 'provided'
+        asm.scope.text() == 'provided'
     }
 }

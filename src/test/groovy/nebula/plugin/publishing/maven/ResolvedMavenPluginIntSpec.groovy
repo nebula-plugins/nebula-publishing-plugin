@@ -79,4 +79,33 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         then: 'the task completes successfully without any configuration failure.'
         notThrown(Exception)
     }
+
+    def 'test jar produce correct pom'() {
+        writeHelloWorld('nebula.hello')
+        buildFile << '''
+            apply plugin: 'java'
+            apply plugin: 'nebula-maven-publishing'
+            apply plugin: 'nebula-test-jar'
+            repositories { jcenter() }
+            dependencies {
+                compile 'asm:asm:3.1'
+                testCompile 'junit:junit:[4.10,4.11]'
+            }
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
+
+        then:
+        fileExists(pomLocation)
+        println( file(pomLocation).text )
+        def pom = new XmlSlurper().parse( file(pomLocation) )
+        pom.dependencies.size() == 1
+        def deps = pom.dependencies.dependency
+        deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+
+        def junit = deps.find { it.artifactId.text() == 'junit' && it.groupId.text() == 'junit'}
+        junit.scope.text() == 'test'
+        junit.version.text() == '4.11'
+    }
 }
