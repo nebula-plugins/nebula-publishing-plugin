@@ -100,6 +100,7 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         fileExists(pomLocation)
         println( file(pomLocation).text )
         def pom = new XmlSlurper().parse( file(pomLocation) )
+        pom.dependencies.size() == 1
         def deps = pom.dependencies.dependency
         deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
 
