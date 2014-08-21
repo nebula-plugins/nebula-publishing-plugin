@@ -41,8 +41,8 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                 mavenJava.pom.withXml { XmlProvider xmlProvider ->
 
                     // Index by configuration, and correlate with scope
-                    def scopeToConfMapping = [runtime: 'runtime', test: 'testRuntime']
-                    def scopeResolutionMap = scopeToConfMapping.collectEntries { scope, confName ->
+                    def scopeToConfMapping = [runtime: 'runtime', testRuntime: 'test']
+                    def scopeResolutionMap = scopeToConfMapping.collectEntries { confName, scope ->
                         Configuration runtimeConfiguration = project.configurations.getByName(confName)
                         ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
                         Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
