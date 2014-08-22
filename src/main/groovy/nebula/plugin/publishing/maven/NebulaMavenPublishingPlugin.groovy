@@ -214,7 +214,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                                     def dependenciesNode = root / 'dependencies'
                                     usage.dependencies.each { ModuleDependency moduleDependency ->
                                         if (moduleDependency instanceof ProjectDependency) {
-                                            ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
+                                            ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(moduleDependency)
                                             addProjectDependency(pub, (ProjectDependency) moduleDependency)
                                             def dependency = dependenciesNode.appendNode('dependency')
                                             dependency.appendNode('groupId', identifier.group)
