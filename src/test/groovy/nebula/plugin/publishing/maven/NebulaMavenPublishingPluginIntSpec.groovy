@@ -63,6 +63,32 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.jar").exists()
     }
 
+    def 'simple publishing of multi-module'() {
+        given:
+        def buildText = '''
+            apply plugin: 'nebula-maven-publishing'
+            apply plugin: 'java'
+            apply plugin: 'nebula-test-jar'
+
+            group = 'nebula.hello'
+            version = '1.0'
+        '''.stripIndent()
+        buildFile << buildText
+
+        createSubProject('subA', buildText)
+        createSubProject('subB', buildText + "\ndependencies { compile project(':subA') }")
+
+        when:
+        def results = runTasksSuccessfully('publishToMavenLocal')
+
+        then: 'the build passed'
+        results.failure == null
+
+        and: 'generates a pom file'
+        new File("$projectDir/subB/build/publications/mavenNebula/pom-default.xml").exists()
+
+    }
+
     def 'publishes artifacts regardless of plugin ordering'() {
         given:
         settingsFile = new File(projectDir, 'settings.gradle')
@@ -283,4 +309,19 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         def asm = deps.find { it.artifactId.text() == 'foo' && it.groupId.text() == 'test.example'}
         asm.scope.text() == 'provided'
     }
+
+    @Ignore
+    File createSubProject(String name, String buildFile) {
+        settingsFile << """
+            include '${name}'
+        """.stripIndent()
+
+        def sub = new File(projectDir, name)
+        sub.mkdirs()
+
+        new File(sub, 'build.gradle') << buildFile
+
+        return sub
+    }
+
 }
