@@ -60,7 +60,7 @@ class NebulaSignPlugin implements Plugin<Project> {
         signJarsTask = project.tasks.create([name: 'signJars', type: Sign, group: 'Release'])
 
         // Conditionally sign.
-        signJarsTask.dependsOn(project.configurations.getByName('archives').artifacts)
+        signJarsTask.dependsOn(project.configurations.getByName('archives').allArtifacts)
         project.gradle.taskGraph.whenReady {
             // Waiting for taskGraph, so that we can look for tasks to skip on
 
