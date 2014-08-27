@@ -85,8 +85,10 @@ class PomScmPlugin implements Plugin<Project> {
             // React to Publishing Plugin
             project.plugins.withType(NebulaBaseMavenPublishingPlugin) { NebulaBaseMavenPublishingPlugin basePlugin ->
                 broker.watch('Module-Origin') { String moduleOrigin ->
-                    addScm(basePlugin, moduleOrigin)
-                    addProjectUrl(basePlugin, moduleOrigin)
+                    if (moduleOrigin && moduleOrigin =~ GIT_PATTERN) {
+                        addScm(basePlugin, moduleOrigin)
+                        addProjectUrl(basePlugin, moduleOrigin)
+                    }
                 }
             }
         }
