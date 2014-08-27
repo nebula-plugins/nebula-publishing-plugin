@@ -19,7 +19,7 @@ import nebula.test.IntegrationSpec
 /**
  * The contacts plugin is the uber plugin, so we're testing all the plugins together here.
  */
-class ContactsPluginLauncherSpec extends IntegrationSpec {
+class PomDevelopersPluginLauncherSpec extends IntegrationSpec {
 
     def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
 
@@ -51,7 +51,8 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
 
         then: 'pom exists'
         fileExists(pomLocation)
-        def pom = new XmlSlurper().parse(file(pomLocation))
+        def pomFile = new File(projectDir, pomLocation)
+        def pom = new XmlSlurper().parse(pomFile)
 
         then: 'developer section is filled in'
         def devs = pom.developers.developer
