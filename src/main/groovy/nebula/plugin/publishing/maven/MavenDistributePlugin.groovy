@@ -1,12 +1,14 @@
 package nebula.plugin.publishing.maven
 
 import nebula.plugin.publishing.component.CustomComponentPlugin
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.publish.plugins.PublishingPlugin
 
 /**
@@ -41,7 +43,12 @@ class MavenDistributePlugin implements Plugin<Project> {
 
         Task distTask = project.tasks.findByName('distribute') ?: project.tasks.create(name:'distribute')
 
-        distTask.dependsOn('publishMavenNebulaPublicationToDistMavenRepository')
+        project.tasks.matching { it.name == 'publishMavenNebulaPublicationToDistMavenRepository' }.all { PublishToMavenRepository mavenDistTask ->
+            distTask.dependsOn mavenDistTask
+
+            removeFromPublish(project, mavenDistTask)
+        }
+
         distTask.outputs.dir(distDir)
 
         // Clean support
@@ -49,5 +56,21 @@ class MavenDistributePlugin implements Plugin<Project> {
             cleanTask.dependsOn('cleanDistribute')
         }
 
+    }
+
+    // Remove this task from the publish task
+    public static removeFromPublish(Project project, final Task task) {
+        Closure closure = {
+            final Task publishLifecycleTask = project.tasks.getByName(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME)
+            def removed = publishLifecycleTask.dependsOn.remove(task)
+            if (!removed) {
+                logger.info("Unable to remove ${task.name} from ${publishLifecycleTask.name}")
+            }
+        }
+        if (project.state.executed) {
+            closure.call()
+        } else {
+            project.afterEvaluate closure
+        }
     }
 }
