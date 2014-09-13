@@ -24,6 +24,7 @@ import org.gradle.api.publish.internal.ProjectDependencyPublicationResolver
 import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.dependencies.DefaultMavenDependency
+import org.gradle.api.publish.maven.internal.dependencies.MavenDependencyInternal
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 
@@ -210,24 +211,31 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                             @Override
                             void execute(XmlProvider x) {
                                 def root = x.asNode()
+
+                                Set<MavenDependencyInternal> runtimeDeps = ((MavenPublicationInternal)pub).runtimeDependencies
+                                def runtimeDepNames = runtimeDeps.collect { MavenDependencyInternal mavenDep -> "${mavenDep.groupId}:${mavenDep.artifactId}" }
                                 use(NodeEnhancement) {
                                     def dependenciesNode = root / 'dependencies'
                                     usage.dependencies.each { ModuleDependency moduleDependency ->
                                         if (moduleDependency instanceof ProjectDependency) {
                                             ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(moduleDependency)
-                                            addProjectDependency(pub, (ProjectDependency) moduleDependency)
-                                            def dependency = dependenciesNode.appendNode('dependency')
-                                            dependency.appendNode('groupId', identifier.group)
-                                            dependency.appendNode('artifactId', identifier.name)
-                                            dependency.appendNode('version', identifier.version)
-                                            dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                            if (!runtimeDepNames.contains("${identifier.group}:${identifier.name}")) {
+                                                addProjectDependency(pub, (ProjectDependency) moduleDependency)
+                                                def dependency = dependenciesNode.appendNode('dependency')
+                                                dependency.appendNode('groupId', identifier.group)
+                                                dependency.appendNode('artifactId', identifier.name)
+                                                dependency.appendNode('version', identifier.version)
+                                                dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                            }
                                         } else {
-                                            def dependency = dependenciesNode.appendNode('dependency')
-                                            dependency.appendNode('groupId', moduleDependency.group)
-                                            dependency.appendNode('artifactId', moduleDependency.name)
-                                            dependency.appendNode('version', moduleDependency.version)
-                                            dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
-                                            // Artifacts missing
+                                            if (!runtimeDepNames.contains("${moduleDependency.group}:${moduleDependency.name}")) {
+                                                def dependency = dependenciesNode.appendNode('dependency')
+                                                dependency.appendNode('groupId', moduleDependency.group)
+                                                dependency.appendNode('artifactId', moduleDependency.name)
+                                                dependency.appendNode('version', moduleDependency.version)
+                                                dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                                // Artifacts missing
+                                            }
                                         }
                                     }
                                 }

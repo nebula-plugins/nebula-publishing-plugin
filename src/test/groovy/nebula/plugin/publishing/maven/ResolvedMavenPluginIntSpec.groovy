@@ -102,7 +102,9 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         def pom = new XmlSlurper().parse( file(pomLocation) )
         pom.dependencies.size() == 1
         def deps = pom.dependencies.dependency
-        deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+        def asmDeps = deps.findAll { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+        asmDeps.size() == 1
+        asmDeps[0].scope.text() == 'runtime'
 
         def junit = deps.find { it.artifactId.text() == 'junit' && it.groupId.text() == 'junit'}
         junit.scope.text() == 'test'
