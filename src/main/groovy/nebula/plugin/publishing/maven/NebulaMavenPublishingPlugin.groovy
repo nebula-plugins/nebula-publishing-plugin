@@ -24,6 +24,7 @@ import org.gradle.api.publish.internal.ProjectDependencyPublicationResolver
 import org.gradle.api.publish.maven.MavenArtifact
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.internal.dependencies.DefaultMavenDependency
+import org.gradle.api.publish.maven.internal.dependencies.MavenDependencyInternal
 import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 
@@ -149,15 +150,14 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
     }
 
     /**
-     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.  This will also make sure that
-     * there at least one publish tasks created if there aren't any repositories defined.
+     * Creates a task called 'install' that will mimic the 'mvn install' call from Maven.
      *
      * @param pubExt the PublishingExtension instance to add the repository to
      */
     void installTask(PublishingExtension pubExt) {
-        pubExt.repositories.mavenLocal()
 
-        project.tasks.create(name: 'install', dependsOn: "publishMavenNebulaPublicationToMavenLocal") << {
+        // Could have used publishMavenNebulaPublicationToMavenLocal which was created because of the above line
+        project.tasks.create(name: 'install', dependsOn: "publishToMavenLocal") << {
             // TODO Include artifacts that were published, since we commonly want to confirm that
             logger.info "Installed $project.name to ~/.m2/repository"
         }
@@ -191,11 +191,58 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                 }
             }
 
-            usage.dependencies.each{ ModuleDependency dependency ->
-                if (dependency instanceof ProjectDependency) {
-                    addProjectDependency(pub, (ProjectDependency) dependency)
-                } else {
-                    addModuleDependency(pub, dependency)
+            String archiveConf = usage.getName(); // Not unique?
+            String dependencyConf = (usage instanceof CustomUsage && usage.deferredDependencies?.dependencyConfName )?usage.deferredDependencies?.dependencyConfName:archiveConf
+
+            if (dependencyConf == 'runtime') {
+                // MavenPublicationInternal only supports runtime dependencies
+                usage.dependencies.each { ModuleDependency dependency ->
+                    if (dependency instanceof ProjectDependency) {
+                        addProjectDependency(pub, (ProjectDependency) dependency)
+                    } else {
+                        addModuleDependency(pub, dependency)
+                    }
+                }
+            } else {
+                // Let's just hard code some mappings that we do know about.
+                def scopeToConfMapping = [test: 'test', webapp: 'runtime']
+                if (scopeToConfMapping[dependencyConf]) {
+                    basePlugin.withMavenPublication { MavenPublication t ->
+                        t.pom.withXml(new Action<XmlProvider>() {
+                            @Override
+                            void execute(XmlProvider x) {
+                                def root = x.asNode()
+
+                                Set<MavenDependencyInternal> runtimeDeps = ((MavenPublicationInternal)pub).runtimeDependencies
+                                def runtimeDepNames = runtimeDeps.collect { MavenDependencyInternal mavenDep -> "${mavenDep.groupId}:${mavenDep.artifactId}" }
+                                use(NodeEnhancement) {
+                                    def dependenciesNode = root / 'dependencies'
+                                    usage.dependencies.each { ModuleDependency moduleDependency ->
+                                        if (moduleDependency instanceof ProjectDependency) {
+                                            ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(moduleDependency)
+                                            if (!runtimeDepNames.contains("${identifier.group}:${identifier.name}")) {
+                                                addProjectDependency(pub, (ProjectDependency) moduleDependency)
+                                                def dependency = dependenciesNode.appendNode('dependency')
+                                                dependency.appendNode('groupId', identifier.group)
+                                                dependency.appendNode('artifactId', identifier.name)
+                                                dependency.appendNode('version', identifier.version)
+                                                dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                            }
+                                        } else {
+                                            if (!runtimeDepNames.contains("${moduleDependency.group}:${moduleDependency.name}")) {
+                                                def dependency = dependenciesNode.appendNode('dependency')
+                                                dependency.appendNode('groupId', moduleDependency.group)
+                                                dependency.appendNode('artifactId', moduleDependency.name)
+                                                dependency.appendNode('version', moduleDependency.version)
+                                                dependency.appendNode('scope', scopeToConfMapping[dependencyConf])
+                                                // Artifacts missing
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }
                 }
             }
         }

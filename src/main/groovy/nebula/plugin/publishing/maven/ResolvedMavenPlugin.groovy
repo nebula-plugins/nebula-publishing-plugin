@@ -39,19 +39,26 @@ class ResolvedMavenPlugin implements Plugin<Project> {
             basePlugin.withMavenPublication { DefaultMavenPublication mavenJava ->
 
                 mavenJava.pom.withXml { XmlProvider xmlProvider ->
-                
-                    Configuration runtimeConfiguration = project.configurations.getByName('runtime')
-                    ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
-                    Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
-                        [versionResult.moduleVersion.module, versionResult]
+
+                    // Index by configuration, and correlate with scope
+                    def scopeToConfMapping = [runtime: 'runtime', testRuntime: 'test']
+                    def scopeResolutionMap = scopeToConfMapping.collectEntries { confName, scope ->
+                        Configuration runtimeConfiguration = project.configurations.getByName(confName)
+                        ResolutionResult resolution = runtimeConfiguration.incoming.resolutionResult // Forces resolve of configuration
+                        Map<ModuleIdentifier, ResolvedComponentResult> resolutionMap = resolution.getAllComponents().collectEntries { ResolvedComponentResult versionResult ->
+                            [versionResult.moduleVersion.module, versionResult]
+                        }
+                        [scope, resolutionMap]
                     }
+
                     Node root = xmlProvider.asNode()
                     root?.dependencies?.dependency.each { Node dep ->
                         def org = dep.groupId.text()
                         def name = dep.artifactId.text()
+                        def scope = dep.scope.text()
 
                         def id = new DefaultModuleIdentifier(org, name)
-                        ResolvedComponentResult versionResult = resolutionMap.get(id)
+                        ResolvedComponentResult versionResult = scopeResolutionMap.get(scope).get(id)
                         if(versionResult != null) {
                             dep.version[0].value = versionResult.moduleVersion.version
                         }

@@ -1,5 +1,7 @@
 package nebula.plugin.publishing.xml
 
+import groovy.xml.QName
+
 import java.util.logging.Logger
 
 /**
@@ -43,7 +45,13 @@ class NodeEnhancement {
         LOGGER.info("Looking for childName ${childName} ${LOGGER.getLevel()}")
 
         def children = this.children().findAll { child -> // HAVE TO GIVE IT A NAME, OR ELSE IT WON'T WORK
-            child instanceof Node && child.name() == childName
+            if (child instanceof Node) {
+                def childNode = (Node) child
+                def nodeName = (childNode.name() instanceof QName) ? ((QName) childNode.name()).localPart : childNode.name().toString()
+                return nodeName == childName
+            } else {
+                return false
+            }
         }
         if (children.size() == 0) {
             LOGGER.fine("Creating node for ${childName}")

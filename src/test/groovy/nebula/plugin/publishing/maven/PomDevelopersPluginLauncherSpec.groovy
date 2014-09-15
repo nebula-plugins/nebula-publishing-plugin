@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.maven
-import nebula.plugin.contacts.ContactsPlugin
-import nebula.plugin.publishing.maven.NebulaMavenPublishingPlugin
 import nebula.test.IntegrationSpec
 
 /**
  * The contacts plugin is the uber plugin, so we're testing all the plugins together here.
  */
-class ContactsPluginLauncherSpec extends IntegrationSpec {
+class PomDevelopersPluginLauncherSpec extends IntegrationSpec {
 
     def pomLocation = 'build/publications/mavenNebula/pom-default.xml'
 
     def 'look in pom'() {
 
         buildFile << """
-            ${applyPlugin(ContactsPlugin)}
-            ${applyPlugin(NebulaMavenPublishingPlugin)}
-
+            apply plugin: 'nebula-publishing'
+            apply plugin: 'contacts'
             contacts {
                 'benny@company.com' { } // when in a contacts block everyone needs brackets
                 'bobby@company.com' {
@@ -54,7 +51,8 @@ class ContactsPluginLauncherSpec extends IntegrationSpec {
 
         then: 'pom exists'
         fileExists(pomLocation)
-        def pom = new XmlSlurper().parse(file(pomLocation))
+        def pomFile = new File(projectDir, pomLocation)
+        def pom = new XmlSlurper().parse(pomFile)
 
         then: 'developer section is filled in'
         def devs = pom.developers.developer

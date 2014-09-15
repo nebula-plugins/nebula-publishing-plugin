@@ -17,7 +17,7 @@ package nebula.plugin.publishing.maven
 
 import nebula.test.PluginProjectSpec
 
-class PomDevelopersPluginSpec extends PluginProjectSpec {
+class PomScmPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
         'nebula-maven-developers'
