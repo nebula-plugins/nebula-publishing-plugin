@@ -28,24 +28,9 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
-            apply plugin: 'nebula-maven-publishing'
-            apply plugin: 'java'
-
-            group = 'nebula.hello'
             version = '1.0'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -103,23 +88,9 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
-            apply plugin: 'java'
-            apply plugin: 'nebula-maven-publishing'
-
-            group = 'nebula.hello'
             version = '1.0'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -141,23 +112,10 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
             apply plugin: 'war'
-            apply plugin: 'nebula-maven-publishing'
-
-            group = 'nebula.hello'
             version = '1.0'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -179,23 +137,10 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
-            apply plugin: 'nebula-maven-publishing'
             apply plugin: 'war'
-
-            group = 'nebula.hello'
             version = '1.2'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -217,24 +162,11 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
             apply plugin: 'nebula-ivy-publishing'
             apply plugin: 'war'
-            apply plugin: 'nebula-maven-publishing'
-
-            group = 'nebula.hello'
             version = '1.2'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -256,18 +188,9 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
-            apply plugin: 'nebula-maven-publishing'
-            apply plugin: 'java'
-
-            group = 'nebula.hello'
             version = '1.0'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
         """.stripIndent()
 
         when:
@@ -290,27 +213,12 @@ project.publishing {
         settingsFile = new File(projectDir, 'settings.gradle')
         settingsFile.text = "rootProject.name='world'"
         writeHelloWorld('nebula.hello')
+        setupMavenPublishing()
         buildFile << """
-            apply plugin: 'java'
             apply plugin: 'nebula-javadoc-jar'
             apply plugin: 'nebula-source-jar'
-            apply plugin: 'nebula-maven-publishing'
             apply plugin: 'war'
-
-            group = 'nebula.hello'
             version = '1.0'
-
-            repositories { maven { url 'file://$mavenRepoDir' } }
-
-            dependencies {
-                compile 'test.example:foo:3.1'
-            }
-
-            project.publishing {
-                repositories {
-                    maven { url 'file://$mavenRepoDir' }
-                }
-            }
         """.stripIndent()
 
         when:
@@ -348,6 +256,31 @@ project.publishing {
         def deps = pom.dependencies.dependency
         def asm = deps.find { it.artifactId.text() == 'foo' && it.groupId.text() == 'test.example'}
         asm.scope.text() == 'provided'
+    }
+
+    private void setupMavenPublishing() {
+        buildFile << """
+            apply plugin: 'java'
+            apply plugin: 'nebula-maven-publishing'
+
+            group = 'nebula.hello'
+
+            repositories {
+                maven { url 'file://$mavenRepoDir' }
+            }
+
+            dependencies {
+                compile 'test.example:foo:3.1'
+            }
+
+            project.publishing {
+                repositories {
+                    maven {
+                        url 'file://$mavenRepoDir'
+                    }
+                }
+            }
+        """.stripIndent()
     }
 
     private File createSubProject(String name, String buildFile) {
