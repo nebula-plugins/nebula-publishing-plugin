@@ -3,31 +3,24 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.junit.Ignore
 
 /**
  * @author jmcgarr
  */
 class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
+    File reposRootDir
+    File mavenRepoDir
 
-    String mavenLocal = "${System.env['HOME']}/.m2/repository"
+    def setup() {
+        reposRootDir = new File(projectDir, 'build/repos')
+        mavenRepoDir = new File(reposRootDir, 'mavenrepo')
 
-    static String repo
-    def setupSpec() {
         def myGraph = [
           'test.example:foo:3.1'
         ]
 
-        def generator = new GradleDependencyGenerator(new DependencyGraph(myGraph), 'build/nebulamavenpublishingpluginintspec')
+        def generator = new GradleDependencyGenerator(new DependencyGraph(myGraph), reposRootDir.absolutePath)
         generator.generateTestMavenRepo()
-        repo = new File('build/nebulamavenpublishingpluginintspec/mavenrepo').absolutePath
-    }
-
-    def setup() {
-        File toBeCleaned = new File("$mavenLocal/nebula/hello")
-        if( toBeCleaned.exists() ) {
-            boolean cleaned = toBeCleaned.deleteDir()
-        }
     }
 
     def 'simple publishing test'() {
@@ -42,15 +35,21 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
 
             dependencies {
                 compile 'test.example:foo:3.1'
             }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
+            }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then: 'the build passed'
         results.failure == null
@@ -59,8 +58,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.jar").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.jar").exists()
     }
 
     def 'simple publishing of multi-module'() {
@@ -76,10 +75,20 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         buildFile << buildText
 
         createSubProject('subA', buildText)
-        createSubProject('subB', buildText + "\ndependencies { compile project(':subA') }")
+        createSubProject('subB', buildText + """
+dependencies {
+    compile project(':subA')
+}
+
+project.publishing {
+    repositories {
+        maven { url 'file://$mavenRepoDir' }
+    }
+}
+""")
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then: 'the build passed'
         results.failure == null
@@ -101,14 +110,20 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
             dependencies {
                 compile 'test.example:foo:3.1'
+            }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
             }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then:
         results.failure == null
@@ -117,8 +132,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.jar").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.jar").exists()
     }
 
     def 'declaring war plugin first does not break maven'() {
@@ -133,14 +148,20 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
             dependencies {
                 compile 'test.example:foo:3.1'
+            }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
             }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then:
         results.failure == null
@@ -149,8 +170,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.war").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.war").exists()
     }
 
     def 'publishes web artifacts'() {
@@ -165,14 +186,20 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.2'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
             dependencies {
                 compile 'test.example:foo:3.1'
+            }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
             }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then:
         results.failure == null
@@ -181,8 +208,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.2/world-1.2.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.2/world-1.2.war").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.2/world-1.2.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.2/world-1.2.war").exists()
     }
 
     def 'works with ivy-plugin'() {
@@ -198,14 +225,20 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.2'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
             dependencies {
                 compile 'test.example:foo:3.1'
+            }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
             }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('publishToMavenLocal')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then:
         results.failure == null
@@ -214,8 +247,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.2/world-1.2.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.2/world-1.2.war").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.2/world-1.2.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.2/world-1.2.war").exists()
     }
 
     def 'install task works'() {
@@ -230,7 +263,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
 
             dependencies {
                 compile 'test.example:foo:3.1'
@@ -247,6 +280,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
+        String mavenLocal = "${System.env['HOME']}/.m2/repository"
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
         new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.jar").exists()
     }
@@ -266,15 +300,21 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
             group = 'nebula.hello'
             version = '1.0'
 
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
 
             dependencies {
                 compile 'test.example:foo:3.1'
             }
+
+            project.publishing {
+                repositories {
+                    maven { url 'file://$mavenRepoDir' }
+                }
+            }
         """.stripIndent()
 
         when:
-        def results = runTasksSuccessfully('install')
+        def results = runTasksSuccessfully('publishMavenNebulaPublicationToMavenRepository')
 
         then:
         results.failure == null
@@ -283,8 +323,8 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         new File("$projectDir/build/publications/mavenNebula/pom-default.xml").exists()
 
         and:
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.pom").exists()
-        new File("$mavenLocal/nebula/hello/world/1.0/world-1.0.war").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.pom").exists()
+        new File("$mavenRepoDir/nebula/hello/world/1.0/world-1.0.war").exists()
     }
 
     def 'handle providedCompile'() {
@@ -292,7 +332,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         buildFile << """
             apply plugin: 'war'
             apply plugin: 'nebula-maven-publishing'
-            repositories { maven { url '${repo}' } }
+            repositories { maven { url 'file://$mavenRepoDir' } }
             dependencies {
                 providedCompile 'test.example:foo:2.2.3'
             }
@@ -310,8 +350,7 @@ class NebulaMavenPublishingPluginIntSpec extends IntegrationSpec {
         asm.scope.text() == 'provided'
     }
 
-    @Ignore
-    File createSubProject(String name, String buildFile) {
+    private File createSubProject(String name, String buildFile) {
         settingsFile << """
             include '${name}'
         """.stripIndent()
