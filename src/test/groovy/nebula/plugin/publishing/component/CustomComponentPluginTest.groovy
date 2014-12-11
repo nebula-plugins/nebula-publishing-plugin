@@ -1,9 +1,13 @@
 package nebula.plugin.publishing.component
 
+import com.energizedwork.spock.extensions.TempDirectory
 import nebula.test.ProjectSpec
+import org.gradle.api.internal.artifacts.publish.DefaultPublishArtifact
 import org.gradle.api.plugins.JavaPlugin
 
 class CustomComponentPluginTest extends ProjectSpec {
+    @TempDirectory File projectRoot
+
     def 'has component'() {
         when:
         project.plugins.apply(CustomComponentPlugin)
@@ -34,5 +38,16 @@ class CustomComponentPluginTest extends ProjectSpec {
         artifact.extension == 'jar'
         usage.dependencies.size() == 1
 
+    }
+
+    def 'artifact can be added by file'() {
+        when:
+        project.plugins.apply(CustomComponentPlugin)
+        project.configurations.add('myconf')
+        CustomComponentPlugin.addArtifact(project, 'myconf',
+            new DefaultPublishArtifact("test", "txt", "txt", "classif", new Date(), new File(projectRoot, 'test.txt')))
+
+        then:
+        project.plugins.withType(CustomComponentPlugin).usages.size() == 1
     }
 }
