@@ -39,4 +39,35 @@ class NebulaPublishManifestPluginLauncherSpec extends IntegrationSpec {
         pom.properties.'nebula_Implementation_Version' == '1.0'
         pom.properties.'nebula_Implementation_Title' == 'nebula.hello#world;1.0'
     }
+
+    def 'multiproject with interproject dependency'() {
+        buildFile << """
+            subprojects {
+                apply plugin: 'java'
+                apply plugin: 'info'
+                apply plugin: 'nebula-publishing'
+                apply plugin: 'nebula-publish-manifest'
+
+                group = 'nebula.hello'
+                version = '1.0'
+            }
+        """.stripIndent()
+
+        addSubproject('sub1', '// hello')
+        addSubproject('sub2', '''\
+            apply plugin: 'war'
+
+            dependencies {
+                compile project(':sub1')
+            }
+        '''.stripIndent())
+
+        when: 'the artifacts are built and published'
+        runTasksSuccessfully('publishToMavenLocal')
+
+        then: 'publishes a pom file'
+        def pomFile = new File("$mavenLocal/nebula/hello/sub2/1.0/sub2-1.0.pom")
+        pomFile.exists()
+
+    }
 }
