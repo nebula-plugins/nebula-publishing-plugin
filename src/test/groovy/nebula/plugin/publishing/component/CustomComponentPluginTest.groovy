@@ -43,7 +43,7 @@ class CustomComponentPluginTest extends ProjectSpec {
     def 'artifact can be added by file'() {
         when:
         project.plugins.apply(CustomComponentPlugin)
-        project.configurations.add('myconf')
+        project.configurations.create('myconf')
         CustomComponentPlugin.addArtifact(project, 'myconf',
             new DefaultPublishArtifact("test", "txt", "txt", "classif", new Date(), new File(projectRoot, 'test.txt')))
 
