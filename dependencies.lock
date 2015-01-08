@@ -1,7 +1,7 @@
 {
   "com.google.guava:guava": { "locked": "17.0", "requested": "17.0" },
   "com.netflix.nebula:gradle-contacts-plugin": { "locked": "1.12.4", "requested": "1.12.+" },
-  "com.netflix.nebula:gradle-info-plugin": { "locked": "1.12.4", "requested": "1.12.+" },
+  "com.netflix.nebula:gradle-info-plugin": { "locked": "1.12.7", "requested": "1.12.+" },
   "com.netflix.nebula:nebula-core": { "locked": "1.12.2", "requested": "1.12.+" },
-  "com.netflix.nebula:nebula-test": { "locked": "1.12.2", "requested": "1.12.+" }
+  "com.netflix.nebula:nebula-test": { "locked": "1.12.6", "requested": "1.12.+" }
 }
