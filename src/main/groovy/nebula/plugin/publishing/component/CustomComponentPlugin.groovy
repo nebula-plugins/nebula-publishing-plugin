@@ -8,6 +8,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.internal.DefaultDomainObjectSet
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
@@ -145,7 +146,6 @@ class CustomComponentPlugin implements Plugin<Project> {
      * @param confName Configuration must already exist
      */
     public static addArtifact(Project project, String confName, Task jarTask, String artifactType = null, Configuration dependenciesConf = null, Set<String> confsToSkip = null) {
-
         PublishArtifact artifact = wrapTaskAsArtifact(jarTask, artifactType)
         project.artifacts.add(confName, artifact)
 
@@ -158,4 +158,10 @@ class CustomComponentPlugin implements Plugin<Project> {
         }
     }
 
+    public static addArtifact(Project project, String confName, PublishArtifact artifact) {
+        project.artifacts.add(confName, artifact)
+        project.plugins.withType(CustomComponentPlugin) { CustomComponentPlugin componentPlugin ->
+            componentPlugin.addUsage(confName, artifact)
+        }
+    }
 }
