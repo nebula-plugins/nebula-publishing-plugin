@@ -1,3 +1,13 @@
+2.0.1 / 2015-01-07
+==================
+
+* Fix a bug caused by gradle-2.x or groovy-2.x where on creating a pom for a war project that references another project in a multiproject build a plugin method couldn't be found
+
+2.0.0 / 2014-09-17
+==================
+
+* Uses gradle 2.0
+
 1.12.1 / 2014-06-11
 ===================
 

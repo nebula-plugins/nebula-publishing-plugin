@@ -221,7 +221,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
                                         if (moduleDependency instanceof ProjectDependency) {
                                             ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(moduleDependency)
                                             if (!runtimeDepNames.contains("${identifier.group}:${identifier.name}")) {
-                                                addProjectDependency(pub, (ProjectDependency) moduleDependency)
+                                                NebulaMavenPublishingPlugin.addProjectDependency(pub, (ProjectDependency) moduleDependency)
                                                 def dependency = dependenciesNode.appendNode('dependency')
                                                 dependency.appendNode('groupId', identifier.group)
                                                 dependency.appendNode('artifactId', identifier.name)
@@ -248,12 +248,12 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
         }
     }
 
-    private void addProjectDependency(MavenPublication pub, ProjectDependency dependency) {
+    static void addProjectDependency(MavenPublication pub, ProjectDependency dependency) {
         ModuleVersionIdentifier identifier = new ProjectDependencyPublicationResolver().resolve(dependency);
         ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(identifier.group, identifier.name, identifier.version));
     }
 
-    private void addModuleDependency(MavenPublication pub, ModuleDependency dependency) {
+    static void addModuleDependency(MavenPublication pub, ModuleDependency dependency) {
         ((MavenPublicationInternal)pub).runtimeDependencies.add(new DefaultMavenDependency(dependency.group, dependency.name, dependency.version, dependency.artifacts));
     }
 
