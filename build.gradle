@@ -24,15 +24,15 @@ release {
 
 dependencies {
     compile 'com.google.guava:guava:17.0',
-            'com.netflix.nebula:nebula-core:2.0.+',
-            'com.netflix.nebula:gradle-info-plugin:2.0.+',
-            'com.netflix.nebula:gradle-contacts-plugin:2.0.+'
-    testCompile('com.netflix.nebula:nebula-test:2.0.+') {
+            'com.netflix.nebula:nebula-core:2.2.+',
+            'com.netflix.nebula:gradle-info-plugin:2.2.+',
+            'com.netflix.nebula:gradle-contacts-plugin:2.2.+'
+    testCompile('com.netflix.nebula:nebula-test:2.2.+') {
         exclude group: 'org.codehaus.groovy'
     }
 }
 
-createWrapper.gradleVersion = '2.0'
+createWrapper.gradleVersion = '2.2.1'
 
 task showBuildscript << {
    buildscript.configurations.classpath.each { println it }
