@@ -54,7 +54,7 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
 
         project.plugins.apply(ResolvedMavenPlugin)
         project.plugins.apply(PomDevelopersPlugin)
-
+        excludes()
         cleanupMavenArtifacts()
     }
 
@@ -77,7 +77,6 @@ class NebulaMavenPublishingPlugin implements Plugin<Project> {
             @Override
             void execute(PublishingExtension pubExt) {
                 pubExt.publications.create("mavenNebula", MavenPublication)
-                excludes()
                 installTask(pubExt)
             }
         })
