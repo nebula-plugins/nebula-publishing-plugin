@@ -1,6 +1,8 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationSpec
+import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.GradleDependencyGenerator
 
 class ResolvedMavenPluginIntSpec extends IntegrationSpec {
 
@@ -56,6 +58,54 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         def deps = pom.dependencies.dependency
         def asmDep = deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
         asmDep.version.text() == '2.2.3'
+    }
+
+    def 'Can resolve dynamic versions after another plugin has patched the POM to support provided scope'() {
+        given:
+        File baseDir = new File(projectDir, 'build')
+        File mavenRepoDir = new File(baseDir, 'mavenrepo')
+        def generator = new GradleDependencyGenerator(new DependencyGraph(['foo:bar:1.2.3']), baseDir.canonicalPath)
+        generator.generateTestMavenRepo()
+
+        writeHelloWorld('nebula.hello')
+        buildFile << """
+            apply plugin: 'java'
+            apply plugin: 'nebula-maven-publishing'
+
+            repositories {
+                maven { url '$mavenRepoDir.canonicalPath' }
+            }
+
+            configurations {
+                myProvidedConf
+                compile.extendsFrom myProvidedConf
+            }
+
+            dependencies {
+                myProvidedConf 'foo:bar:1.2.+'
+            }
+
+            publishing {
+                publications {
+                    mavenNebula(MavenPublication) {
+                        // Emulate a plugin that supports 'provided' scope by patching the POM.
+                        // For testing purposes, change the scope of *all* dependencies.
+                        pom.withXml { XmlProvider xml -> xml.asNode().dependencies.'*'.each() { it.scope*.value = 'provided' } }
+                    }
+                }
+            }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
+
+        then:
+        fileExists(pomLocation)
+        def pom = new XmlSlurper().parse( file(pomLocation) )
+        def deps = pom.dependencies.dependency
+        def fooBarDep = deps.find { it.groupId.text() == 'foo' && it.artifactId.text() == 'bar' }
+        fooBarDep.scope.text() == 'provided'
+        fooBarDep.version.text() == '1.2.3'
     }
 
     def 'does not resolve config too early'() {

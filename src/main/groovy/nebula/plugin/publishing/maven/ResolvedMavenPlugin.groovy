@@ -51,6 +51,10 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                         [scope, resolutionMap]
                     }
 
+                    // Another plugin may have already patched the POM to support 'provided' scope.
+                    // For the purpose of version resolution, 'provided' scope is equavalent to 'runtime'.
+                    scopeResolutionMap['provided'] = scopeResolutionMap['runtime']
+
                     Node root = xmlProvider.asNode()
                     root?.dependencies?.dependency.each { Node dep ->
                         def org = dep.groupId.text()
@@ -58,9 +62,15 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                         def scope = dep.scope.text()
 
                         def id = new DefaultModuleIdentifier(org, name)
-                        ResolvedComponentResult versionResult = scopeResolutionMap.get(scope).get(id)
-                        if(versionResult != null) {
-                            dep.version[0].value = versionResult.moduleVersion.version
+                        def resolutionMap = scopeResolutionMap.get(scope)
+
+                        if (resolutionMap == null) {
+                            logger.info "Skipping dynamic version resolution in POM for dependency '${id}' as it has unrecognized scope '${scope}'"
+                        } else {
+                            ResolvedComponentResult versionResult = resolutionMap.get(id)
+                            if (versionResult != null) {
+                                dep.version[0].value = versionResult.moduleVersion.version
+                            }
                         }
                     }
                 }
