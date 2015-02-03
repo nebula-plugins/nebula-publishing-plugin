@@ -1,6 +1,5 @@
 package nebula.plugin.publishing.component
 
-import com.google.common.base.Preconditions
 import nebula.core.AlternativeArchiveTask
 import nebula.plugin.publishing.ConfsVisiblePlugin
 import org.gradle.api.DomainObjectSet
@@ -8,7 +7,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.internal.DefaultDomainObjectSet
 import org.gradle.api.internal.artifacts.publish.ArchivePublishArtifact
@@ -76,7 +74,7 @@ class CustomComponentPlugin implements Plugin<Project> {
     }
 
     CustomUsage addUsage(String confName, PublishArtifact artifact = null, Configuration configuration = null, Set<String> confsToSkip = null) {
-        Preconditions.checkArgument(confName as Boolean)
+        assert confName as Boolean
 
         CustomUsage.DeferredDependencies deferredDependencies = configuration?new CustomUsage.DeferredDependencies(confName, configuration, confsToSkip):null
 
