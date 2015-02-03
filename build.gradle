@@ -23,8 +23,7 @@ release {
 }
 
 dependencies {
-    compile 'com.google.guava:guava:17.0',
-            'com.netflix.nebula:nebula-core:2.2.+',
+    compile 'com.netflix.nebula:nebula-core:2.2.+',
             'com.netflix.nebula:gradle-info-plugin:2.2.+',
             'com.netflix.nebula:gradle-contacts-plugin:2.2.+'
     testCompile('com.netflix.nebula:nebula-test:2.2.+') {

@@ -1,7 +1,5 @@
 package nebula.plugin.publishing.component
 
-import com.google.common.collect.Lists
-import com.google.common.collect.Sets
 import groovy.transform.Canonical
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
@@ -48,9 +46,9 @@ class CustomUsage implements Usage {
             CompositeDomainObjectSet<Dependency> inheritedDependencies;
             inheritedDependencies = new CompositeDomainObjectSet<Dependency>(Dependency.class, configuration.dependencies);
 
-            Queue<Configuration> confQueue = Lists.newLinkedList()
+            Queue<Configuration> confQueue = new LinkedList<>()
             confQueue.add(configuration)
-            Set<String> visited = confsToSkip?Sets.newHashSet(confsToSkip):Sets.newHashSet()
+            Set<String> visited = confsToSkip?new HashSet(confsToSkip):new HashSet()
             while (!confQueue.isEmpty()) {
                 Configuration extendsConf = confQueue.remove()
                 if (!visited.contains(extendsConf.name)) {

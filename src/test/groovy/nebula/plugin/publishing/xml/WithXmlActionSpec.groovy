@@ -1,6 +1,5 @@
 package nebula.plugin.publishing.xml
 
-import com.google.common.base.Preconditions
 import spock.lang.Specification
 
 import java.util.logging.Handler
@@ -59,8 +58,8 @@ class WithXmlActionSpec extends Specification {
         when:
         def builders = "build"
         execute { project ->
-            Preconditions.checkNotNull(project)
-            Preconditions.checkArgument(project instanceof Node)
+            assert project
+            assert project instanceof Node
             println "About to reference! ${owner} ${delegate}"
 
             def matrix = project / builders / builder

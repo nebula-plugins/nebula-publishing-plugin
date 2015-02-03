@@ -1,16 +1,12 @@
 package nebula.plugin.publishing.ivy
 
-import com.google.common.collect.HashMultimap
-import com.google.common.collect.Multimap
 import nebula.plugin.publishing.component.CustomComponentPlugin
 import nebula.plugin.publishing.component.CustomSoftwareComponent
 import nebula.plugin.publishing.component.CustomUsage
 import nebula.plugin.publishing.maven.MavenDistributePlugin
 import org.gradle.api.Action
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
@@ -24,8 +20,6 @@ import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.ivy.internal.dependency.DefaultIvyDependency
 import org.gradle.api.publish.ivy.internal.publication.DefaultIvyPublication
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
-import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
-import org.gradle.api.publish.plugins.PublishingPlugin
 
 /**
  * Analogous to NebulaMavenPublishingPlugin, but for Ivy. Netflix has some very specific requirements for the resulting
@@ -109,10 +103,10 @@ class NebulaIvyPublishingPlugin implements Plugin<Project> {
     }
 
     def ensureConfigurations(DefaultIvyPublication pub, String archiveConf, String dependencyConf) {
-        Multimap<String, String> confExtends = HashMultimap.create()
+        def confExtends = [:].withDefault {[]}
         if (archiveConf != dependencyConf) {
             // TODO This might be optional
-            confExtends.put(archiveConf, dependencyConf)
+            confExtends.archiveConf.add(dependencyConf)
         }
 
         def confsProcessed = [] as Set
