@@ -60,6 +60,40 @@ class ResolvedMavenPluginIntSpec extends IntegrationSpec {
         asmDep.version.text() == '2.2.3'
     }
 
+
+    // This is the approach that the dependency-recommender uses.
+    def 'produces pom with deferred versions'() {
+        writeHelloWorld('nebula.hello')
+        buildFile << '''
+            apply plugin: 'java'
+            apply plugin: 'nebula-maven-publishing'
+            repositories { jcenter() }
+            dependencies {
+                compile 'asm:asm'
+            }
+            configurations.all {
+                resolutionStrategy {
+                    eachDependency { details ->
+                        if ( details.requested.name == 'asm' ) {
+                            details.useVersion('2.2.2')
+                        }
+                    }
+                }
+            }
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('generatePomFileForMavenNebulaPublication')
+
+        then:
+        fileExists(pomLocation)
+        println( file(pomLocation).text )
+        def pom = new XmlSlurper().parse( file(pomLocation) )
+        def deps = pom.dependencies.dependency
+        def asmDep = deps.find { it.artifactId.text() == 'asm' && it.groupId.text() == 'asm'}
+        asmDep.version.text() == '2.2.2'
+    }
+
     def 'Can resolve dynamic versions after another plugin has patched the POM to support provided scope'() {
         given:
         File baseDir = new File(projectDir, 'build')
