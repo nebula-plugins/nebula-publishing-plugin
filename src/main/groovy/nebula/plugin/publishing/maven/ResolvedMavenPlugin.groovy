@@ -69,7 +69,12 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                         } else {
                             ResolvedComponentResult versionResult = resolutionMap.get(id)
                             if (versionResult != null) {
-                                dep.version[0].value = versionResult.moduleVersion.version
+                                def selectedVersion = versionResult.moduleVersion.version
+                                if (dep.version[0]) {
+                                    dep.version[0].value = selectedVersion
+                                } else {
+                                    dep.appendNode('version', selectedVersion)
+                                }
                             }
                         }
                     }
