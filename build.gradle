@@ -11,7 +11,6 @@ buildscript {
 
 plugins {
     id 'nebula.contacts' version '2.2.0'
-    id 'nebula.dependency-lock' version '2.2.3'
     id 'groovy'
     id 'idea'
 }
@@ -53,7 +52,6 @@ pluginBundle {
     website = 'https://github.com/nebula-plugins/nebula-publishing-plugin'
     vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
-
 
     plugins {
         publishing {
