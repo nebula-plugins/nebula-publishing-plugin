@@ -67,19 +67,19 @@ pluginBundle {
         }
 
         javadocJar {
-            id = 'nebula.nebula-javadoc-jar'
+            id = 'nebula.javadoc-jar'
             displayName = 'Nebula Javadoc Jar Publishing plugin'
             tags = ['nebula', 'publishing', 'javadoc']
         }
 
         sourceJar {
-            id = 'nebula.nebula-source-jar'
+            id = 'nebula.source-jar'
             displayName = 'Nebula Source Jar Publishing plugin'
             tags = ['nebula', 'publishing', 'source']
         }
 
         testJar {
-            id = 'nebula.nebula-test-jar'
+            id = 'nebula.test-jar'
             displayName = 'Nebula Test Jar Publishing plugin'
             tags = ['nebula', 'publishing', 'test']
         }

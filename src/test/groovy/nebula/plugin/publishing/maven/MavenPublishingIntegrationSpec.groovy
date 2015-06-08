@@ -4,7 +4,7 @@ import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class NebulaMavenPublishingIntegrationSpec extends IntegrationSpec {
+class MavenPublishingIntegrationSpec extends IntegrationSpec {
     File publishDir
 
     def setup() {

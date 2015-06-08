@@ -2,6 +2,8 @@ package nebula.plugin.publishing.publications
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -24,6 +26,30 @@ class TestJarPlugin implements Plugin<Project> {
                     publications {
                         nebula(MavenPublication) {
                             artifact project.tasks.testJar
+
+                            pom.withXml { XmlProvider xml ->
+                                def root = xml.asNode()
+                                def dependenciesList = root?.dependencies
+                                def dependenciesNode
+                                if (!dependenciesList) {
+                                    dependenciesNode = root.appendNode('dependencies')
+                                } else {
+                                    dependenciesNode = dependenciesList[0]
+                                }
+
+                                def testConfs = [project.configurations.testCompile, project.configurations.testRuntime]
+                                testConfs.each {
+                                    it.dependencies.each { Dependency dep ->
+                                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                                        dependencyNode.with {
+                                            appendNode('groupId', dep.group)
+                                            appendNode('artifactId', dep.name)
+                                            appendNode('version', dep.version)
+                                            appendNode('scope', 'test')
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
