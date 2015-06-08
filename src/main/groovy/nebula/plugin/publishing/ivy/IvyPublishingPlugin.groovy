@@ -1,9 +1,9 @@
-package nebula.plugin.publishing.maven
+package nebula.plugin.publishing.ivy
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class ResolvedMavenPlugin implements Plugin<Project> {
+class IvyPublishingPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
 

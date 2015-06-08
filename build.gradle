@@ -1,10 +1,23 @@
+buildscript {
+    repositories {
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+    dependencies {
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
+    }
+}
+
 plugins {
-    id 'nebula.nebula-plugin' version '2.2.0'
+    id 'nebula.contacts' version '2.2.0'
+    id 'nebula.dependency-lock' version '2.2.3'
+    id 'groovy'
+    id 'idea'
 }
 
 description 'Gradle plugin to publish to bintray'
-apply plugin: 'nebula-plugin'
-apply plugin: 'idea'
+apply plugin: 'com.gradle.plugin-publish'
 
 contacts {
     'justin@halfempty.org' {
@@ -17,11 +30,13 @@ contacts {
     }
 }
 
-release {
-    git.pushToCurrentBranch = true
+repositories {
+    jcenter()
 }
 
 dependencies {
+    compile localGroovy()
+    compile gradleApi()
     compile 'com.netflix.nebula:nebula-core:2.2.+'
     compile 'com.netflix.nebula:gradle-info-plugin:2.2.+'
     compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.+'
@@ -30,8 +45,50 @@ dependencies {
     }
 }
 
-createWrapper.gradleVersion = '2.3'
-
 task showBuildscript << {
    buildscript.configurations.classpath.each { println it }
+}
+
+pluginBundle {
+    website = 'https://github.com/nebula-plugins/nebula-publishing-plugin'
+    vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
+    description = 'Plugins to ease maven-publish and ivy-publish configuration'
+
+
+    plugins {
+        publishing {
+            id = 'nebula.publishing'
+            displayName = 'Nebula Publshing plugin'
+            tags = ['nebula', 'publishing']
+        }
+
+        ivyPublishing {
+            id = 'nebula.ivy-publishing'
+            displayName = 'Nebula Ivy Publishing plugin'
+            tags = ['nebula', 'publishing', 'ivy']
+        }
+
+        javadocJar {
+            id = 'nebula.nebula-javadoc-jar'
+            displayName = 'Nebula Javadoc Jar Publishing plugin'
+            tags = ['nebula', 'publishing', 'javadoc']
+        }
+
+        sourceJar {
+            id = 'nebula.nebula-source-jar'
+            displayName = 'Nebula Source Jar Publishing plugin'
+            tags = ['nebula', 'publishing', 'source']
+        }
+
+        testJar {
+            id = 'nebula.nebula-test-jar'
+            displayName = 'Nebula Test Jar Publishing plugin'
+            tags = ['nebula', 'publishing', 'test']
+        }
+    }
+
+    mavenCoordinates {
+        groupId = 'com.netflix.nebula'
+        artifactId = 'nebula-publishing-plugin'
+    }
 }
