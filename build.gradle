@@ -38,7 +38,7 @@ dependencies {
     compile gradleApi()
     compile 'com.netflix.nebula:nebula-core:2.2.+'
     compile 'com.netflix.nebula:gradle-info-plugin:2.2.+'
-    compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.+'
+    compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.+', optional
     testCompile('com.netflix.nebula:nebula-test:2.2.+') {
         exclude group: 'org.codehaus.groovy'
     }
