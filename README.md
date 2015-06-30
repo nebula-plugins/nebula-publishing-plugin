@@ -1,5 +1,7 @@
-Nebula Publishing Plugin
-========================
+# Nebula Publishing Plugin
+
+// Add travis badges, coveralls
+
 Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish. Current plugins:
 
 * 'nebula-maven-publishing' - Clean up maven output
@@ -9,21 +11,20 @@ Provides publishing related plugins to reduce boiler plate and add functionality
   * Alias "install" task to publishMavenJavaPublicationToMavenLocal, analogous to mvn install
   * Includes Exclude Rules in the pom
   * Updates versions in the pom to resolved version, if a dynamic version was used.
-* DEPRECATED: 'nebula-source-jar' - Creates a sources jar, that contains the source files
-* DEPRECATED: 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc
-* DEPRECATED: 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block.
+* DEPRECATED: 'nebula-source-jar' - Creates a sources jar, that contains the source files. Replace with 'nebula.source-jar'.
+* DEPRECATED: 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc. Replace with 'nebula.javadoc-jar'.
+* DEPRECATED: 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block. Replace with 'nebula.test-jar'.
 
-
+* nebula.apache-license-pom - adds the Apache v2 license to the pom
+* nebula.javadoc-jar - adds a javadoc jar publication
+* nebula.manifest-pom - adds various manifest values to the properties block of the pom
 * nebula.maven-base-publishing - sets up basic publication used by other plugins
 * nebula.maven-java-publishing - adds in a default of publishing components.java and detection of war projects components.web
 * nebula.maven-publishing - apply if you want all of our opinions nebula.maven-base-publishing, nebula.maven-java-publishing, nebula.manifest-pom, nebula.resolved-pom, and nebula.scm-pom
-* nebula.javadoc-jar - adds a javadoc jar publication
-* nebula.source-jar - adds a source jar publication
-* nebula.test-jar - adds a test jar publication
-* nebula.apache-license-pom - adds the Apache v2 license to the pom
-* nebula.manifest-pom - adds various manifest values to the properties block of the pom
 * nebula.resolved-pom - changes all dynamic versions to resolved versions so 3.x or [2.0.0, 3.0.0) will be resolved to specific versions
 * nebula.scm-pom - adds SCM information to the pom
+* nebula.source-jar - adds a source jar publication
+* nebula.test-jar - adds a test jar publication
 
 ## Maven Related Publishing Plugins
 
@@ -147,27 +148,7 @@ Eliminates this boilerplate:
           artifact project.tasks.testJar
 
           pom.withXml { XmlProvider xml ->
-            def root = xml.asNode()
-            def dependenciesList = root?.dependencies
-            def dependenciesNode
-            if (!dependenciesList) {
-              dependenciesNode = root.appendNode('dependencies')
-            } else {
-              dependenciesNode = dependenciesList[0]
-            }
-
-            def testConfs = [project.configurations.testCompile, project.configurations.testRuntime]
-            testConfs.each {
-              it.dependencies.each { Dependency dep ->
-                def dependencyNode = dependenciesNode.appendNode('dependency')
-                dependencyNode.with {
-                  appendNode('groupId', dep.group)
-                  appendNode('artifactId', dep.name)
-                  appendNode('version', dep.version)
-                  appendNode('scope', 'test')
-                }
-              }
-            }
+            // code to add dependencies into the pom under the test scope see source code nebula.plugin.publishing.maven.
           }
         }
       }
