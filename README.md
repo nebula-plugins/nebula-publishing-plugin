@@ -2,6 +2,26 @@
 
 // Add travis badges, coveralls
 
+## Usage
+
+To apply this plugin if using Gradle 2.1 or newer
+
+    plugins {
+      id 'nebula.<publishing plugin of your choice>' version '3.0.0'
+    }
+
+If using an older version of Gradle
+
+    buildscript {
+      repositories { jcenter() }
+      dependencies {
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:3.0.0'
+      }
+    }
+
+    apply plugin: 'nebula.<publishing plugin of your choice>'
+
+
 Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish. Current plugins:
 
 * 'nebula-maven-publishing' - Clean up maven output

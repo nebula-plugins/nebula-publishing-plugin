@@ -5,3 +5,6 @@ build/
 *.iws
 .idea/
 out/
+
+# encrypted gradle.properties for travis
+gradle.properties
