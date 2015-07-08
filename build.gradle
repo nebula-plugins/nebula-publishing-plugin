@@ -1,22 +1,24 @@
 buildscript {
     repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        jcenter()
     }
     dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.0'
+        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.0'
     }
 }
 
 plugins {
-    id 'nebula.contacts' version '2.2.0'
     id 'groovy'
     id 'idea'
+    id 'maven-publish'
+    id 'nebula.contacts' version '2.2.0'
+    id 'nebula.nebula-release' version '2.2.6'
+    id 'nebula.optional-base' version '2.2.2'
+    id 'com.gradle.plugin-publish' version '0.9.0'
 }
 
-description 'Gradle plugin to publish to bintray'
-apply plugin: 'com.gradle.plugin-publish'
+description 'Gradle plugin to ease use of ivy-publish and maven-publish'
+group = 'com.netflix.nebula'
 
 contacts {
     'justin@halfempty.org' {
@@ -36,16 +38,12 @@ repositories {
 dependencies {
     compile localGroovy()
     compile gradleApi()
-    compile 'com.netflix.nebula:nebula-core:2.2.+'
-    compile 'com.netflix.nebula:gradle-info-plugin:2.2.+'
-    compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.+'
-    testCompile('com.netflix.nebula:nebula-test:2.2.+') {
+    compile 'com.netflix.nebula:nebula-core:2.2.0'
+    compile 'com.netflix.nebula:gradle-info-plugin:2.2.2', optional
+    compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.0', optional
+    testCompile('com.netflix.nebula:nebula-test:2.2.2') {
         exclude group: 'org.codehaus.groovy'
     }
-}
-
-task showBuildscript << {
-   buildscript.configurations.classpath.each { println it }
 }
 
 pluginBundle {
@@ -57,7 +55,7 @@ pluginBundle {
         publishing {
             id = 'nebula.publishing'
             displayName = 'Nebula Publshing plugin'
-            tags = ['nebula', 'publishing']
+            tags = ['nebula', 'publishing', 'maven']
         }
 
         ivyPublishing {
@@ -66,21 +64,71 @@ pluginBundle {
             tags = ['nebula', 'publishing', 'ivy']
         }
 
+        apacheLicensePom {
+            id = 'nebula.apache-license-pom'
+            displayName = 'Nebula Apache License Pom Plugin'
+            description = 'Add the Apache v2 license to the pom'
+            tags = ['nebula', 'publishing', 'maven', 'apache', 'license']
+        }
+
+        manifestPom {
+            id = 'nebula.manifest-pom'
+            displayName = 'Nebula Manifest Pom Plugin'
+            description = 'Append additional information from our info plugin to the properties section of the pom'
+            tags = ['nebula', 'publishing', 'maven']
+        }
+
+        mavenBasePublishing {
+            id = 'nebula.maven-base-publishing'
+            displayName = 
+        }
+
+        mavenJavaPublishing {
+            id = 'nebula.maven-java-publishing'
+            displayName = 'Nebula Maven Java Publishing Plugin'
+            description = 'Add component.war if a war project, add component.java otherwise'
+            tags = ['nebula', 'publishing', 'maven', 'java']
+        }
+
+        mavenPublishing {
+            id = 'nebula.maven-publishing'
+            displayName = 'Nebula Maven Publishing Plugin'
+            description = 'Applies our opinions for maven publications'
+            tags = ['nebula', 'publishing', 'maven']
+        }
+
+        resolvedPom {
+            id = 'nebula.resolved-pom'
+            displayName = 'Nebula Resolved Pom Plugin'
+            description = 'Replaces dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publishing', 'maven']
+        }
+
+        scmPom {
+            id = 'nebula.scm-pom'
+            displayName = 'Nebula SCM Pom Plugin'
+            description = 'Adds SCM info to the pom'
+            tags = ['nebula', 'publishing', 'maven']
+        }
+
         javadocJar {
-            id = 'nebula.nebula-javadoc-jar'
+            id = 'nebula.javadoc-jar'
             displayName = 'Nebula Javadoc Jar Publishing plugin'
+            description = 'Create a javadocJar task to package up the javadoc and add it to the publications'
             tags = ['nebula', 'publishing', 'javadoc']
         }
 
         sourceJar {
-            id = 'nebula.nebula-source-jar'
+            id = 'nebula.source-jar'
             displayName = 'Nebula Source Jar Publishing plugin'
+            description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
             tags = ['nebula', 'publishing', 'source']
         }
 
         testJar {
-            id = 'nebula.nebula-test-jar'
+            id = 'nebula.test-jar'
             displayName = 'Nebula Test Jar Publishing plugin'
+            description = 'Create a testJar task to package up test classes and add it to the publications'
             tags = ['nebula', 'publishing', 'test']
         }
     }
@@ -88,5 +136,46 @@ pluginBundle {
     mavenCoordinates {
         groupId = 'com.netflix.nebula'
         artifactId = 'nebula-publishing-plugin'
+    }
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+            from components.java
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin')
+                root.appendNode('scm').appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin.git')
+                def devs = root.appendNode('developers')
+                def rob = devs.appendNode('developer')
+                rob.appendNode('id', 'rspieldenner')
+                rob.appendNode('name', 'Rob Spieldenner')
+                rob.appendNode('email', 'rob.spieldenner@gmail.com')
+                def justin = devs.appendNode('developer')
+                justin.appendNode('id', 'quidryan')
+                justin.appendNode('name', 'Justin Ryan')
+                justin.appendNode('email', 'justin@halfempty.org')
+                def apache = root.appendNode('licenses').appendNode('license')
+                apache.appendNode('name', 'The Apache Software License, Version 2.0')
+                apache.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                apache.appendNode('distribution', 'repo')
+            }
+        }
+    }
+}
+
+// Wire up build and publishing process
+tasks.matching { it.name == 'bintrayUpload' || it.name == 'artifactoryPublish'}.all { Task task ->
+    task.mustRunAfter('build')
+    tasks.release.dependsOn(task)
+}
+
+tasks.matching { it.name == 'bintrayUpload' }.all { Task task ->
+    project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
+        task.onlyIf {
+            graph.hasTask(':final') || graph.hasTask(':candidate')
+        }
     }
 }
