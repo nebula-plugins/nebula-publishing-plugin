@@ -80,7 +80,9 @@ pluginBundle {
 
         mavenBasePublishing {
             id = 'nebula.maven-base-publishing'
-            displayName = 
+            displayName = 'Nebula Maven Base Publishing Plugin'
+            description = 'Setup basic nebula MavenPublication'
+            tags = ['nebula', 'publishing', 'maven']
         }
 
         mavenJavaPublishing {

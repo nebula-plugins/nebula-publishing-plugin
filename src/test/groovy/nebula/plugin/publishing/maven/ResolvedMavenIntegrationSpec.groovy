@@ -52,7 +52,7 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.version == '1.1.0'
+        dependency.version.text() == '1.1.0'
     }
 
     def 'handle maven style dynamic versions'() {
@@ -76,6 +76,6 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.version == '1.4.1'
+        dependency.version.text() == '1.4.1'
     }
 }
