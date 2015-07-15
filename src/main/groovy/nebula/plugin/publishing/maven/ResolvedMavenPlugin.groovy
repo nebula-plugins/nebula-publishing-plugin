@@ -25,15 +25,14 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 class ResolvedMavenPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenBasePublishingPlugin)
+        project.plugins.apply(MavenJavaPublishingPlugin)
 
         project.plugins.withType(MavenPublishPlugin) {
             project.publishing {
                 publications {
                     nebula(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
+                        pom.withXml { XmlProvider xml->
                             def dependencies = xml.asNode()?.dependencies?.dependency
-
                             def dependencyMap = [:]
 
                             project.logger.info(project.configurations.runtime.incoming.resolutionResult.allDependencies.toString())
@@ -44,14 +43,19 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                                 def group = dep.groupId.text()
                                 def name = dep.artifactId.text()
                                 def scope = dep.scope.text()
+                                project.logger.info("$group:$name in $scope")
+                                if (scope == 'provided') {
+                                    scope = 'runtime'
+                                }
 
                                 ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
+                                    project.logger.info("$group:$name - r.requested.group : r.requested.module")
                                     (r.requested.group == group) && (r.requested.module == name)
                                 }
 
-                                dep.version[0].value = resolved.selected.moduleVersion.version
+                                dep.version[0].value = resolved?.selected?.moduleVersion?.version
                             }
-                        }
+                        } 
                     }
                 }
             }

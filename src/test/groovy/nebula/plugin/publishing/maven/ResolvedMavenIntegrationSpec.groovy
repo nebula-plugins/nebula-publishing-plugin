@@ -34,7 +34,7 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
     def 'dynamic versions are replaced by the resolved version'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
@@ -58,7 +58,7 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
     def 'handle maven style dynamic versions'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:d:1.3.0')
                 .addModule('test.resolved:d:1.4.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
