@@ -149,7 +149,7 @@ pluginBundle {
 
 publishing {
     publications {
-        nebula(MavenPublication) {
+        mavenNebula(MavenPublication) {
             from components.java
 
             pom.withXml {
