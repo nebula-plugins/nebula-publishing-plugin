@@ -175,6 +175,9 @@ publishing {
 }
 
 // Wire up build and publishing process
+project.tasks.getByName('verifyReleaseStatus').actions.clear()
+project.tasks.getByName('verifySnapshotStatus').actions.clear()
+
 tasks.matching { it.name == 'bintrayUpload' || it.name == 'artifactoryPublish'}.all { Task task ->
     task.mustRunAfter('build')
     tasks.release.dependsOn(task)
