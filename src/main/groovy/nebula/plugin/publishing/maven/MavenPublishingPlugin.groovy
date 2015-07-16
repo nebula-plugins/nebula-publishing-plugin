@@ -25,54 +25,10 @@ import org.gradle.api.publish.maven.MavenPublication
 class MavenPublishingPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply MavenBasePublishingPlugin
-
-        setupPublishingForJavaOrWar(project)
-        addProvidedConfToPom(project)
-    }
-
-    void setupPublishingForJavaOrWar(Project project) {
-        project.afterEvaluate {
-            project.publishing {
-                publications {
-                    nebula(MavenPublication) {
-                        if (project.plugins.hasPlugin(WarPlugin)) {
-                            from project.components.web
-                            pom.withXml {
-                                def dependenciesNode = asNode().appendNode('dependencies')
-
-                                project.configurations.compile.allDependencies.each { Dependency dep ->
-                                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                                    dependencyNode.with {
-                                        appendNode('groupId', dep.group)
-                                        appendNode('artifactId', dep.name)
-                                        appendNode('version', dep.version)
-                                        appendNode('scope', (isProvided(project, dep)) ? 'provided' : 'runtime')
-                                    }
-                                }
-                            }
-                        } else if (project.plugins.hasPlugin(JavaPlugin)){
-                            from project.components.java
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    boolean isProvided(Project project, Dependency dep) {
-        def isProvidedCompile = project.configurations?.providedCompile?.allDependencies?.
-                find { provided -> provided.group == dep.group && provided.name == dep.name }
-        if (isProvidedCompile) {
-            return true
-        }
-        def isProvidedRuntime = project.configurations?.providedRuntime?.allDependencies?.
-                find { provided -> provided.group == dep.group && provided.name == dep.name }
-
-        isProvidedRuntime
-    }
-
-    void addProvidedConfToPom(Project project) {
-
+        project.plugins.apply MavenJavaPublishingPlugin
+        project.plugins.apply DeveloperPomPlugin
+        project.plugins.apply ManifestPomPlugin
+        project.plugins.apply ResolvedMavenPlugin
+        project.plugins.apply ScmPomPlugin
     }
 }

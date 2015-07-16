@@ -34,7 +34,7 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
     def 'dynamic versions are replaced by the resolved version'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
@@ -52,13 +52,13 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.version == '1.1.0'
+        dependency.version.text() == '1.1.0'
     }
 
     def 'handle maven style dynamic versions'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:d:1.3.0')
                 .addModule('test.resolved:d:1.4.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
@@ -76,6 +76,6 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.version == '1.4.1'
+        dependency.version.text() == '1.4.1'
     }
 }

@@ -3,13 +3,12 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import nebula.test.dependencies.ModuleBuilder
 
-class MavenPublishingIntegrationSpec extends IntegrationSpec {
-    File publishDir
-
+class ExcludesMavenIntegrationSpec extends IntegrationSpec {
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishingPlugin)}
+            ${applyPlugin(MavenJavaPublishingPlugin)}
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -25,36 +24,30 @@ class MavenPublishingIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         settingsFile << '''\
-            rootProject.name = 'mavenpublishingtest'
+            rootProject.name = 'excludesmaven'
         '''.stripIndent()
     }
 
-    def 'all of the features work together'() {
+    def 'add excludes to dependencies'() {
         def graph = new DependencyGraphBuilder()
-                .addModule('test:a:0.0.1')
+                .addModule(new ModuleBuilder('test:a:1.0.0')
+                            .addDependency('test:b:2.0.0')
+                            .addDependency('test:c:0.9.0')
+                            .build())
                 .addModule('test:b:1.9.2')
                 .build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
-            apply plugin: 'war'
-            apply plugin: 'nebula.contacts'
-            apply plugin: 'nebula.info'
-
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
             }
 
-            contacts {
-                'nebula@example.test' {
-                    moniker 'Nebula'
-                }
-            }
-
             dependencies {
-                compile 'test:a:0.+'
-                providedCompile 'test:b:[1.0.0, 2.0.0)'
+                compile('test:a:1.0.0') {
+                    exclude group: 'test', module: 'b'
+                }
             }
         """.stripIndent()
 
@@ -63,15 +56,9 @@ class MavenPublishingIntegrationSpec extends IntegrationSpec {
 
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
-        pom.version == '0.1.0'
-        def dependencies = pom.dependencies.dependency
-        def a = dependencies.find { it.artifactId == 'a' }
-        a.version == '0.0.1'
-        def b = dependencies.find { it.artifactId == 'b' }
-        b.version == '1.9.2'
-        b.scope == 'provided'
-        pom.developers.developer[0].name == 'Nebula'
-        pom.properties.nebula_Module_Owner == 'nebula@example.test'
-        pom.url != null
+        pom.dependencies.dependency[0].exclusions.exclusion.size() == 1
+        def aExclusion = pom.dependencies.dependency[0].exclusions.exclusion[0]
+        aExclusion.groupId == 'test'
+        aExclusion.artifactId == 'b'
     }
 }

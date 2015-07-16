@@ -31,6 +31,9 @@ contacts {
     }
 }
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 repositories {
     jcenter()
 }
@@ -80,7 +83,9 @@ pluginBundle {
 
         mavenBasePublishing {
             id = 'nebula.maven-base-publishing'
-            displayName = 
+            displayName = 'Nebula Maven Base Publishing Plugin'
+            description = 'Setup basic nebula MavenPublication'
+            tags = ['nebula', 'publishing', 'maven']
         }
 
         mavenJavaPublishing {
@@ -179,3 +184,22 @@ tasks.matching { it.name == 'bintrayUpload' }.all { Task task ->
         }
     }
 }
+
+project.tasks.matching { it.name == 'artifactoryPublish'}.all { Task task ->
+    project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
+        task.onlyIf {
+            graph.hasTask(':snapshot')
+        }
+    }
+}
+
+import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
+ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
+releaseExtension.with {
+    defaultVersionStrategy = nebula.plugin.release.NetflixOssStrategies.SNAPSHOT
+}
+
+if (project.hasProperty('release.travisci') && project.property('release.travisci').toBoolean()) {
+    project.tasks.release.deleteAllActions()
+    project.tasks.prepare.deleteAllActions()
+ }

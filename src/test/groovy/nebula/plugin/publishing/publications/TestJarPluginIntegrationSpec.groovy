@@ -90,7 +90,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
     def 'test and compile dependencies in pom'() {
         def graph = new DependencyGraphBuilder().addModule('test.compile:a:0.0.1').addModule('test.testcompile:b:0.1.0').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
@@ -124,7 +124,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
     def 'testRuntime dependencies in pom'() {
         def graph = new DependencyGraphBuilder().addModule('test.testruntime:a:0.0.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph).generateTestMavenRepo()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'

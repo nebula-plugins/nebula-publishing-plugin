@@ -1,6 +1,7 @@
 # Nebula Publishing Plugin
 
-// Add travis badges, coveralls
+Travis-ci: ![travis-ci status badge](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=gradle-2.4)
+// coveralls
 
 ## Usage
 
