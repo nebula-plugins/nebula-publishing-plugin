@@ -17,6 +17,9 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.9.0'
 }
 
+apply plugin: 'nebula.nebula-bintray-publishing'
+apply plugin: 'nebula.nebula-ojo-publishing'
+
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
 group = 'com.netflix.nebula'
 
