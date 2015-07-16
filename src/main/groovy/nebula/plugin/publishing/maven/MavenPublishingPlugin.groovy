@@ -29,6 +29,7 @@ class MavenPublishingPlugin implements Plugin<Project> {
         project.plugins.apply DeveloperPomPlugin
         project.plugins.apply ManifestPomPlugin
         project.plugins.apply ResolvedMavenPlugin
+        project.plugins.apply ExcludesMavenPlugin
         project.plugins.apply ScmPomPlugin
     }
 }

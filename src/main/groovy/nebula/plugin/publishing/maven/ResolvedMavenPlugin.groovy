@@ -35,21 +35,18 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                             def dependencies = xml.asNode()?.dependencies?.dependency
                             def dependencyMap = [:]
 
-                            project.logger.info(project.configurations.runtime.incoming.resolutionResult.allDependencies.toString())
-
                             dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
                             dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
                                 def group = dep.groupId.text()
                                 def name = dep.artifactId.text()
                                 def scope = dep.scope.text()
-                                project.logger.info("$group:$name in $scope")
+
                                 if (scope == 'provided') {
                                     scope = 'runtime'
                                 }
 
                                 ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    project.logger.info("$group:$name - r.requested.group : r.requested.module")
                                     (r.requested.group == group) && (r.requested.module == name)
                                 }
 
