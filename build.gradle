@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.0'
+        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.1'
     }
 }
 
@@ -19,6 +19,19 @@ plugins {
 
 apply plugin: 'nebula.nebula-bintray-publishing'
 apply plugin: 'nebula.nebula-ojo-publishing'
+
+bintray {
+    user = 'bintray_user'
+    key = 'bintray_api_key'
+    pkg {
+        repo = 'generic'
+        name = 'gradle-project'
+        userOrg = 'com.netflix.nebula'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+    }
+    publications = ['mavenNebula']
+}
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
 group = 'com.netflix.nebula'
