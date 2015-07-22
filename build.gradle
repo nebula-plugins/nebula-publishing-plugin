@@ -71,7 +71,7 @@ pluginBundle {
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
 
     plugins {
-        publishing {
+        /*publishing {
             id = 'nebula.publishing'
             displayName = 'Nebula Publshing plugin'
             tags = ['nebula', 'publishing', 'maven']
@@ -81,7 +81,7 @@ pluginBundle {
             id = 'nebula.ivy-publishing'
             displayName = 'Nebula Ivy Publishing plugin'
             tags = ['nebula', 'publishing', 'ivy']
-        }
+        }*/
 
         apacheLicensePom {
             id = 'nebula.apache-license-pom'
@@ -160,10 +160,37 @@ pluginBundle {
     }
 }
 
+task sourceJar(type: Jar) {
+    dependsOn tasks.classes
+    from sourceSets.main.allSource
+    classifier 'sources'
+    extension 'jar'
+    group 'build'
+}
+
+task javadocJar(type: Jar) {
+    dependsOn tasks.javadoc
+    from tasks.javadoc.destinationDir
+    classifier 'javadoc'
+    extension 'jar'
+    group 'build'
+}
+
+task groovydocJar(type: Jar) {
+    dependsOn tasks.groovydoc
+    from tasks.groovydoc.destinationDir
+    classifier 'groovydoc'
+    extension 'jar'
+    group 'build'
+}
+
 publishing {
     publications {
         mavenNebula(MavenPublication) {
             from components.java
+            artifact tasks.sourceJar
+            artifact tasks.javadocJar
+            artifact tasks.groovydocJar
 
             pom.withXml {
                 def root = asNode()
