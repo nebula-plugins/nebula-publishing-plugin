@@ -4,12 +4,14 @@ buildscript {
     }
     dependencies {
         classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.1'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
     }
 }
 
 plugins {
     id 'groovy'
     id 'idea'
+    id 'jacoco'
     id 'maven-publish'
     id 'nebula.contacts' version '2.2.0'
     id 'nebula.nebula-release' version '2.2.6'
@@ -62,6 +64,13 @@ dependencies {
     compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.0', optional
     testCompile('com.netflix.nebula:nebula-test:2.2.2') {
         exclude group: 'org.codehaus.groovy'
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true // coveralls plugin depends on xml format report
+        html.enabled = true
     }
 }
 
