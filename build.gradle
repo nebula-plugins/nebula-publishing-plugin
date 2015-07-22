@@ -21,6 +21,7 @@ plugins {
 
 apply plugin: 'nebula.nebula-bintray-publishing'
 apply plugin: 'nebula.nebula-ojo-publishing'
+apply plugin: 'com.github.kt3k.coveralls'
 
 bintray {
     user = 'bintray_user'
