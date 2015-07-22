@@ -3,6 +3,8 @@
 Travis-ci: ![travis-ci status badge](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=gradle-2.4)
 // coveralls
 
+Gitter room: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nebula-plugins/nebula-publishing-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Usage
 
 To apply this plugin if using Gradle 2.1 or newer
