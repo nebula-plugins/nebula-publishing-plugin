@@ -4,7 +4,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.1'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
     }
 }
 
@@ -17,11 +16,11 @@ plugins {
     id 'nebula.nebula-release' version '2.2.6'
     id 'nebula.optional-base' version '2.2.2'
     id 'com.gradle.plugin-publish' version '0.9.0'
+    id 'com.github.kt3k.coveralls' version '2.4.0'
 }
 
 apply plugin: 'nebula.nebula-bintray-publishing'
 apply plugin: 'nebula.nebula-ojo-publishing'
-apply plugin: 'com.github.kt3k.coveralls'
 
 bintray {
     user = 'bintray_user'
