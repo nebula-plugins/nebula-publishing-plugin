@@ -260,5 +260,6 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
     nebulaRelease {
         addReleaseBranchPattern(/HEAD/)
         addReleaseBranchPattern(/v?\d+\.\d+\.\d+/)
+        addReleaseBranchPattern(/gradle-\d+\.\d+/)
     }
  }
