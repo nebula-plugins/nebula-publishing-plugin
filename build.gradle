@@ -258,7 +258,7 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
     project.tasks.release.deleteAllActions()
     project.tasks.prepare.deleteAllActions()
     nebulaRelease {
-        addReleaseBranchPattern /HEAD/
-        addReleaseBranchPattern /v?\d+\.\d+\.\d+/
+        addReleaseBranchPattern(/HEAD/)
+        addReleaseBranchPattern(/v?\d+\.\d+\.\d+/)
     }
  }
