@@ -1,8 +1,8 @@
 # Nebula Publishing Plugin
 
-* Travis-ci: ![travis-ci status badge](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=gradle-2.4)
-* Coveralls: [![Coverage Status](https://coveralls.io/repos/nebula-plugins/nebula-publishing-plugin/badge.svg?branch=master&service=github)](https://coveralls.io/github/nebula-plugins/nebula-publishing-plugin?branch=master)
-* Gitter room: [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nebula-plugins/nebula-publishing-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+![travis-ci status badge](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=gradle-2.4)
+[![Coverage Status](https://coveralls.io/repos/nebula-plugins/nebula-publishing-plugin/badge.svg?branch=gradle-2.4&service=github)]
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nebula-plugins/nebula-publishing-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Usage
 

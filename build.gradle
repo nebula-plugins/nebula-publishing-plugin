@@ -190,6 +190,17 @@ publishing {
 
             pom.withXml {
                 def root = asNode()
+                root.appendNode('name', project.name)
+                root.appendNode('description', project.description)
+                def pomProperties = root.appendNode('properties')
+                pomProperties.appendNode('nebula_Manifest_Version', '1.0')
+                pomProperties.appendNode('nebula_Implementation_Title', "${project.group}:${project.name}:${project.version}")
+                pomProperties.appendNode('nebula_Implementation_Version', project.version)
+                pomProperties.appendNode('nebula_Build_Date', new Date().format('yyyy-MM-dd_HH:mm:ss'))
+                pomProperties.appendNode('nebula_Created_By', "${System.getProperty('java.runtime.version')} (${System.getProperty('java.vm.specification.vendor')})")
+                pomProperties.appendNode('nebula_Build_Java_Version', System.getProperty('java.version'))
+                pomProperties.appendNode('nebula_X_Compile_Target_JDK', project.targetCompatibility)
+                pomProperties.appendNode('nebula_X_Compile_Source_JDK', project.sourceCompatibility)
                 root.appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin')
                 root.appendNode('scm').appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin.git')
                 def devs = root.appendNode('developers')
