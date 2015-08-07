@@ -260,4 +260,4 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
         addReleaseBranchPattern(/v?\d+\.\d+\.\d+/)
         addReleaseBranchPattern(/gradle-\d+\.\d+/)
     }
- }
+}

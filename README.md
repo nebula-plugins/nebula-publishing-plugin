@@ -9,7 +9,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '2.4.0'
+      id 'nebula.<publishing plugin of your choice>' version '2.4.1'
     }
 
 If using an older version of Gradle
@@ -17,7 +17,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:2.4.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:2.4.1'
       }
     }
 
@@ -179,7 +179,7 @@ Eliminates this boilerplate:
 LICENSE
 =======
 
-Copyright 2015 Netflix, Inc.
+Copyright 2014-2015 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

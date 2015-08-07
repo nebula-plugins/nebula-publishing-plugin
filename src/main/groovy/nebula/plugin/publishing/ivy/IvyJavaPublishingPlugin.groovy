@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Netflix, Inc.
+ * Copyright 2015 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.publishing.maven
+package nebula.plugin.publishing.ivy
 
-import nebula.test.PluginProjectSpec
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
-class PomDevelopersPluginSpec extends PluginProjectSpec {
+class IvyJavaPublishingPlugin implements Plugin<Project> {
     @Override
-    String getPluginName() {
-        'nebula-maven-developers'
+    void apply(Project project) {
+
     }
 }

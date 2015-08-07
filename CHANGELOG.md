@@ -1,4 +1,10 @@
-2.4.0 / 2015-06-??
+3.0.0 / 2015-08-07
+==================
+
+* Move to semantic versioning
+* Fix issue detecting optional dependencies
+
+2.4.0 / 2015-07-23
 ==================
 
 * Complete rewrite
