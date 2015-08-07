@@ -1,7 +1,7 @@
 # Nebula Publishing Plugin
 
-[![Build Status](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=gradle-2.4)](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin)
-[![Coverage Status](https://coveralls.io/repos/nebula-plugins/nebula-publishing-plugin/badge.svg?branch=gradle-2.4&service=github)](https://coveralls.io/github/nebula-plugins/nebula-publishing-plugin?branch=gradle-2.4)
+[![Build Status](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=master)](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin)
+[![Coverage Status](https://coveralls.io/repos/nebula-plugins/nebula-publishing-plugin/badge.svg?branch=master&service=github)](https://coveralls.io/github/nebula-plugins/nebula-publishing-plugin?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nebula-plugins/nebula-publishing-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Usage
@@ -9,7 +9,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '2.4.1'
+      id 'nebula.<publishing plugin of your choice>' version '3.0.0'
     }
 
 If using an older version of Gradle
@@ -17,7 +17,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:2.4.1'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:3.0.0'
       }
     }
 
