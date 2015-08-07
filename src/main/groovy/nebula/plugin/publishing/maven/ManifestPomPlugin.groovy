@@ -27,6 +27,13 @@ class ManifestPomPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply MavenBasePublishingPlugin
 
+        try {
+            Class.forName('nebula.plugin.info.InfoBrokerPlugin')
+        } catch (Throwable ex) {
+            project.logger.info('Skipping adding extra manifest elements from the info plugin as it has not been applied')
+            return
+        }
+
         project.plugins.withType(InfoBrokerPlugin) { InfoBrokerPlugin infoBroker ->
             project.plugins.withType(MavenPublishPlugin) {
                 project.publishing {
@@ -39,7 +46,6 @@ class ManifestPomPlugin implements Plugin<Project> {
                                 if (!propertiesNode) {
                                     propertiesNode = xml.asNode().appendNode('properties')
                                 }
-                                //Node propertyNode = root.children().find { it.name == 'properties' }
                                 manifest.each { key, value ->
                                     propertiesNode.appendNode(scrubElementName("nebula_$key"), value)
                                 }

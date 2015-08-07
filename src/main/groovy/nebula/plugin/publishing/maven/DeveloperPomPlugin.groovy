@@ -28,6 +28,13 @@ class DeveloperPomPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(MavenBasePublishingPlugin)
 
+        try {
+            Class.forName('nebula.plugin.contacts.BaseContactsPlugin')
+        } catch (Throwable ex) {
+            project.logger.info('Skipping adding extra manifest elements from the contacts plugin as it has not been applied')
+            return
+        }
+
         project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
             project.plugins.withType(MavenPublishPlugin) {
                 project.publishing {

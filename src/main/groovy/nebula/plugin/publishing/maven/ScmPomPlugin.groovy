@@ -16,9 +16,7 @@
 package nebula.plugin.publishing.maven
 
 import nebula.plugin.info.scm.GitScmProvider
-import nebula.plugin.info.scm.PerforceScmProvider
 import nebula.plugin.info.scm.ScmInfoPlugin
-import nebula.plugin.info.scm.SvnScmProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -29,6 +27,13 @@ class ScmPomPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply(MavenBasePublishingPlugin)
+
+        try {
+            Class.forName('nebula.plugin.info.scm.ScmInfoPlugin')
+        } catch (Throwable ex) {
+            project.logger.info('Skipping adding extra scm elements from the info plugin as it has not been applied')
+            return
+        }
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
             project.plugins.withType(MavenPublishPlugin) {
