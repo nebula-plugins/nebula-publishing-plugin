@@ -50,6 +50,10 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                                     (r.requested.group == group) && (r.requested.module == name)
                                 }
 
+                                def versionNode = dep.version
+                                if (!versionNode) {
+                                    versionNode = dep.appendNode('version')
+                                }
                                 dep.version[0].value = resolved?.selected?.moduleVersion?.version
                             }
                         } 
