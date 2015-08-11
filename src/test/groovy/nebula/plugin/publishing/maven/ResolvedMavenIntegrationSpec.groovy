@@ -18,6 +18,7 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import nebula.test.dependencies.ModuleBuilder
 
 class ResolvedMavenIntegrationSpec extends IntegrationSpec {
     File publishDir
@@ -92,5 +93,31 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def dependency = root.dependencies.dependency[0]
         dependency.version.text() == '1.4.1'
+    }
+
+    def 'omitted versions are replaced resolved version'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            dependencies {
+                compile 'test.resolved:b:1.0.0'
+                compile 'test.resolved:a'
+            }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def b = root.dependencies.dependency.find { it.name = 'b' }
+        b.version.text() == '1.0.0'
     }
 }

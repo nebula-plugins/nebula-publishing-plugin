@@ -1,3 +1,8 @@
+3.0.1 / 2015-08-11
+==================
+
+* Fix handling of direct dependencies with omitted versions
+
 3.0.0 / 2015-08-07
 ==================
 
