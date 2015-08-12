@@ -3,13 +3,14 @@
 [![Build Status](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin.svg?branch=master)](https://travis-ci.org/nebula-plugins/nebula-publishing-plugin)
 [![Coverage Status](https://coveralls.io/repos/nebula-plugins/nebula-publishing-plugin/badge.svg?branch=master&service=github)](https://coveralls.io/github/nebula-plugins/nebula-publishing-plugin?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nebula-plugins/nebula-publishing-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Apache 2.0](https://img.shields.io/github/license/nebula-plugins/nebula-publishing-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 ## Usage
 
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '3.0.1'
+      id 'nebula.<publishing plugin of your choice>' version '3.0.2'
     }
 
 If using an older version of Gradle
@@ -17,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:3.0.1'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:3.0.2'
       }
     }
 
@@ -26,13 +27,7 @@ If using an older version of Gradle
 
 Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish. Current plugins:
 
-* 'nebula-maven-publishing' - Clean up maven output
-  * Refreshes version and groupId, in case it changes after the publication is initially created
-  * Creates a single publication called mavenJava
-  * Sets description in the pom
-  * Alias "install" task to publishMavenJavaPublicationToMavenLocal, analogous to mvn install
-  * Includes Exclude Rules in the pom
-  * Updates versions in the pom to resolved version, if a dynamic version was used.
+* 'nebula-publishing' - Clean up maven output
 * DEPRECATED: 'nebula-source-jar' - Creates a sources jar, that contains the source files. Replace with 'nebula.source-jar'.
 * DEPRECATED: 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc. Replace with 'nebula.javadoc-jar'.
 * DEPRECATED: 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block. Replace with 'nebula.test-jar'.
