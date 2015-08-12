@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.1'
+        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.4'
     }
 }
 
