@@ -31,6 +31,11 @@ class MavenBasePublishingPlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 nebula(MavenPublication) {
+                    pom.withXml { XmlProvider xml ->
+                        def root = xml.asNode()
+                        root.appendNode('name', project.name)
+                        root.appendNode('description', project.description)
+                    }
                 }
             }
         }
