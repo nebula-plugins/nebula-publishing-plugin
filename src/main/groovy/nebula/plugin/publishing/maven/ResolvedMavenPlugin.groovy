@@ -18,6 +18,7 @@ package nebula.plugin.publishing.maven
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -47,7 +48,13 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                                 }
 
                                 ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    (r.requested.group == group) && (r.requested.module == name)
+                                    (r.requested instanceof ModuleComponentSelector) &&
+                                    (r.requested.group == group) &&
+                                    (r.requested.module == name)
+                                }
+
+                                if (!resolved) {
+                                    return  // continue loop if a dependency is not found in dependencyMap
                                 }
 
                                 def versionNode = dep.version

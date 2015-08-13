@@ -120,4 +120,37 @@ class ResolvedMavenIntegrationSpec extends IntegrationSpec {
         def b = root.dependencies.dependency.find { it.name = 'b' }
         b.version.text() == '1.0.0'
     }
+
+    def 'project dependency is not affected by version resolving plugin'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """
+            allprojects {
+                apply plugin: 'java'
+                ${applyPlugin(ResolvedMavenPlugin)}
+
+                repositories { maven { url '${mavenrepo.absolutePath}' } }
+            }
+
+            dependencies {
+                compile project(':sub')
+            }
+        """.stripIndent()
+
+        addSubproject('sub', '''\
+            group = 'nebula.hello'
+            version = '1.0'
+        '''.stripIndent())
+
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def b = root.dependencies.dependency.find { it.name = 'b' }
+        b.version.text() == '1.0'
+    }
 }
