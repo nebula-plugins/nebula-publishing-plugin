@@ -53,6 +53,10 @@ class ResolvedMavenPlugin implements Plugin<Project> {
                                     (r.requested.module == name)
                                 }
 
+                                if (!resolved) {
+                                    return  // continue loop if a dependency is not found in dependencyMap
+                                }
+
                                 def versionNode = dep.version
                                 if (!versionNode) {
                                     versionNode = dep.appendNode('version')
