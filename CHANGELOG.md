@@ -1,12 +1,8 @@
-3.0.3 / 2015-08-13
+3.0.2 / 2015-08-13
 ==================
 
 * Deprecation warnings for old plugin nebula-javadoc-jar, nebula-source-jar, nebula-test-jar
 * Bug fix for multiproject builds with project dependencies via Viacheslav Shvets (slavashvets)                                                                                            
-
-3.0.2 / 2015-08-12
-==================
-
 * Add in name and description to pom
 
 3.0.1 / 2015-08-12
