@@ -28,21 +28,19 @@ class MavenApacheLicensePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        project.plugins.withType(MavenPublishPlugin) {
-            project.publishing {
-                publications {
-                    nebula(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
-                            def licensesNode = xml.asNode()?.licenses
-                            if (!licensesNode) {
-                                licensesNode = xml.asNode().appendNode('licenses')
-                            }
-                            def apache = licensesNode.appendNode('license')
-                            apache.appendNode('name', 'The Apache Software License, Version 2.0')
-                            apache.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                            apache.appendNode('distribution', 'repo'
-                            )
+        project.publishing {
+            publications {
+                nebula(MavenPublication) {
+                    pom.withXml { XmlProvider xml ->
+                        def licensesNode = xml.asNode()?.licenses
+                        if (!licensesNode) {
+                            licensesNode = xml.asNode().appendNode('licenses')
                         }
+                        def apache = licensesNode.appendNode('license')
+                        apache.appendNode('name', 'The Apache Software License, Version 2.0')
+                        apache.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                        apache.appendNode('distribution', 'repo'
+                        )
                     }
                 }
             }

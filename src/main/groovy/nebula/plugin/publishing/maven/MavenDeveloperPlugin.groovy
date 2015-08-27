@@ -36,33 +36,31 @@ class MavenDeveloperPlugin implements Plugin<Project> {
         }
 
         project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
-            project.plugins.withType(MavenPublishPlugin) {
-                project.publishing {
-                    publications {
-                        nebula(MavenPublication) {
-                            pom.withXml { XmlProvider xml ->
-                                def myContacts = contactsPlugin.getAllContacts()
-                                if (myContacts) {
-                                    def developersNode = xml.asNode().appendNode('developers')
-                                    myContacts.each { Contact contact ->
-                                        def devNode = developersNode.appendNode('developer')
-                                        if (contact.github) {
-                                            devNode.appendNode('id', contact.github)
-                                        } else if (contact.twitter) {
-                                            devNode.appendNode('id', contact.twitter)
-                                        }
+            project.publishing {
+                publications {
+                    nebula(MavenPublication) {
+                        pom.withXml { XmlProvider xml ->
+                            def myContacts = contactsPlugin.getAllContacts()
+                            if (myContacts) {
+                                def developersNode = xml.asNode().appendNode('developers')
+                                myContacts.each { Contact contact ->
+                                    def devNode = developersNode.appendNode('developer')
+                                    if (contact.github) {
+                                        devNode.appendNode('id', contact.github)
+                                    } else if (contact.twitter) {
+                                        devNode.appendNode('id', contact.twitter)
+                                    }
 
-                                        if (contact.moniker) {
-                                            devNode.appendNode('name', contact.moniker)
-                                        }
+                                    if (contact.moniker) {
+                                        devNode.appendNode('name', contact.moniker)
+                                    }
 
-                                        devNode.appendNode('email', contact.email)
+                                    devNode.appendNode('email', contact.email)
 
-                                        if (contact.roles) {
-                                            def rolesNode = devNode.appendNode('roles')
-                                            contact.roles.each { String roleString ->
-                                                rolesNode.appendNode('role', roleString)
-                                            }
+                                    if (contact.roles) {
+                                        def rolesNode = devNode.appendNode('roles')
+                                        contact.roles.each { String roleString ->
+                                            rolesNode.appendNode('role', roleString)
                                         }
                                     }
                                 }

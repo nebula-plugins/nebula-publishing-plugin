@@ -26,22 +26,20 @@ class MavenExcludesPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(MavenDependenciesPlugin)
 
-        project.plugins.withType(MavenPublishPlugin) {
-            project.publishing {
-                publications {
-                    nebula(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
-                            def dependencies = xml.asNode()?.dependencies?.dependency
-                            def dependencyMap = [:]
+        project.publishing {
+            publications {
+                nebula(MavenPublication) {
+                    pom.withXml { XmlProvider xml ->
+                        def dependencies = xml.asNode()?.dependencies?.dependency
+                        def dependencyMap = [:]
 
-                            dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
-                            dependencies?.each { Node dep ->
-                                def group = dep.groupId.text()
-                                def name = dep.artifactId.text()
-                                def scope = dep.scope.text()
+                        dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
+                        dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
+                        dependencies?.each { Node dep ->
+                            def group = dep.groupId.text()
+                            def name = dep.artifactId.text()
+                            def scope = dep.scope.text()
 
-                            }
                         }
                     }
                 }

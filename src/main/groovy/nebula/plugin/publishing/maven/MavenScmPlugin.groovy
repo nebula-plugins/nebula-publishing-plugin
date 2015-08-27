@@ -36,18 +36,16 @@ class MavenScmPlugin implements Plugin<Project> {
         }
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
-            project.plugins.withType(MavenPublishPlugin) {
-                project.publishing {
-                    publications {
-                        nebula(MavenPublication) {
-                            pom.withXml { XmlProvider xml ->
-                                def root = xml.asNode()
-                                if (scmInfo.selectedProvider instanceof GitScmProvider) {
-                                    root.appendNode('url', calculateUrlFromOrigin(scmInfo.extension.origin))
-                                }
-                                def scmNode = root.appendNode('scm')
-                                scmNode.appendNode('url', scmInfo.extension.origin)
+            project.publishing {
+                publications {
+                    nebula(MavenPublication) {
+                        pom.withXml { XmlProvider xml ->
+                            def root = xml.asNode()
+                            if (scmInfo.selectedProvider instanceof GitScmProvider) {
+                                root.appendNode('url', calculateUrlFromOrigin(scmInfo.extension.origin))
                             }
+                            def scmNode = root.appendNode('scm')
+                            scmNode.appendNode('url', scmInfo.extension.origin)
                         }
                     }
                 }

@@ -21,10 +21,9 @@ import org.gradle.api.Project
 class MavenPublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply MavenDependenciesPlugin
+        project.plugins.apply MavenResolvedDependenciesPlugin
         project.plugins.apply MavenDeveloperPlugin
         project.plugins.apply MavenManifestPlugin
-        project.plugins.apply MavenResolvedDependenciesPlugin
         project.plugins.apply MavenScmPlugin
     }
 }

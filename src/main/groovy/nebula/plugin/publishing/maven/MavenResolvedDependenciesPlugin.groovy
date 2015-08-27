@@ -31,42 +31,40 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(MavenDependenciesPlugin)
 
-        project.plugins.withType(MavenPublishPlugin) {
-            project.publishing {
-                publications {
-                    nebula(MavenPublication) {
-                        pom.withXml { XmlProvider xml->
-                            def dependencies = xml.asNode()?.dependencies?.dependency
-                            def dependencyMap = [:]
+        project.publishing {
+            publications {
+                nebula(MavenPublication) {
+                    pom.withXml { XmlProvider xml->
+                        def dependencies = xml.asNode()?.dependencies?.dependency
+                        def dependencyMap = [:]
 
-                            dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
-                            dependencies?.each { Node dep ->
-                                def group = dep.groupId.text()
-                                def name = dep.artifactId.text()
-                                def scope = dep.scope.text()
+                        dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
+                        dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
+                        dependencies?.each { Node dep ->
+                            def group = dep.groupId.text()
+                            def name = dep.artifactId.text()
+                            def scope = dep.scope.text()
 
-                                if (scope == 'provided') {
-                                    scope = 'runtime'
-                                }
-
-                                ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    (r.requested instanceof ModuleComponentSelector) &&
-                                    (r.requested.group == group) &&
-                                    (r.requested.module == name)
-                                }
-
-                                if (!resolved) {
-                                    return  // continue loop if a dependency is not found in dependencyMap
-                                }
-
-                                def versionNode = dep.version
-                                if (!versionNode) {
-                                    versionNode = dep.appendNode('version')
-                                }
-                                dep.version[0].value = resolved?.selected?.moduleVersion?.version
+                            if (scope == 'provided') {
+                                scope = 'runtime'
                             }
-                        } 
+
+                            ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
+                                (r.requested instanceof ModuleComponentSelector) &&
+                                (r.requested.group == group) &&
+                                (r.requested.module == name)
+                            }
+
+                            if (!resolved) {
+                                return  // continue loop if a dependency is not found in dependencyMap
+                            }
+
+                            def versionNode = dep.version
+                            if (!versionNode) {
+                                versionNode = dep.appendNode('version')
+                            }
+                            dep.version[0].value = resolved?.selected?.moduleVersion?.version
+                        }
                     }
                 }
             }

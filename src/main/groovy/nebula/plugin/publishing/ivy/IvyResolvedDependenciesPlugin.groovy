@@ -28,40 +28,38 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(IvyDependenciesPlugin)
 
-        project.plugins.withType(IvyPublishPlugin) {
-            project.publishing {
-                publications {
-                    nebulaIvy(IvyPublication) {
-                        descriptor.withXml { XmlProvider xml ->
-                            def dependencies = xml.asNode()?.dependencies?.dependency
-                            def dependencyMap = [:]
+        project.publishing {
+            publications {
+                nebulaIvy(IvyPublication) {
+                    descriptor.withXml { XmlProvider xml ->
+                        def dependencies = xml.asNode()?.dependencies?.dependency
+                        def dependencyMap = [:]
 
-                            dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
-                            dependencies?.each { Node dep ->
-                                def group = dep.@org
-                                def name = dep.@name
-                                def scope = dep.@conf
+                        dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
+                        dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
+                        dependencies?.each { Node dep ->
+                            def group = dep.@org
+                            def name = dep.@name
+                            def scope = dep.@conf
 
-                                if (scope == 'provided->default' || scope == 'runtime->default') {
-                                    scope = 'runtime'
-                                }
-
-                                if (scope == 'test->default') {
-                                    scope = 'test'
-                                }
-
-                                ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    (r.requested instanceof ModuleComponentSelector) &&
-                                            (r.requested.group == group) &&
-                                            (r.requested.module == name)
-                                }
-
-                                if (!resolved) {
-                                    return  // continue loop if a dependency is not found in dependencyMap
-                                }
-                                dep.@rev = resolved?.selected?.moduleVersion?.version
+                            if (scope == 'provided->default' || scope == 'runtime->default') {
+                                scope = 'runtime'
                             }
+
+                            if (scope == 'test->default') {
+                                scope = 'test'
+                            }
+
+                            ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
+                                (r.requested instanceof ModuleComponentSelector) &&
+                                        (r.requested.group == group) &&
+                                        (r.requested.module == name)
+                            }
+
+                            if (!resolved) {
+                                return  // continue loop if a dependency is not found in dependencyMap
+                            }
+                            dep.@rev = resolved?.selected?.moduleVersion?.version
                         }
                     }
                 }

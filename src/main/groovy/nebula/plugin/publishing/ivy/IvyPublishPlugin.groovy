@@ -21,6 +21,7 @@ import org.gradle.api.Project
 class IvyPublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-
+        project.plugins.apply IvyResolvedDependenciesPlugin
+        project.plugins.apply IvyManifestPlugin
     }
 }
