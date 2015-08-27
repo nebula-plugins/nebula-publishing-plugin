@@ -44,19 +44,11 @@ class TestJarPlugin implements Plugin<Project> {
 
                             pom.withXml { XmlProvider xml ->
                                 def root = xml.asNode()
-                                def dependenciesList = root?.dependencies
-                                def dependenciesNode
-                                if (!dependenciesList) {
-                                    dependenciesNode = root.appendNode('dependencies')
-                                } else {
-                                    dependenciesNode = dependenciesList[0]
-                                }
+                                def dependencies = root.dependencies ? root.dependencies[0] : root.appendNode('dependencies')
 
-                                def testConfs = [project.configurations.testCompile, project.configurations.testRuntime]
-                                testConfs.each {
-                                    it.dependencies.each { Dependency dep ->
-                                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                                        dependencyNode.with {
+                                [project.configurations.testCompile, project.configurations.testRuntime].each {
+                                    it.dependencies.each { dep ->
+                                        dependencies.appendNode('dependency').with {
                                             appendNode('groupId', dep.group)
                                             appendNode('artifactId', dep.name)
                                             appendNode('version', dep.version)

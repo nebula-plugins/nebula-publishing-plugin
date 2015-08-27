@@ -82,29 +82,10 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
     }
 
     def 'test dependencies in pom'() {
-        buildFile << '''\
-            apply plugin: 'java'
-
-            repositories { jcenter() }
-            dependencies {
-                testCompile 'junit:junit:4.11'
-            }
-        '''.stripIndent()
-
-        when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
-
-        then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.groupId.text() == 'junit'
-        dependency.artifactId.text() == 'junit'
-        dependency.version.text() == '4.11'
-        dependency.scope.text() == 'test'
-    }
-
-    def 'test and compile dependencies in pom'() {
-        def graph = new DependencyGraphBuilder().addModule('test.compile:a:0.0.1').addModule('test.testcompile:b:0.1.0').build()
+        def graph = new DependencyGraphBuilder()
+                .addModule('test:compileDep:0.0.1')
+                .addModule('test:runtimeDep:0.0.1')
+                .build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
@@ -114,8 +95,8 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
                 maven { url '${mavenrepo.absolutePath}' }
             }
             dependencies {
-                compile 'test.compile:a:0.0.1'
-                testCompile 'test.testcompile:b:0.1.0'
+                testCompile 'test:compileDep:0.0.1'
+                testRuntime 'test:runtimeDep:0.0.1'
             }
         """.stripIndent()
 
@@ -126,43 +107,25 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
         def dependencyList = root.dependencies.dependency
 
+        then:
         dependencyList.size() == 2
-        def a = dependencyList.find { node -> node.artifactId == 'a' }
-        a.groupId.text() == 'test.compile'
-        a.version.text() == '0.0.1'
-        a.scope.text() == 'runtime'
-        def b = dependencyList.find { node -> node.artifactId == 'b' }
-        b.groupId.text() == 'test.testcompile'
-        b.version.text() == '0.1.0'
-        b.scope.text() == 'test'
-    }
-
-    def 'testRuntime dependencies in pom'() {
-        def graph = new DependencyGraphBuilder().addModule('test.testruntime:a:0.0.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
-
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                maven { url '${mavenrepo.absolutePath}' }
-            }
-            dependencies {
-                testRuntime 'test.testruntime:a:0.0.1'
-            }
-        """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        def compileDep = dependencyList.find { it.artifactId == 'compileDep' }
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
-        def dependencyList = root.dependencies.dependency
+        compileDep.groupId.text() == 'test'
+        compileDep.artifactId.text() == 'compileDep'
+        compileDep.version.text() == '0.0.1'
+        compileDep.scope.text() == 'test'
 
-        dependencyList.size() == 1
-        def a = dependencyList.find { node -> node.artifactId == 'a' }
-        a.groupId.text() == 'test.testruntime'
-        a.version.text() == '0.0.1'
-        a.scope.text() == 'test'
+        when:
+        def runtimeDep = dependencyList.find { it.artifactId == 'runtimeDep' }
+
+        then:
+        runtimeDep.groupId.text() == 'test'
+        runtimeDep.artifactId.text() == 'runtimeDep'
+        runtimeDep.version.text() == '0.0.1'
+        runtimeDep.scope.text() == 'test'
     }
 }
