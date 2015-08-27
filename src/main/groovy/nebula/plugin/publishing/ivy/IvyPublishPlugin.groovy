@@ -23,5 +23,6 @@ class IvyPublishPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply IvyResolvedDependenciesPlugin
         project.plugins.apply IvyManifestPlugin
+        project.plugins.apply IvyExcludesPlugin
     }
 }
