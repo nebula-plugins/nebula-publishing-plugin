@@ -13,18 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.publishing.maven
+package nebula.plugin.testkit
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-
-class MavenPublishingPlugin implements Plugin<Project> {
-    @Override
-    void apply(Project project) {
-        project.plugins.apply MavenJavaPublishingPlugin
-        project.plugins.apply DeveloperPomPlugin
-        project.plugins.apply ManifestPomPlugin
-        project.plugins.apply ResolvedMavenPlugin
-        project.plugins.apply ScmPomPlugin
-    }
+class IntegrationHelperSpec {
 }

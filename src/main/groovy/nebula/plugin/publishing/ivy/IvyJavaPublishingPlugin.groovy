@@ -17,10 +17,52 @@ package nebula.plugin.publishing.ivy
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.WarPlugin
+import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyJavaPublishingPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        project.plugins.apply IvyBasePublishingPlugin
 
+        project.publishing {
+            publications {
+                nebulaIvy(IvyPublication) {
+                    descriptor.withXml { XmlProvider xml ->
+                        if (project.plugins.hasPlugin(WarPlugin)) {
+                            project.configurations.runtime.visible = true
+                            def dependenciesNode = xml.asNode().dependencies[0]
+
+                            project.configurations.compile.allDependencies.each { Dependency dep ->
+                                def dependencyNode = dependenciesNode.appendNode('dependency',
+                                        ['org': dep.group,
+                                        'name': dep.name,
+                                        'rev': dep.version,
+                                        'revConstraint': dep.version,
+                                        'conf': 'runtime->default'])
+                                    //appendNode('scope', (isProvided(project, dep)) ? 'provided' : 'runtime')
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        project.afterEvaluate {
+            project.publishing {
+                publications {
+                    nebulaIvy(IvyPublication) {
+                        if (project.plugins.hasPlugin(WarPlugin)) {
+                            from project.components.web
+                        } else if (project.plugins.hasPlugin(JavaPlugin)){
+                            from project.components.java
+                        }
+                    }
+                }
+            }
+        }
     }
 }
