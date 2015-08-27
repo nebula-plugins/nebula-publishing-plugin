@@ -42,15 +42,33 @@ repositories {
     jcenter()
 }
 
+// Write the plugin's classpath to a file to share with the tests
+task createClasspathManifest {
+    def outputDir = file("$buildDir/$name")
+
+    inputs.files sourceSets.main.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("$outputDir/plugin-classpath.txt").text = sourceSets.main.runtimeClasspath.join("\n")
+    }
+}
+
 dependencies {
     compile localGroovy()
     compile gradleApi()
     compile 'com.netflix.nebula:nebula-core:2.2.0'
     compile 'com.netflix.nebula:gradle-info-plugin:2.2.2', optional
     compile 'com.netflix.nebula:gradle-contacts-plugin:2.2.0', optional
-    testCompile('com.netflix.nebula:nebula-test:2.2.2') {
+    testCompile('com.netflix.nebula:nebula-test:3.0.0') {
         exclude group: 'org.codehaus.groovy'
     }
+    testCompile gradleTestKit()
+    testCompile('org.spockframework:spock-core:1.0-groovy-2.3') {
+        exclude group: 'org.codehaus.groovy'
+    }
+    testRuntime files(tasks.createClasspathManifest)
 }
 
 jacocoTestReport {
