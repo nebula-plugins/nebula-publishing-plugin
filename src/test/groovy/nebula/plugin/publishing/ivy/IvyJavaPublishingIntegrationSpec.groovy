@@ -269,7 +269,6 @@ class IvyJavaPublishingIntegrationSpec extends Specification {
         dependency.@org == 'testjava'
         dependency.@name == 'b'
         dependency.@rev == '0.0.1'
-        dependency.@conf == 'runtime->default'
     }
 
     /*def 'verify ivy.xml contains runtime dependencies'() {

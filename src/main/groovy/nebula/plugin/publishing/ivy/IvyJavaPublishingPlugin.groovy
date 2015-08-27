@@ -33,17 +33,14 @@ class IvyJavaPublishingPlugin implements Plugin<Project> {
                 nebulaIvy(IvyPublication) {
                     descriptor.withXml { XmlProvider xml ->
                         if (project.plugins.hasPlugin(WarPlugin)) {
-                            project.configurations.runtime.visible = true
                             def dependenciesNode = xml.asNode().dependencies[0]
-
                             project.configurations.compile.allDependencies.each { Dependency dep ->
-                                def dependencyNode = dependenciesNode.appendNode('dependency',
-                                        ['org': dep.group,
-                                        'name': dep.name,
-                                        'rev': dep.version,
-                                        'revConstraint': dep.version,
-                                        'conf': 'runtime->default'])
-                                    //appendNode('scope', (isProvided(project, dep)) ? 'provided' : 'runtime')
+                                dependenciesNode.appendNode('dependency', [
+                                    'org': dep.group,
+                                    'name': dep.name,
+                                    'rev': dep.version,
+                                    'revConstraint': dep.version
+                                ])
                             }
                         }
                     }
