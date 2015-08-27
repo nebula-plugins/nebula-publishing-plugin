@@ -37,7 +37,7 @@ class ResolvedIvyPluginProjectSpec extends PluginProjectSpec {
             url mavenRepo.toURL()
         }
         project.plugins.apply(NebulaIvyPublishingPlugin)
-        project.plugins.apply(ResolvedIvyPlugin)
+        project.plugins.apply(IvyResolvedDependenciesPlugin)
         project.apply plugin: 'java'
         project.dependencies {
             compile 'g:a1:1.+'

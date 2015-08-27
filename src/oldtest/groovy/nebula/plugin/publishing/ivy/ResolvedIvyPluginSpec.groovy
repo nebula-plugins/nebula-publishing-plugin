@@ -9,19 +9,19 @@ class ResolvedIvyPluginSpec extends Specification {
         def result
         
         when:
-        result = ResolvedIvyPlugin.extractConfs('compile->compile')
+        result = IvyResolvedDependenciesPlugin.extractConfs('compile->compile')
 
         then:
         result == ['compile'] as Set
         
         when:
-        result = ResolvedIvyPlugin.extractConfs('runtime,provided->*')
+        result = IvyResolvedDependenciesPlugin.extractConfs('runtime,provided->*')
 
         then:
         result == ['runtime', 'provided'] as Set
 
         when:
-        result = ResolvedIvyPlugin.extractConfs('runtime->master;test->*')
+        result = IvyResolvedDependenciesPlugin.extractConfs('runtime->master;test->*')
 
         then:
         result == ['runtime', 'test'] as Set

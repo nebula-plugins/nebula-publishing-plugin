@@ -15,7 +15,7 @@
  */
 package nebula.plugin.publishing.publications
 
-import nebula.plugin.publishing.maven.MavenPublishingPlugin
+import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
 
 class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
@@ -24,7 +24,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishingPlugin)}
+            ${applyPlugin(MavenPublishPlugin)}
             ${applyPlugin(JavadocJarPlugin)}
 
             version = '0.1.0'

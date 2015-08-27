@@ -15,7 +15,7 @@
  */
 package nebula.plugin.publishing.publications
 
-import nebula.plugin.publishing.maven.MavenPublishingPlugin
+import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
@@ -26,7 +26,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishingPlugin)}
+            ${applyPlugin(MavenPublishPlugin)}
             ${applyPlugin(TestJarPlugin)}
 
             version = '0.1.0'

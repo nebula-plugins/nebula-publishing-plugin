@@ -69,7 +69,7 @@ class NebulaIvyPublishingPlugin implements Plugin<Project> {
             }
         })
 
-        project.plugins.apply(ResolvedIvyPlugin)
+        project.plugins.apply(IvyResolvedDependenciesPlugin)
     }
 
     /**
