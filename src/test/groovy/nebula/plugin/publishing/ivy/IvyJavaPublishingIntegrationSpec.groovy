@@ -18,7 +18,6 @@ package nebula.plugin.publishing.ivy
 import nebula.plugin.testkit.IntegrationHelperSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.gradle.testkit.runner.GradleRunner
 
 class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
     File publishDir
@@ -55,10 +54,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.jar').exists()
@@ -71,10 +67,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.jar').exists()
@@ -86,10 +79,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.jar').exists()
@@ -101,10 +91,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.war').exists()
@@ -118,10 +105,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.war').exists()
@@ -136,10 +120,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'ivytest-0.1.0.war').exists()
@@ -155,10 +136,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         '''.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
@@ -166,6 +144,7 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         root.info.@module == 'ivytest'
         root.info.@revision == '0.1.0'
         root.info.description == 'test description'
+
         def artifact = root.publications.artifact[0]
         artifact.@name == 'ivytest'
         artifact.@type == 'jar'
@@ -173,8 +152,8 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
         artifact.@conf == 'runtime'
     }
 
-    def 'verify ivy.xml contains compile dependencies'() {
-        def graph = new DependencyGraphBuilder().addModule('testjava:a:0.0.1').build()
+    def 'verify ivy.xml contains compile and runtime dependencies'() {
+        def graph = new DependencyGraphBuilder().addModule('testjava:a:0.0.1').addModule('testjava:b:0.0.1').build()
         File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
 
         buildFile << """\
@@ -186,26 +165,25 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
 
             dependencies {
                 compile 'testjava:a:0.0.1'
+                runtime 'testjava:b:0.0.1'
             }
         """.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.@org == 'testjava'
-        dependency.@name == 'a'
-        dependency.@rev == '0.0.1'
-        dependency.@conf == 'runtime->default'
+        assertDependency('testjava', 'a', '0.0.1', 'runtime->default')
+        assertDependency('testjava', 'b', '0.0.1', 'runtime->default')
     }
 
-    def 'verify ivy.xml contains compile dependencies for war projects'() {
-        def graph = new DependencyGraphBuilder().addModule('testjava:b:0.0.1').build()
+    def 'verify ivy.xml contains compile and runtime dependencies for war projects'() {
+        def graph = new DependencyGraphBuilder()
+                .addModule('testjava:a:0.0.1')
+                .addModule('testjava:b:0.0.1')
+                .addModule('testjava:c:0.0.1')
+                .addModule('testjava:d:0.0.1')
+                .build()
         File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
 
         buildFile << """\
@@ -217,77 +195,25 @@ class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
             }
 
             dependencies {
-                compile 'testjava:b:0.0.1'
+                compile 'testjava:a:0.0.1'
+                runtime 'testjava:b:0.0.1'
+                providedCompile 'testjava:c:0.0.1'
+                providedRuntime 'testjava:d:0.0.1'
             }
         """.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.@org == 'testjava'
-        dependency.@name == 'b'
-        dependency.@rev == '0.0.1'
+        ('a'..'d').each { name -> assertDependency('testjava', name, '0.0.1') }
     }
 
-    /*def 'verify ivy.xml contains runtime dependencies'() {
-        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
-        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
-
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                ivy { url '${ivyrepo.absolutePath}' }
-            }
-
-            dependencies {
-                runtime 'testjava:c:0.0.1'
-            }
-        """.stripIndent()
-
-        when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
-
-        then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.groupId.text() == 'testjava'
-        dependency.artifactId.text() == 'c'
-        dependency.version.text() == '0.0.1'
-        dependency.scope.text() == 'runtime'
+    boolean assertDependency(String org, String name, String rev, String conf = null) {
+        def dependencies = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text).dependencies.dependency
+        def found = dependencies.find { it.@name == name && it.@org == org }
+        assert found.@rev == rev
+        assert !conf || found.@conf == conf
+        found
     }
-
-    def 'verify ivy.xml contains provided dependencies for wars'() {
-        def graph = new DependencyGraphBuilder().addModule('testjava:d:0.0.1').build()
-        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
-
-        buildFile << """\
-            apply plugin: 'war'
-
-            repositories {
-                ivy { url '${ivyrepo.absolutePath}' }
-            }
-
-            dependencies {
-                providedCompile 'testjava:d:0.0.1'
-            }
-        """.stripIndent()
-
-        when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
-
-        then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.groupId.text() == 'testjava'
-        dependency.artifactId.text() == 'd'
-        dependency.version.text() == '0.0.1'
-        dependency.scope.text() == 'provided'
-    }*/
 }

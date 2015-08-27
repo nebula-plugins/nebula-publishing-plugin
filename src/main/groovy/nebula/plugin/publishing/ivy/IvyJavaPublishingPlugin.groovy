@@ -34,7 +34,7 @@ class IvyJavaPublishingPlugin implements Plugin<Project> {
                     descriptor.withXml { XmlProvider xml ->
                         if (project.plugins.hasPlugin(WarPlugin)) {
                             def dependenciesNode = xml.asNode().dependencies[0]
-                            project.configurations.compile.allDependencies.each { Dependency dep ->
+                            project.configurations.runtime.allDependencies.each { Dependency dep ->
                                 dependenciesNode.appendNode('dependency', [
                                     'org': dep.group,
                                     'name': dep.name,

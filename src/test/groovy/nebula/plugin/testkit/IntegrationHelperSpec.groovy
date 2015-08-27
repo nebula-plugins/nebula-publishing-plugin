@@ -15,6 +15,7 @@
  */
 package nebula.plugin.testkit
 
+import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TestName
 import spock.lang.Specification
@@ -58,5 +59,12 @@ class IntegrationHelperSpec extends Specification {
         if (!keepFiles) {
             projectDir.deleteDir()
         }
+    }
+
+    void runTasks(String... tasks) {
+        GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments(tasks.join(' '))
+                .build()
     }
 }
