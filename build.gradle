@@ -84,86 +84,74 @@ pluginBundle {
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
 
     plugins {
-        /*publishing {
-            id = 'nebula.publishing'
-            displayName = 'Nebula Publshing plugin'
-            tags = ['nebula', 'publishing', 'maven']
-        }
-
-        ivyPublishing {
-            id = 'nebula.ivy-publishing'
-            displayName = 'Nebula Ivy Publishing plugin'
-            tags = ['nebula', 'publishing', 'ivy']
-        }*/
-
         apacheLicensePom {
-            id = 'nebula.apache-license-pom'
-            displayName = 'Nebula Apache License Pom Plugin'
+            id = 'nebula.maven-apache-license'
+            displayName = 'Nebula Maven Apache License Plugin'
             description = 'Add the Apache v2 license to the pom'
-            tags = ['nebula', 'publishing', 'maven', 'apache', 'license']
+            tags = ['nebula', 'publish', 'maven', 'apache', 'license']
         }
 
         manifestPom {
-            id = 'nebula.manifest-pom'
-            displayName = 'Nebula Manifest Pom Plugin'
+            id = 'nebula.maven-manifest'
+            displayName = 'Nebula Maven Manifest Plugin'
             description = 'Append additional information from our info plugin to the properties section of the pom'
-            tags = ['nebula', 'publishing', 'maven']
+            tags = ['nebula', 'publish', 'maven']
         }
 
         mavenBasePublishing {
-            id = 'nebula.maven-base-publishing'
+            id = 'nebula.maven-base-publish'
             displayName = 'Nebula Maven Base Publishing Plugin'
-            description = 'Setup basic nebula MavenPublication'
-            tags = ['nebula', 'publishing', 'maven']
+            description = 'Add a name and description element to the published POM'
+            tags = ['nebula', 'publish', 'maven']
         }
 
         mavenJavaPublishing {
-            id = 'nebula.maven-java-publishing'
+            id = 'nebula.maven-dependencies'
             displayName = 'Nebula Maven Java Publishing Plugin'
-            description = 'Add component.war if a war project, add component.java otherwise'
-            tags = ['nebula', 'publishing', 'maven', 'java']
+            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
+            tags = ['nebula', 'publish', 'maven']
         }
 
         mavenPublishing {
-            id = 'nebula.maven-publishing'
+            id = 'nebula.maven-publish'
             displayName = 'Nebula Maven Publishing Plugin'
             description = 'Applies our opinions for maven publications'
-            tags = ['nebula', 'publishing', 'maven']
+            tags = ['nebula', 'publish', 'maven']
         }
 
         resolvedPom {
-            id = 'nebula.resolved-pom'
+            id = 'nebula.maven-resolved-dependencies'
             displayName = 'Nebula Resolved Pom Plugin'
-            description = 'Replaces dynamic versions with the actual resolved versions'
-            tags = ['nebula', 'publishing', 'maven']
+            description = 'Built on top of nebula.maven-publish, replacing dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publish', 'maven']
         }
 
         scmPom {
-            id = 'nebula.scm-pom'
+            id = 'nebula.maven-scm'
             displayName = 'Nebula SCM Pom Plugin'
             description = 'Adds SCM info to the pom'
-            tags = ['nebula', 'publishing', 'maven']
+            tags = ['nebula', 'publish', 'maven']
         }
 
         javadocJar {
             id = 'nebula.javadoc-jar'
             displayName = 'Nebula Javadoc Jar Publishing plugin'
             description = 'Create a javadocJar task to package up the javadoc and add it to the publications'
-            tags = ['nebula', 'publishing', 'javadoc']
+            tags = ['nebula', 'publish', 'javadoc']
         }
 
         sourceJar {
             id = 'nebula.source-jar'
             displayName = 'Nebula Source Jar Publishing plugin'
             description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
-            tags = ['nebula', 'publishing', 'source']
+            tags = ['nebula', 'publish', 'source']
         }
 
         testJar {
             id = 'nebula.test-jar'
             displayName = 'Nebula Test Jar Publishing plugin'
             description = 'Create a testJar task to package up test classes and add it to the publications'
-            tags = ['nebula', 'publishing', 'test']
+            tags = ['nebula', 'publish', 'test']
         }
     }
 

@@ -34,6 +34,9 @@ class MavenBasePublishPlugin implements Plugin<Project> {
                     pom.withXml { XmlProvider xml ->
                         def root = xml.asNode()
                         root.appendNode('name', project.name)
+
+                        // if there is no description block, Maven Central will
+                        // not accept the artifact, but it is OK if it is blank
                         root.appendNode('description', project.description)
                     }
                 }
