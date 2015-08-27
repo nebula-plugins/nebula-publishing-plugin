@@ -15,18 +15,15 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.publishing.PublishBasePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class MavenBasePublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply PublishBasePlugin
-        project.plugins.apply MavenPublishPlugin
+        project.plugins.apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
         project.publishing {
             publications {

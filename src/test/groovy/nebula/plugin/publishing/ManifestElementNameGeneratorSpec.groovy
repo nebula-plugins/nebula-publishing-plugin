@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.publishing.maven
+package nebula.plugin.publishing
 
 import nebula.test.PluginProjectSpec
 import spock.lang.Unroll
 
-class MavenManifestPluginSpec extends PluginProjectSpec {
-    String pluginName = 'nebula.maven-manifest'
+class ManifestElementNameGeneratorSpec extends PluginProjectSpec {
+    String pluginName = 'nebula.ivy-manifest'
 
     @Unroll
     def 'name conversions from #manifestName to #convertedName'() {
         expect:
-        MavenManifestPlugin.scrubElementName(manifestName) == convertedName
+        ManifestElementNameGenerator.elementName(manifestName) == convertedName
 
         where:
         manifestName | convertedName

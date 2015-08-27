@@ -15,18 +15,15 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.plugin.publishing.PublishBasePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
 
 class IvyBasePublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply PublishBasePlugin
-        project.plugins.apply IvyPublishPlugin
+        project.plugins.apply org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
 
         project.publishing {
             publications {
@@ -39,7 +36,7 @@ class IvyBasePublishPlugin implements Plugin<Project> {
                         } else {
                             infoNode = infoNode[0]
                         }
-                        infoNode.appendNode('description', project.description)
+                        infoNode.appendNode('description', [:], project.description ?: '')
                     }
                 }
             }

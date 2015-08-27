@@ -26,7 +26,7 @@ class IvyDependenciesPluginIntegrationSpec extends IntegrationHelperSpec {
         keepFiles = true
 
         buildFile << """\
-            apply plugin: 'nebula.ivy-java-publishing'
+            apply plugin: 'nebula.ivy-dependencies'
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -128,30 +128,6 @@ class IvyDependenciesPluginIntegrationSpec extends IntegrationHelperSpec {
         !new File(publishDir, 'ivytest-0.1.0.jar').exists()
     }
 
-    def 'verify ivy.xml is correct'() {
-        buildFile << '''\
-            apply plugin: 'java'
-
-            description = 'test description'
-        '''.stripIndent()
-
-        when:
-        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
-
-        then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        root.info.@organisation == 'test.nebula'
-        root.info.@module == 'ivytest'
-        root.info.@revision == '0.1.0'
-        root.info.description == 'test description'
-
-        def artifact = root.publications.artifact[0]
-        artifact.@name == 'ivytest'
-        artifact.@type == 'jar'
-        artifact.@ext == 'jar'
-        artifact.@conf == 'runtime'
-    }
-
     def 'verify ivy.xml contains compile and runtime dependencies'() {
         def graph = new DependencyGraphBuilder().addModule('testjava:a:0.0.1').addModule('testjava:b:0.0.1').build()
         File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
@@ -210,7 +186,7 @@ class IvyDependenciesPluginIntegrationSpec extends IntegrationHelperSpec {
     }
 
     boolean assertDependency(String org, String name, String rev, String conf = null) {
-        def dependencies = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text).dependencies.dependency
+        def dependencies = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml')).dependencies.dependency
         def found = dependencies.find { it.@name == name && it.@org == org }
         assert found.@rev == rev
         assert !conf || found.@conf == conf
