@@ -18,6 +18,7 @@ package nebula.plugin.publishing.ivy
 import nebula.plugin.testkit.IntegrationHelperSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import nebula.test.dependencies.ModuleBuilder
 import org.gradle.testkit.runner.GradleRunner
 
 class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec {
@@ -27,7 +28,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         keepFiles = true
 
         buildFile << """\
-            apply plugin: 'nebula.resolved-ivy'
+            apply plugin: 'nebula.ivy-resolved-dependencies'
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -79,28 +80,34 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         dependency.@rev == '1.1.0'
     }
 
-    /*def 'handle maven style dynamic versions'() {
+    def 'handle ivy style dynamic versions'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:d:1.3.0')
                 .addModule('test.resolved:d:1.4.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
+        generator.generateTestIvyRepo()
 
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories {
+                ${generator.ivyRepositoryBlock}
+            }
 
             dependencies {
-                compile 'test.resolved:d:[1.0.0, 2.0.0)'
+                compile 'test.resolved:d:[1.0.0, 2.0.0['
             }
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
+                .build()
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.version.text() == '1.4.1'
+        dependency.@rev == '1.4.1'
     }
 
     def 'omitted versions are replaced resolved version'() {
@@ -121,26 +128,29 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
-        def b = root.dependencies.dependency.find { it.name = 'b' }
-        b.version.text() == '1.0.0'
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
+        def a = root.dependencies.dependency.find { it.@name = 'a' }
+        a.@rev == '1.0.0'
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
                 .build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
+        generator.generateTestIvyRepo()
 
         buildFile << """
             allprojects {
                 apply plugin: 'java'
-                ${applyPlugin(ResolvedMavenPlugin)}
+                apply plugin: 'nebula.ivy-resolved-dependencies'
 
-                repositories { maven { url '${mavenrepo.absolutePath}' } }
+                repositories {
+                    ${generator.ivyRepositoryBlock}
+                }
             }
 
             dependencies {
@@ -151,14 +161,18 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         addSubproject('sub', '''\
             group = 'nebula.hello'
             version = '1.0'
+
+            dependencies {
+                compile 'test.resolved:b:1.+'
+            }
         '''.stripIndent())
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
         def b = root.dependencies.dependency.find { it.name = 'b' }
-        b.version.text() == '1.0'
-    }*/
+        b.@rev == '1.0'
+    }
 }

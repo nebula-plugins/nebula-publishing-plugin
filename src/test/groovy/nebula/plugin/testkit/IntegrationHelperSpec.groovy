@@ -15,6 +15,7 @@
  */
 package nebula.plugin.testkit
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.Rule
 import org.junit.rules.TestName
@@ -61,7 +62,16 @@ class IntegrationHelperSpec extends Specification {
         }
     }
 
-    void runTasks(String... tasks) {
+    void addSubproject(String name, String buildGradle) {
+        def subdir = new File(projectDir, name)
+        subdir.mkdirs()
+
+        settingsFile << "include '${name}'"
+
+        new File(subdir, 'build.gradle').text = buildGradle
+    }
+
+    BuildResult runTasks(String... tasks) {
         GradleRunner.create()
                 .withProjectDir(projectDir)
                 .withArguments(tasks.join(' '))
