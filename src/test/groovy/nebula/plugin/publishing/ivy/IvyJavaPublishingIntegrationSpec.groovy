@@ -15,48 +15,18 @@
  */
 package nebula.plugin.publishing.ivy
 
+import nebula.plugin.testkit.IntegrationHelperSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestName
-import spock.lang.Specification
 
-class IvyJavaPublishingIntegrationSpec extends Specification {
-    boolean keepFiles = true
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
-    @Rule TestName testName = new TestName()
-    File projectDir
-    File buildFile
-    File settingsFile
+class IvyJavaPublishingIntegrationSpec extends IntegrationHelperSpec {
     File publishDir
 
     def setup() {
-        projectDir = new File("build/test/${this.class.canonicalName}/${testName.methodName.replaceAll(/\W+/, '-')}")
-        if (projectDir.exists()) {
-            projectDir.deleteDir()
-        }
-        projectDir.mkdirs()
-        buildFile = new File(projectDir, 'build.gradle')
-        def pluginClasspathResource = this.class.classLoader.findResource("plugin-classpath.txt")
-        if (pluginClasspathResource == null) {
-            throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
-        }
+        keepFiles = true
 
-        def pluginClasspath = pluginClasspathResource.readLines()
-                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
-                .collect { "'$it'" }
-                .join(", ")
-
-        settingsFile = new File(projectDir, 'settings.gradle')
         buildFile << """\
-            buildscript {
-                dependencies {
-                    classpath files($pluginClasspath)
-                }
-            }
-
             apply plugin: 'nebula.ivy-java-publishing'
 
             version = '0.1.0'
@@ -77,12 +47,6 @@ class IvyJavaPublishingIntegrationSpec extends Specification {
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
-    }
-
-    def cleanup() {
-        if (!keepFiles) {
-            projectDir.deleteDir()
-        }
     }
 
     def 'creates a jar publication'() {

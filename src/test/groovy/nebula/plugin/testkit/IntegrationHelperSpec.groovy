@@ -15,5 +15,48 @@
  */
 package nebula.plugin.testkit
 
-class IntegrationHelperSpec {
+import org.junit.Rule
+import org.junit.rules.TestName
+import spock.lang.Specification
+
+class IntegrationHelperSpec extends Specification {
+    boolean keepFiles = false
+    @Rule TestName testName = new TestName()
+    File projectDir
+    File buildFile
+    File settingsFile
+
+    def setup() {
+        projectDir = new File("build/test/${this.class.canonicalName}/${testName.methodName.replaceAll(/\W+/, '-')}")
+        if (projectDir.exists()) {
+            projectDir.deleteDir()
+        }
+        projectDir.mkdirs()
+
+        def pluginClasspathResource = this.class.classLoader.findResource("plugin-classpath.txt")
+        if (pluginClasspathResource == null) {
+            throw new IllegalStateException("Did not find plugin classpath resource, run `testClasses` build task.")
+        }
+
+        def pluginClasspath = pluginClasspathResource.readLines()
+                .collect { it.replace('\\', '\\\\') } // escape backslashes in Windows paths
+                .collect { "'$it'" }
+                .join(", ")
+
+        settingsFile = new File(projectDir, 'settings.gradle')
+        buildFile = new File(projectDir, 'build.gradle')
+        buildFile << """\
+            buildscript {
+                dependencies {
+                    classpath files($pluginClasspath)
+                }
+            }
+        """.stripIndent()
+    }
+
+    def cleanup() {
+        if (!keepFiles) {
+            projectDir.deleteDir()
+        }
+    }
 }
