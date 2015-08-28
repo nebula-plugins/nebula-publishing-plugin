@@ -47,19 +47,5 @@ class IvyDependenciesPlugin implements Plugin<Project> {
                 }
             }
         }
-
-        project.afterEvaluate {
-            project.publishing {
-                publications {
-                    nebulaIvy(IvyPublication) {
-                        if (project.plugins.hasPlugin(WarPlugin)) {
-                            from project.components.web
-                        } else if (project.plugins.hasPlugin(JavaPlugin)){
-                            from project.components.java
-                        }
-                    }
-                }
-            }
-        }
     }
 }

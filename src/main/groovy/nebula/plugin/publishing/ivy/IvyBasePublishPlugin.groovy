@@ -18,6 +18,8 @@ package nebula.plugin.publishing.ivy
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyBasePublishPlugin implements Plugin<Project> {
@@ -37,6 +39,20 @@ class IvyBasePublishPlugin implements Plugin<Project> {
                             infoNode = infoNode[0]
                         }
                         infoNode.appendNode('description', [:], project.description ?: '')
+                    }
+                }
+            }
+        }
+
+        project.afterEvaluate {
+            project.publishing {
+                publications {
+                    nebulaIvy(IvyPublication) {
+                        if (project.plugins.hasPlugin(WarPlugin)) {
+                            from project.components.web
+                        } else if (project.plugins.hasPlugin(JavaPlugin)){
+                            from project.components.java
+                        }
                     }
                 }
             }
