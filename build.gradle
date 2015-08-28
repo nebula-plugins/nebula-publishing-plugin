@@ -89,53 +89,102 @@ pluginBundle {
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
 
     plugins {
-        apacheLicensePom {
+        mavenApacheLicense {
             id = 'nebula.maven-apache-license'
             displayName = 'Nebula Maven Apache License Plugin'
             description = 'Add the Apache v2 license to the pom'
             tags = ['nebula', 'publish', 'maven', 'apache', 'license']
         }
 
-        manifestPom {
+        mavenBasePublish {
+            id = 'nebula.maven-base-publish'
+            displayName = 'Nebula Maven Base Publish Plugin'
+            description = 'Setup nebula maven publication. Add a name and description element to the published POM'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
+        mavenDependencies {
+            id = 'nebula.maven-dependencies'
+            displayName = 'Nebula Maven Dependencies Plugin'
+            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
+        mavenExcludes {
+            id = 'nebula.maven-excludes'
+            displayName = 'Nebula Maven Excludes Plugin'
+            description = 'Insert excludes into the pom when individual dependencies have exclude statements'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
+        mavenManifest {
             id = 'nebula.maven-manifest'
             displayName = 'Nebula Maven Manifest Plugin'
             description = 'Append additional information from our info plugin to the properties section of the pom'
             tags = ['nebula', 'publish', 'maven']
         }
 
-        mavenBasePublishing {
-            id = 'nebula.maven-base-publish'
-            displayName = 'Nebula Maven Base Publishing Plugin'
-            description = 'Add a name and description element to the published POM'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenJavaPublishing {
-            id = 'nebula.maven-dependencies'
-            displayName = 'Nebula Maven Java Publishing Plugin'
-            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenPublishing {
+        mavenPublish {
             id = 'nebula.maven-publish'
-            displayName = 'Nebula Maven Publishing Plugin'
+            displayName = 'Nebula Maven Publish Plugin'
             description = 'Applies our opinions for maven publications'
             tags = ['nebula', 'publish', 'maven']
         }
 
-        resolvedPom {
+        mavenResolvedDependencies {
             id = 'nebula.maven-resolved-dependencies'
-            displayName = 'Nebula Resolved Pom Plugin'
-            description = 'Built on top of nebula.maven-publish, replacing dynamic versions with the actual resolved versions'
+            displayName = 'Nebula Maven Resolved Dependencies Plugin'
+            description = 'Built on top of nebula.maven-dependencies, replacing dynamic versions with the actual resolved versions'
             tags = ['nebula', 'publish', 'maven']
         }
 
-        scmPom {
+        mavenScm {
             id = 'nebula.maven-scm'
-            displayName = 'Nebula SCM Pom Plugin'
+            displayName = 'Nebula Maven SCM Plugin'
             description = 'Adds SCM info to the pom'
             tags = ['nebula', 'publish', 'maven']
+        }
+
+        ivyBasePublish {
+            id = 'nebula.ivy-base-publish'
+            displayName = 'Nebula Ivy Base Publish Plugin'
+            description = 'Setup nebulaIvy IvyPublication'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyDependencies {
+            id = 'nebula.ivy-dependencies'
+            displayName = 'Nebula Ivy Dependencies Plugin'
+            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyExcludes {
+            id = 'nebula.ivy-excludes'
+            displayName = 'Nebula Ivy Excludes Plugin'
+            description = 'Insert excludes into the ivy.xml when individual dependencies have exclude statements'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyManifest {
+            id = 'nebulaivy-manifest'
+            displayName = 'Nebula Ivy Manifest Plugin'
+            description = 'Append additional information from our info plugin to the info section of the ivy.xml'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyPublish {
+            id = 'nebula.ivy-publish'
+            displayName = 'Nebula Ivy Publish Plugin'
+            description = 'Applies our opinions for ivy publications'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyResolvedDependencies {
+            id = 'nebula.ivy-resolved-dependencies'
+            displayName = 'Nebula Ivy Resolved Dependencies Plugin'
+            description = 'Built on top of nebula.ivy-dependencies, replacing dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publish', 'ivy']
         }
 
         javadocJar {
