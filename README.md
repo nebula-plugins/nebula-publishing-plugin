@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '3.0.2'
+      id 'nebula.<publishing plugin of your choice>' version '4.0.0'
     }
 
 If using an older version of Gradle
@@ -18,34 +18,23 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:3.0.2'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.0.0'
       }
     }
 
     apply plugin: 'nebula.<publishing plugin of your choice>'
 
 
-Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish. Current plugins:
+Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish.
 
-* 'nebula-publishing' - Clean up maven output
 * DEPRECATED: 'nebula-source-jar' - Creates a sources jar, that contains the source files. Replace with 'nebula.source-jar'.
 * DEPRECATED: 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc. Replace with 'nebula.javadoc-jar'.
 * DEPRECATED: 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block. Replace with 'nebula.test-jar'.
 
-* nebula.apache-license-pom - adds the Apache v2 license to the pom
-* nebula.javadoc-jar - adds a javadoc jar publication
-* nebula.manifest-pom - adds various manifest values to the properties block of the pom
-* nebula.maven-base-publishing - sets up basic publication used by other plugins
-* nebula.maven-java-publishing - adds in a default of publishing components.java and detection of war projects components.web
-* nebula.maven-publishing - apply if you want all of our opinions nebula.maven-base-publishing, nebula.maven-java-publishing, nebula.manifest-pom, nebula.resolved-pom, and nebula.scm-pom
-* nebula.resolved-pom - changes all dynamic versions to resolved versions so 3.x or [2.0.0, 3.0.0) will be resolved to specific versions
-* nebula.scm-pom - adds SCM information to the pom
-* nebula.source-jar - adds a source jar publication
-* nebula.test-jar - adds a test jar publication
 
 ## Maven Related Publishing Plugins
 
-### nebula.maven-base-publishing
+### nebula.maven-base-publish
 
 Create a maven publication named nebula. All of the maven based publishing plugins will interact with this publication.
 All of the other maven based plugins will also automatically apply this so most users will not need to.
@@ -61,7 +50,7 @@ Eliminates this boilerplate:
       }
     }
 
-### nebula.maven-java-publishing
+### nebula.maven-dependencies
 
 In an after evaluate block we detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
 
@@ -88,21 +77,83 @@ if war not detected
       }
     }
 
-### nebula.maven-publishing
+### nebula.maven-publish
 
 Link all the other maven plugins together.
 
-### nebula.manifest-pom
+### nebula.maven-manifest
 
 Adds a properties block to the pom. Copying in data from our [gradle-info-plugin](https://github.com/nebula-plugins/gradle-info-plugin).
 
-### nebula.resolved-pom
+### nebula.maven-resolved
 
 Walk through all project dependencies and replace all dynamic dependencies with what those jars currently resolve to.
 
-### nebula.scm-pom
+### nebula.maven-excludes
+
+Place excludes from single dependencies into the pom.
+
+### nebula.maven-scm
 
 Adds scm block to the pom. Tries to use the the info-scm plugin from [gradle-info-plugin](https://github.com/nebula-plugins/gradle-info-plugin) 
+
+## Ivy Related Publishing Plugins
+
+### nebula.ivy-base-publish
+
+Eliminates this boilerplate:
+
+    apply plugin: 'ivy-publish'
+                   
+    publishing {
+      publications {
+        nebulaIvy(IvyPublication) {
+        }
+      }
+    }
+    
+### nebula.ivy-dependencies
+
+In an after evaluate block we detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
+
+Applying this plugin would be the same as:
+
+if war detected
+
+    publishing {
+      publications {
+        nebulaIvy(IvyPublication) {
+          from components.web
+          // code to append dependencies since they are useful information
+        }
+      }
+    }
+
+if war not detected
+
+    publishing {
+      publications {
+        nebulaIvy(IvyPublication) {
+          from components.java
+        }
+      }
+    }
+
+### nebula.ivy-publish
+
+Link all the other ivy plugins together.
+
+### nebula.ivy-manifest
+
+Adds a properties block to the ivy.xml. Copying in data from our [gradle-info-plugin](https://github.com/nebula-plugins/gradle-info-plugin).
+
+### nebula.ivy-resolved
+
+Walk through all project dependencies and replace all dynamic dependencies with what those jars currently resolve to.
+
+### nebula.ivy-excludes
+
+Place excludes from single dependencies into the ivy.xml
 
 ## Extra Publication Plugins
 
@@ -121,7 +172,10 @@ Eliminates this boilerplate:
     }
     publishing {
       publications {
-        nebula(MavenPublication) {
+        nebula(MavenPublication) { // if maven-publish is applied
+          artifact tasks.javadocJar
+        }
+        nebulaIvy(IvyPublication) { // if ivy-publish is applied
           artifact tasks.javadocJar
         }
       }
@@ -142,13 +196,19 @@ Eliminates this boilerplate:
     }
     publishing {
       publications {
-        nebula(MavenPublication) {
+        nebula(MavenPublication) { // if maven-publish is applied
+          artifact tasks.sourceJar
+        }
+        nebulaIvy(IvyPublication) { // if ivy-publish is applied
           artifact tasks.sourceJar
         }
       }
     }
 
-### nebula.test-jar
+### nebula.test-jar - DEPRECATED
+
+We will be removing this functionality in the next major release. We feel it is better to create a project for any
+shared test harnesses than to try and create an extra jar out of the test classes.
 
 Eliminates this boilerplate:
 
@@ -161,11 +221,18 @@ Eliminates this boilerplate:
     }
     publishing {
       publications {
-        nebula(MavenPublication) {
-          artifact project.tasks.testJar
+        nebula(MavenPublication) { // if maven-publish is applied
+          artifact tasks.testJar
 
           pom.withXml { XmlProvider xml ->
-            // code to add dependencies into the pom under the test scope see source code nebula.plugin.publishing.maven.
+            // code to add dependencies into the pom under the test scope see source code nebula.plugin.publishing.publications.TestJarPlugin
+          }
+        }
+        nebulaIvy(IvyPublication) { // if ivy-publish is applied
+          artifact tasks.testJar
+          
+          descriptor.withXml { XmlProvider xml ->
+            // code to add dependencies into ivy.xml for the test scope
           }
         }
       }
@@ -174,6 +241,9 @@ Eliminates this boilerplate:
 Gradle Compatibility Tested
 ---------------------------
 
+Built with Oracle JDK7
+Tested with Oracle JDK8
+
 | Gradle Version | Works |
 | :------------: | :---: |
 | 2.2.1          | yes   |
@@ -181,6 +251,7 @@ Gradle Compatibility Tested
 | 2.4            | yes   |
 | 2.5            | yes   |
 | 2.6            | yes   |
+| 2.7-rc-1       | yes   |
 
 LICENSE
 =======

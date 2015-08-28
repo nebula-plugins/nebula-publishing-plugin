@@ -1,8 +1,9 @@
-3.1.0 / 2015-08-??
+4.0.0 / 2015-08-28
 ==================
 
-* Move to gradle-2.6 as our base environment
-*  
+* renames of multiple classes and plugins
+* deprecation of nebula.test-jar, we feel this is best met by a project for common testing helpers
+* Move to gradle-2.6 as our base environment  
 
 3.0.2 / 2015-08-13
 ==================

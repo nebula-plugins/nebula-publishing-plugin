@@ -1,6 +1,0 @@
-{
-  "com.netflix.nebula:gradle-contacts-plugin": { "locked": "2.2.0", "requested": "2.2.+" },
-  "com.netflix.nebula:gradle-info-plugin": { "locked": "2.2.0", "requested": "2.2.+" },
-  "com.netflix.nebula:nebula-core": { "locked": "2.2.0", "requested": "2.2.+" },
-  "com.netflix.nebula:nebula-test": { "locked": "2.2.0", "requested": "2.2.+" }
-}

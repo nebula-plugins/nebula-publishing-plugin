@@ -72,6 +72,11 @@ dependencies {
     testRuntime files(tasks.createClasspathManifest)
 }
 
+test {
+    maxHeapSize = '1g'
+    maxParallelForks = Math.max(Runtime.runtime.availableProcessors() - 2, 1)
+}
+
 jacocoTestReport {
     reports {
         xml.enabled = true // coveralls plugin depends on xml format report
@@ -269,7 +274,7 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
 }
 
 gradleTest {
-    versions '2.2.1', '2.3', '2.4', '2.5', '2.6'
+    versions '2.2.1', '2.3', '2.4', '2.5', '2.6', '2.7-rc-1'
 }
 
 gradleTest.dependsOn(jar)
