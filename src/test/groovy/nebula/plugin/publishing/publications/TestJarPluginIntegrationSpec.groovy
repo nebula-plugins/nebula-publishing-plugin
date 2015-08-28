@@ -15,34 +15,54 @@
  */
 package nebula.plugin.publishing.publications
 
+import nebula.plugin.publishing.ivy.IvyPublishPlugin
 import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
+@Deprecated
 class TestJarPluginIntegrationSpec extends IntegrationSpec {
     File publishDir
     File unzipDir
 
     def setup() {
+        def graph = new DependencyGraphBuilder()
+                .addModule('test:compileDep:0.0.1')
+                .addModule('test:runtimeDep:0.0.1')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
         buildFile << """\
-            ${applyPlugin(MavenPublishPlugin)}
+            apply plugin: 'java'
             ${applyPlugin(TestJarPlugin)}
 
             version = '0.1.0'
-            group = 'test.nebula'
+            group = 'nebula'
 
-            publishing {
-                repositories {
-                    maven {
-                        name = 'testLocal'
-                        url = 'testrepo'
-                    }
-                }
+            repositories {
+                jcenter()
+                maven { url '${mavenrepo.absolutePath}' }
             }
+        """.stripIndent()
+
+        settingsFile << '''\
+            rootProject.name = 'testjartest'
+        '''.stripIndent()
+
+        publishDir = new File(projectDir, 'testrepo/nebula/testjartest/0.1.0')
+        unzipDir = new File(projectDir, 'unpacked')
+    }
+
+    def 'create test jar'() {
+        setup:
+        buildFile << """
+            ${applyPlugin(MavenPublishPlugin)}
+            ${publishingBlock('maven')}
+            dependencies { testCompile 'junit:junit:4.11' }
 
             task unzip(type: Copy) {
-                def zipFile = file('testrepo/test/nebula/maventest/0.1.0/maventest-0.1.0-tests.jar')
+                def zipFile = file('testrepo/nebula/testjartest/0.1.0/testjartest-0.1.0-tests.jar')
                 def outputDir = file('unpacked')
 
                 from zipTree(zipFile)
@@ -50,26 +70,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
             }
 
             unzip.dependsOn 'publishNebulaPublicationToTestLocalRepository'
-        """.stripIndent()
-
-        settingsFile << '''\
-            rootProject.name = 'maventest'
-        '''.stripIndent()
-
-        publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
-        unzipDir = new File(projectDir, 'unpacked')
-    }
-
-    def 'create test jar'() {
-        buildFile << '''\
-            apply plugin: 'java'
-
-            repositories { jcenter() }
-            dependencies {
-                testCompile 'junit:junit:4.11'
-            }
-        '''.stripIndent()
-
+        """
         writeHelloWorld('example')
         writeTest('src/test/java/', 'example', false)
 
@@ -82,30 +83,22 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
     }
 
     def 'test dependencies in pom'() {
-        def graph = new DependencyGraphBuilder()
-                .addModule('test:compileDep:0.0.1')
-                .addModule('test:runtimeDep:0.0.1')
-                .build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
-
+        setup:
         buildFile << """\
-            apply plugin: 'java'
+            ${applyPlugin(MavenPublishPlugin)}
+            ${publishingBlock('maven')}
 
-            repositories {
-                maven { url '${mavenrepo.absolutePath}' }
-            }
             dependencies {
                 testCompile 'test:compileDep:0.0.1'
                 testRuntime 'test:runtimeDep:0.0.1'
             }
-        """.stripIndent()
+        """
 
         when:
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
-        def dependencyList = root.dependencies.dependency
+        def dependencyList = new XmlSlurper().parse(new File(publishDir, 'testjartest-0.1.0.pom')).dependencies.dependency
 
         then:
         dependencyList.size() == 2
@@ -115,7 +108,6 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         compileDep.groupId.text() == 'test'
-        compileDep.artifactId.text() == 'compileDep'
         compileDep.version.text() == '0.0.1'
         compileDep.scope.text() == 'test'
 
@@ -124,8 +116,63 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         runtimeDep.groupId.text() == 'test'
-        runtimeDep.artifactId.text() == 'runtimeDep'
         runtimeDep.version.text() == '0.0.1'
         runtimeDep.scope.text() == 'test'
+    }
+
+    def 'test dependencies in ivy.xml'() {
+        buildFile << """\
+            ${applyPlugin(IvyPublishPlugin)}
+            ${publishingBlock('ivy')}
+
+            dependencies {
+                testCompile 'test:compileDep:0.0.1'
+                testRuntime 'test:runtimeDep:0.0.1'
+            }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository')
+
+        def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
+        def configurationList = root.configurations.conf
+
+        then:
+        configurationList.find { it.@name == 'test' }
+
+        when:
+        def dependencyList = root.dependencies.dependency
+
+        then:
+        dependencyList.size() == 2
+
+        when:
+        def compileDep = dependencyList.find { it.@name == 'compileDep' }
+
+        then:
+        compileDep.@org == 'test'
+        compileDep.@rev == '0.0.1'
+        compileDep.@conf == 'test->default'
+
+        when:
+        def runtimeDep = dependencyList.find { it.@name == 'runtimeDep' }
+
+        then:
+        runtimeDep.@org == 'test'
+        runtimeDep.@rev == '0.0.1'
+        runtimeDep.@conf == 'test->default'
+    }
+
+    def publishingBlock(String type) {
+        """
+        publishing {
+            repositories {
+                $type {
+                    name = 'testLocal'
+                    url = 'testrepo'
+                }
+            }
+        }
+        """
     }
 }

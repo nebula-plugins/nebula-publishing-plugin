@@ -36,10 +36,10 @@ class IvyDependenciesPlugin implements Plugin<Project> {
                             def dependencies = xml.asNode().dependencies[0]
                             project.configurations.testRuntime.allDependencies.each { dep ->
                                 dependencies.appendNode('dependency', [
-                                    'org': dep.group,
-                                    'name': dep.name,
-                                    'rev': dep.version,
-                                    'revConstraint': dep.version
+                                    org: dep.group,
+                                    name: dep.name,
+                                    rev: dep.version,
+                                    revConstraint: dep.version
                                 ])
                             }
                         }

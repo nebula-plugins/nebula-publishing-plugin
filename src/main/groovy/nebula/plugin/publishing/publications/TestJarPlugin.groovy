@@ -18,15 +18,23 @@ package nebula.plugin.publishing.publications
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
 
+/**
+ * This feature is deprecated.  The paved road is for any common test harnesses to be bundled in the main source folder
+ * of a separate project.  Only that project's compile and runtime configurations should be exported so that it is
+ * possible to test the test harness without affecting the testCompile and testRuntime classpaths of the consumer of
+ * the test harness.
+ */
+@Deprecated
 class TestJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+        project.logger.warn('The testJar task is deprecated.  Please place common test harness code in its own project and publish separately.')
+
         project.plugins.withType(JavaPlugin) { // needed for source sets
             project.tasks.create('testJar', Jar) {
                 dependsOn project.tasks.getByName('testClasses')
@@ -36,7 +44,7 @@ class TestJarPlugin implements Plugin<Project> {
                 group 'build'
             }
 
-            project.plugins.withType(MavenPublishPlugin) {
+            project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
                 project.publishing {
                     publications {
                         nebula(MavenPublication) {
@@ -54,6 +62,42 @@ class TestJarPlugin implements Plugin<Project> {
                                             appendNode('version', dep.version)
                                             appendNode('scope', 'test')
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
+                project.publishing {
+                    publications {
+                        nebulaIvy(IvyPublication) {
+                            artifact project.tasks.testJar
+
+                            descriptor.withXml { XmlProvider xml ->
+                                def root = xml.asNode()
+
+                                def confs = root.configurations[0]
+                                if(!confs.conf.find { it.@name == 'test' }) {
+                                    confs.appendNode('conf', [
+                                        visibility: 'public',
+                                        extends: 'runtime',
+                                        name: 'test'
+                                    ])
+                                }
+
+                                def dependencyList = root.dependencies[0]
+                                [project.configurations.testCompile, project.configurations.testRuntime].each {
+                                    it.dependencies.each { dep ->
+                                        dependencyList.appendNode('dependency', [
+                                            org: dep.group,
+                                            name: dep.name,
+                                            rev: dep.version,
+                                            revConstraint: dep.version,
+                                            conf: 'test->default'
+                                        ])
                                     }
                                 }
                             }
