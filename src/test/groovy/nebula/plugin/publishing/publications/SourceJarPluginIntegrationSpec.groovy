@@ -15,16 +15,20 @@
  */
 package nebula.plugin.publishing.publications
 
+import nebula.plugin.publishing.ivy.IvyPublishPlugin
 import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
 
 class SourceJarPluginIntegrationSpec extends IntegrationSpec {
-    File publishDir
-    File unzipDir
+    File mavenPublishDir
+    File ivyPublishDir
+    File mavenUnzipDir
+    File ivyUnzipDir
 
     def setup() {
         buildFile << """\
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(SourceJarPlugin)}
 
             version = '0.1.0'
@@ -33,44 +37,72 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
             publishing {
                 repositories {
                     maven {
-                        name = 'testLocal'
-                        url = 'testrepo'
+                        name = 'testMaven'
+                        url = 'testmaven'
+                    }
+                    ivy {
+                        name = 'testIvy'
+                        url = 'testivy'
                     }
                 }
             }
 
-            task unzip(type: Copy) {
-                def zipFile = file('testrepo/test/nebula/maventest/0.1.0/maventest-0.1.0-sources.jar')
-                def outputDir = file('unpacked')
+            task unzipMaven(type: Copy) {
+                def zipFile = file('testmaven/test/nebula/sourcetest/0.1.0/sourcetest-0.1.0-sources.jar')
+                def outputDir = file('unpackedMaven')
 
                 from zipTree(zipFile)
                 into outputDir
             }
 
-            unzip.dependsOn 'publishNebulaPublicationToTestLocalRepository'
+            unzipMaven.dependsOn 'publishNebulaPublicationToTestMavenRepository'
+
+            task unzipIvy(type: Copy) {
+                def zipFile = file('testivy/test.nebula/sourcetest/0.1.0/sourcetest-0.1.0-sources.jar')
+                def outputDir = file('unpackedIvy')
+
+                from zipTree(zipFile)
+                into outputDir
+            }
+
+            unzipIvy.dependsOn 'publishNebulaIvyPublicationToTestIvyRepository'
         """.stripIndent()
 
         settingsFile << '''\
-            rootProject.name = 'maventest'
+            rootProject.name = 'sourcetest'
         '''.stripIndent()
 
-        publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
-        unzipDir = new File(projectDir, 'unpacked')
+        mavenPublishDir = new File(projectDir, 'testmaven/test/nebula/sourcetest/0.1.0')
+        ivyPublishDir = new File(projectDir, 'testivy/test.nebula/sourcetest/0.1.0')
+        mavenUnzipDir = new File(projectDir, 'unpackedMaven')
+        ivyUnzipDir = new File(projectDir, 'unpackedIvy')
     }
 
-    def 'creates a source jar'() {
+    def 'creates a source jar with maven publishing'() {
         buildFile << '''\
             apply plugin: 'java'
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository')
 
         then:
-        new File(publishDir, 'maventest-0.1.0-sources.jar').exists()
+        new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
     }
 
-    def 'source jar contains java sources'() {
+    def 'creates a source jar with ivy publishing'() {
+        buildFile << '''\
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaIvyPublicationToTestIvyRepository')
+
+        then:
+        new File(ivyPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+    }
+
+    def 'source jar contains java sources for maven publication'() {
         buildFile << '''\
             apply plugin: 'java'
         '''.stripIndent()
@@ -78,15 +110,31 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloWorld('example')
 
         when:
-        runTasksSuccessfully('unzip')
+        runTasksSuccessfully('unzipMaven')
 
         then:
-        def helloWorld = new File(unzipDir, 'example/HelloWorld.java')
+        def helloWorld = new File(mavenUnzipDir, 'example/HelloWorld.java')
         helloWorld.exists()
         helloWorld.text.contains 'public class HelloWorld'
     }
 
-    def 'source jar contains groovy sources'() {
+    def 'source jar contains java sources for ivy publication'() {
+        buildFile << '''\
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        writeHelloWorld('example')
+
+        when:
+        runTasksSuccessfully('unzipIvy')
+
+        then:
+        def helloWorld = new File(ivyUnzipDir, 'example/HelloWorld.java')
+        helloWorld.exists()
+        helloWorld.text.contains 'public class HelloWorld'
+    }
+
+    def 'source jar contains groovy sources for maven publication'() {
         buildFile << '''\
             apply plugin: 'groovy'
 
@@ -95,6 +143,38 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
+        writeHelloGroovy()
+
+        when:
+        runTasksSuccessfully('unzipMaven')
+
+        then:
+        def helloWorld = new File(mavenUnzipDir, 'example/HelloWorld.groovy')
+        helloWorld.exists()
+        helloWorld.text.contains 'class HelloWorld'
+    }
+
+    def 'source jar contains groovy sources for ivy publication'() {
+        buildFile << '''\
+            apply plugin: 'groovy'
+
+            dependencies {
+                compile localGroovy()
+            }
+        '''.stripIndent()
+
+        writeHelloGroovy()
+
+        when:
+        runTasksSuccessfully('unzipIvy')
+
+        then:
+        def helloWorld = new File(ivyUnzipDir, 'example/HelloWorld.groovy')
+        helloWorld.exists()
+        helloWorld.text.contains 'class HelloWorld'
+    }
+
+    private void writeHelloGroovy() {
         def dir = new File(projectDir, 'src/main/groovy/example')
         dir.mkdirs()
         def example = new File(dir, 'HelloWorld.groovy')
@@ -107,13 +187,5 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
                 }
             }
         '''.stripIndent()
-
-        when:
-        runTasksSuccessfully('unzip')
-
-        then:
-        def helloWorld = new File(unzipDir, 'example/HelloWorld.groovy')
-        helloWorld.exists()
-        helloWorld.text.contains 'class HelloWorld'
     }
 }
