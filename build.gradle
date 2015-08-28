@@ -17,6 +17,7 @@ plugins {
     id 'nebula.optional-base' version '2.2.2'
     id 'com.gradle.plugin-publish' version '0.9.1'
     id 'com.github.kt3k.coveralls' version '2.4.0'
+    id 'org.ysb33r.gradletest' version '0.5.4'
 }
 
 apply plugin: 'nebula.nebula-bintray'
@@ -265,4 +266,13 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
         addReleaseBranchPattern(/v?\d+\.\d+\.\d+/)
         addReleaseBranchPattern(/gradle-\d+\.\d+/)
     }
+}
+
+gradleTest {
+    versions '2.2.1', '2.3', '2.4', '2.5', '2.6'
+}
+
+gradleTest.dependsOn(jar)
+gradleTest.doFirst {
+    project.version = project.version.toString()
 }
