@@ -167,7 +167,7 @@ pluginBundle {
         }
 
         ivyManifest {
-            id = 'nebulaivy-manifest'
+            id = 'nebula.ivy-manifest'
             displayName = 'Nebula Ivy Manifest Plugin'
             description = 'Append additional information from our info plugin to the info section of the ivy.xml'
             tags = ['nebula', 'publish', 'ivy']
