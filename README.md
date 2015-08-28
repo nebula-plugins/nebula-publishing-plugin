@@ -36,8 +36,12 @@ Provides publishing related plugins to reduce boiler plate and add functionality
 
 ### nebula.maven-base-publish
 
-Create a maven publication named nebula. All of the maven based publishing plugins will interact with this publication.
-All of the other maven based plugins will also automatically apply this so most users will not need to.
+Create a maven publication named nebula. This named container will be used to generate task names as described in 
+[the Maven Publish documentation on gradle.org](https://docs.gradle.org/current/userguide/publishing_maven.html). Examples 
+include `publishNebulaPublicationToMavenLocalRepository` and `publishNebulaPublicationToMyArtifactoryRepository`. 
+
+All of the maven based publishing plugins will interact with this publication. All of the other maven based plugins will
+also automatically apply this so most users will not need to.
 
 Eliminates this boilerplate:
 
@@ -100,6 +104,13 @@ Adds scm block to the pom. Tries to use the the info-scm plugin from [gradle-inf
 ## Ivy Related Publishing Plugins
 
 ### nebula.ivy-base-publish
+
+Create an ivy publication named nebulaIvy. This named container will be used to generate task names as described in 
+[the Ivy Publish documentation on gradle.org](https://docs.gradle.org/current/userguide/publishing_ivy.html). Examples 
+include `publishNebulaIvyPublicationToMyLocalIvyRepository` and `publishNebulaIvyPublicationToMyArtifactoryRepository`. 
+
+All of the ivy based publishing plugins will interact with this publication. All of the other ivy based plugins will
+also automatically apply this so most users will not need to.
 
 Eliminates this boilerplate:
 
