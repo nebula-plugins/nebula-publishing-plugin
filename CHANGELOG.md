@@ -1,3 +1,8 @@
+4.0.1 / 2015-08-28
+==================
+
+* Release with fix for Gradle Plugin Portal so that v4.0.1 shows up there
+
 4.0.0 / 2015-08-28
 ==================
 
