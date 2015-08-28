@@ -33,9 +33,9 @@ class IvyDependenciesPlugin implements Plugin<Project> {
                 nebulaIvy(IvyPublication) {
                     descriptor.withXml { XmlProvider xml ->
                         if (project.plugins.hasPlugin(WarPlugin)) {
-                            def dependenciesNode = xml.asNode().dependencies[0]
-                            project.configurations.runtime.allDependencies.each { Dependency dep ->
-                                dependenciesNode.appendNode('dependency', [
+                            def dependencies = xml.asNode().dependencies[0]
+                            project.configurations.testRuntime.allDependencies.each { dep ->
+                                dependencies.appendNode('dependency', [
                                     'org': dep.group,
                                     'name': dep.name,
                                     'rev': dep.version,
