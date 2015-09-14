@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '4.0.1'
+      id 'nebula.<publishing plugin of your choice>' version '4.1.0'
     }
 
 If using an older version of Gradle
@@ -18,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.0.1'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.1.0'
       }
     }
 
@@ -80,6 +80,10 @@ if war not detected
         }
       }
     }
+    
+### nebula.maven-dependencies-jar
+
+If another plugin is interfering with the publishing extension you can use this to produce a jar publication.
 
 ### nebula.maven-publish
 
@@ -262,7 +266,7 @@ Tested with Oracle JDK8
 | 2.4            | yes   |
 | 2.5            | yes   |
 | 2.6            | yes   |
-| 2.7-rc-1       | yes   |
+| 2.7            | yes   |
 
 LICENSE
 =======

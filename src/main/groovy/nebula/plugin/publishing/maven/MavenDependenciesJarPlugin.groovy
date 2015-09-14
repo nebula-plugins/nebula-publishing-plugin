@@ -17,21 +17,16 @@ package nebula.plugin.publishing.maven
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 
-class MavenDependenciesPlugin extends MavenDependenciesBase {
+class MavenDependenciesJarPlugin extends MavenDependenciesBase {
     @Override
     void setupPublishingForProject(Project project) {
-        project.afterEvaluate {
+        project.plugins.withType(JavaPlugin) {
             project.publishing {
                 publications {
                     nebula(MavenPublication) {
-                        if (project.plugins.hasPlugin(WarPlugin)) {
-                            from project.components.web
-                        } else if (project.plugins.hasPlugin(JavaPlugin)){
-                            from project.components.java
-                        }
+                        from components.java
                     }
                 }
             }

@@ -73,7 +73,9 @@ dependencies {
 }
 
 test {
+    minHeapSize = '512m'
     maxHeapSize = '1g'
+    jvmArgs '-XX:MaxPermSize=128m'
 }
 
 jacocoTestReport {
@@ -107,6 +109,13 @@ pluginBundle {
             id = 'nebula.maven-dependencies'
             displayName = 'Nebula Maven Dependencies Plugin'
             description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
+        mavenDependenciesJar {
+            id = 'nebula.maven-dependencies-jar'
+            displayName = 'Nebula Maven Dependencies Jar Plugin'
+            description = 'Add component.jar, mostly useful when another plugin interferes with how nebula.maven-dependencies works'
             tags = ['nebula', 'publish', 'maven']
         }
 
@@ -322,7 +331,7 @@ if (project.hasProperty('release.travisci') && project.property('release.travisc
 }
 
 gradleTest {
-    versions '2.2.1', '2.3', '2.4', '2.5', '2.6', '2.7-rc-1'
+    versions '2.2.1', '2.3', '2.4', '2.5', '2.6', '2.7'
 }
 
 gradleTest.dependsOn(jar)
