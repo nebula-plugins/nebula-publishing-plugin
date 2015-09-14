@@ -1,3 +1,9 @@
+4.1.0 / 2015-09-14
+==================
+
+* add nebula.maven-dependencies-jar for projects that cannot use nebula.maven-dependencies because another plugin is resolving publishing before we can add our component
+* move to gradle 2.7
+
 4.0.1 / 2015-08-28
 ==================
 
