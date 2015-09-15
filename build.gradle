@@ -147,6 +147,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+        mavenResolvedDependenciesJar {
+            id = 'nebula.maven-resolved-dependencies-jar'
+            displayName = 'Nebula Maven Resolved Dependencies Jar Plugin'
+            description = 'Built on top of nebula.maven-dependencies-jar, replacing dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
         mavenScm {
             id = 'nebula.maven-scm'
             displayName = 'Nebula Maven SCM Plugin'
