@@ -18,13 +18,10 @@ package nebula.plugin.publishing.maven
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-/**
- * Replaces dynamic constraints with fixed constraints
- */
-class MavenResolvedDependenciesPlugin implements Plugin<Project> {
+class MavenResolvedDependenciesJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenDependenciesPlugin)
+        project.plugins.apply(MavenDependenciesJarPlugin)
 
         new MavenResolvedDependenciesBase().addResolveRules(project)
     }

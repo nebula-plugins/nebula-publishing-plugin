@@ -1,3 +1,8 @@
+4.2.0 / 2015-09-15
+==================
+
+* Add nebula.maven-resolved-dependencies-jar for projects that cannot use nebula.maven-resolved-dependencies due to other plugins resolving publications early
+
 4.1.0 / 2015-09-14
 ==================
 
