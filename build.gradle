@@ -253,7 +253,7 @@ task groovydocJar(type: Jar) {
 
 publishing {
     publications {
-        mavenNebula(MavenPublication) {
+        nebula(MavenPublication) {
             from components.java
             artifact tasks.sourceJar
             artifact tasks.javadocJar
