@@ -23,7 +23,7 @@ class MavenDependenciesJarPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenDependenciesPlugin)}
+            ${applyPlugin(MavenDependenciesJarPlugin)}
 
             version = '0.1.0'
             group = 'test.nebula'

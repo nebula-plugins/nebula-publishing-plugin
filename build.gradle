@@ -2,9 +2,6 @@ buildscript {
     repositories {
         jcenter()
     }
-    dependencies {
-        classpath 'com.netflix.nebula:nebula-bintray-plugin:2.2.4'
-    }
 }
 
 plugins {
@@ -13,14 +10,13 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'nebula.contacts' version '2.2.0'
-    id 'nebula.nebula-release' version '2.2.6'
+    id 'nebula.nebula-release' version '3.0.0'
+    id 'nebula.nebula-bintray' version '3.1.0'
     id 'nebula.optional-base' version '2.2.2'
     id 'com.gradle.plugin-publish' version '0.9.1'
     id 'com.github.kt3k.coveralls' version '2.4.0'
     id 'org.ysb33r.gradletest' version '0.5.4'
 }
-
-apply plugin: 'nebula.nebula-bintray'
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
 group = 'com.netflix.nebula'
@@ -293,47 +289,6 @@ publishing {
                 apache.appendNode('distribution', 'repo')
             }
         }
-    }
-}
-
-// Wire up build and publishing process
-project.tasks.getByName('verifyReleaseStatus').actions.clear()
-project.tasks.getByName('verifySnapshotStatus').actions.clear()
-
-tasks.matching { it.name == 'bintrayUpload' || it.name == 'artifactoryPublish'}.all { Task task ->
-    task.mustRunAfter('build')
-    tasks.release.dependsOn(task)
-}
-
-tasks.matching { it.name == 'bintrayUpload' }.all { Task task ->
-    project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
-        task.onlyIf {
-            graph.hasTask(':final') || graph.hasTask(':candidate')
-        }
-    }
-}
-
-project.tasks.matching { it.name == 'artifactoryPublish'}.all { Task task ->
-    project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
-        task.onlyIf {
-            graph.hasTask(':snapshot')
-        }
-    }
-}
-
-import org.ajoberstar.gradle.git.release.base.ReleasePluginExtension
-ReleasePluginExtension releaseExtension = project.extensions.findByType(ReleasePluginExtension)
-releaseExtension.with {
-    defaultVersionStrategy = nebula.plugin.release.NetflixOssStrategies.SNAPSHOT
-}
-
-if (project.hasProperty('release.travisci') && project.property('release.travisci').toBoolean()) {
-    project.tasks.release.deleteAllActions()
-    project.tasks.prepare.deleteAllActions()
-    nebulaRelease {
-        addReleaseBranchPattern(/HEAD/)
-        addReleaseBranchPattern(/v?\d+\.\d+\.\d+/)
-        addReleaseBranchPattern(/gradle-\d+\.\d+/)
     }
 }
 
