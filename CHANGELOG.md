@@ -1,3 +1,8 @@
+4.2.1 / 2015-09-15
+==================
+
+* Fix nebula.maven-dependencies-jar plugin, update test to actually test plugin
+
 4.2.0 / 2015-09-15
 ==================
 

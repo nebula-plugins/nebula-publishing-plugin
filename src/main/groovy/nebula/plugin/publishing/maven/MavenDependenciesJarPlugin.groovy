@@ -26,7 +26,7 @@ class MavenDependenciesJarPlugin extends MavenDependenciesBase {
             project.publishing {
                 publications {
                     nebula(MavenPublication) {
-                        from components.java
+                        from project.components.java
                     }
                 }
             }
