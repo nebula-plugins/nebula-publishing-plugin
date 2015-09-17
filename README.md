@@ -81,6 +81,23 @@ if war not detected
       }
     }
     
+Note that nebula.maven-dependencies is based on the Gradle maven-publish plugin, which places first order compile dependencies in the runtime scope in the POM.  If you wish your compile dependencies to be compile scope dependencies in the POM, you can add a withXml block like so:
+
+    publishing {
+        publications {
+            nebula(MavenPublication) {
+                pom.withXml {
+                    configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                        asNode().dependencies[0].dependency.find {
+                            it.artifactId[0].text() == dep.moduleName &&
+                            it.groupId[0].text() == dep.moduleGroup
+                        }?.scope[0]?.value = 'compile'
+                    }
+                }
+            }
+        }
+    }
+    
 ### nebula.maven-dependencies-jar
 
 If another plugin is interfering with the publishing extension you can use this to produce a jar publication.
