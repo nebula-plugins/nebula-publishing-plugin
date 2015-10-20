@@ -2,6 +2,7 @@
 ==================
 
 * Fix issue where a changed status was not being reflected in the published ivy file
+* move to gradle 2.8
 
 4.2.1 / 2015-09-15
 ==================
