@@ -1,3 +1,8 @@
+4.2.2 / 2015-10-20
+==================
+
+* Fix issue where a changed status was not being reflected in the published ivy file
+
 4.2.1 / 2015-09-15
 ==================
 
