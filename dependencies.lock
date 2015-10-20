@@ -1,0 +1,98 @@
+{
+    "compile": {
+        "com.netflix.nebula:nebula-core": {
+            "locked": "3.0.0",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-info-plugin": {
+            "locked": "3.0.3",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-contacts-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.+"
+        }
+    },
+    "default": {
+        "com.netflix.nebula:nebula-core": {
+            "locked": "3.0.0",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-info-plugin": {
+            "locked": "3.0.3",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-contacts-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.+"
+        }
+    },
+    "jacocoAgent": {
+        "org.jacoco:org.jacoco.agent": {
+            "locked": "0.7.1.201405082137"
+        }
+    },
+    "jacocoAnt": {
+        "org.jacoco:org.jacoco.ant": {
+            "locked": "0.7.1.201405082137"
+        }
+    },
+    "runtime": {
+        "com.netflix.nebula:nebula-core": {
+            "locked": "3.0.0",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-info-plugin": {
+            "locked": "3.0.3",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-contacts-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.+"
+        }
+    },
+    "testCompile": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.0.0",
+            "requested": "4.+"
+        },
+        "org.spockframework:spock-core": {
+            "locked": "1.0-groovy-2.4",
+            "requested": "1.0-groovy-2.4"
+        },
+        "com.netflix.nebula:nebula-core": {
+            "locked": "3.0.0",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-info-plugin": {
+            "locked": "3.0.3",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-contacts-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.+"
+        }
+    },
+    "testRuntime": {
+        "com.netflix.nebula:nebula-test": {
+            "locked": "4.0.0",
+            "requested": "4.+"
+        },
+        "org.spockframework:spock-core": {
+            "locked": "1.0-groovy-2.4",
+            "requested": "1.0-groovy-2.4"
+        },
+        "com.netflix.nebula:nebula-core": {
+            "locked": "3.0.0",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-info-plugin": {
+            "locked": "3.0.3",
+            "requested": "3.+"
+        },
+        "com.netflix.nebula:gradle-contacts-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.+"
+        }
+    }
+}

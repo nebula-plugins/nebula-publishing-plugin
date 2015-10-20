@@ -47,11 +47,27 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         root.info.@module == 'ivytest'
         root.info.@revision == '0.1.0'
         root.info.description == 'test description'
+        root.info.@status == 'integration'
 
         def artifact = root.publications.artifact[0]
         artifact.@name == 'ivytest'
         artifact.@type == 'jar'
         artifact.@ext == 'jar'
         artifact.@conf == 'runtime'
+    }
+
+    def 'status changes when set'() {
+        buildFile << '''\
+            apply plugin: 'java'
+
+            status = 'release'
+        '''.stripIndent()
+
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
+        root.info.@status == 'release'
     }
 }
