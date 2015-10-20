@@ -30,6 +30,7 @@ class IvyBasePublishPlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 nebulaIvy(IvyPublication) {
+                    descriptor.status = project.status
                     descriptor.withXml { XmlProvider xml ->
                         def root = xml.asNode()
                         def infoNode = root?.info

@@ -34,7 +34,7 @@ class MavenManifestPluginIntegrationSpec extends IntegrationSpec {
     def 'manifest created'() {
         buildFile << '''\
             apply plugin: 'java'
-            apply plugin: 'info'
+            apply plugin: 'nebula.info'
         '''
 
         when:

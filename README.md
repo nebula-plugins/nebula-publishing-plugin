@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '4.2.1'
+      id 'nebula.<publishing plugin of your choice>' version '4.2.2'
     }
 
 If using an older version of Gradle
@@ -18,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.2.1'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.2.2'
       }
     }
 
@@ -267,6 +267,7 @@ Tested with Oracle JDK8
 | 2.5            | yes   |
 | 2.6            | yes   |
 | 2.7            | yes   |
+| 2.8            | yes   |
 
 LICENSE
 =======
