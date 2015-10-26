@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '4.2.2'
+      id 'nebula.<publishing plugin of your choice>' version '4.3.0'
     }
 
 If using an older version of Gradle
@@ -18,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.2.2'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.3.0'
       }
     }
 
@@ -56,7 +56,7 @@ Eliminates this boilerplate:
 
 ### nebula.maven-dependencies
 
-In an after evaluate block we detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
+We detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
 
 Applying this plugin would be the same as:
 
@@ -97,10 +97,6 @@ Note that nebula.maven-dependencies is based on the Gradle maven-publish plugin,
             }
         }
     }
-    
-### nebula.maven-dependencies-jar
-
-If another plugin is interfering with the publishing extension you can use this to produce a jar publication.
 
 ### nebula.maven-publish
 
@@ -146,7 +142,7 @@ Eliminates this boilerplate:
     
 ### nebula.ivy-dependencies
 
-In an after evaluate block we detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
+We detect if the war plugin is applied and publish the web component, it will default to publishing the java component.
 
 Applying this plugin would be the same as:
 

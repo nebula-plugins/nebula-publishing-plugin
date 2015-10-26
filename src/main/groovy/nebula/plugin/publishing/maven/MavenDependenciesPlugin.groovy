@@ -14,27 +14,50 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.maven
-
+import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 
-class MavenDependenciesPlugin extends MavenDependenciesBase {
+class MavenDependenciesPlugin implements Plugin<Project> {
     @Override
-    void setupPublishingForProject(Project project) {
-        project.afterEvaluate {
-            project.publishing {
-                publications {
-                    nebula(MavenPublication) {
+    void apply(Project project) {
+        project.plugins.apply MavenBasePublishPlugin
+
+        project.publishing {
+            publications {
+                nebula(MavenPublication) {
+                    pom.withXml { XmlProvider xml ->
                         if (project.plugins.hasPlugin(WarPlugin)) {
-                            from project.components.web
-                        } else if (project.plugins.hasPlugin(JavaPlugin)){
-                            from project.components.java
+                            def dependenciesNode = xml.asNode().appendNode('dependencies')
+
+                            project.configurations.compile.allDependencies.each { Dependency dep ->
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.with {
+                                    appendNode('groupId', dep.group)
+                                    appendNode('artifactId', dep.name)
+                                    appendNode('version', dep.version)
+                                    appendNode('scope', (isProvided(project, dep)) ? 'provided' : 'runtime')
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    boolean isProvided(Project project, Dependency dep) {
+        def isProvidedCompile = project.configurations?.providedCompile?.allDependencies?.
+                find { provided -> provided.group == dep.group && provided.name == dep.name }
+        if (isProvidedCompile) {
+            return true
+        }
+        def isProvidedRuntime = project.configurations?.providedRuntime?.allDependencies?.
+                find { provided -> provided.group == dep.group && provided.name == dep.name }
+
+        isProvidedRuntime
     }
 }

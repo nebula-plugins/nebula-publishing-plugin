@@ -58,7 +58,7 @@ dependencies {
     compile 'com.netflix.nebula:nebula-core:3.0.0'
     compile 'com.netflix.nebula:gradle-info-plugin:3.0.3', optional
     compile 'com.netflix.nebula:gradle-contacts-plugin:3.0.1', optional
-    testCompile('com.netflix.nebula:nebula-test:4.+') {
+    testCompile('com.netflix.nebula:nebula-test:4.0.0') {
         exclude group: 'org.codehaus.groovy'
     }
     testCompile gradleTestKit()
@@ -108,13 +108,6 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
-        mavenDependenciesJar {
-            id = 'nebula.maven-dependencies-jar'
-            displayName = 'Nebula Maven Dependencies Jar Plugin'
-            description = 'Add component.jar, mostly useful when another plugin interferes with how nebula.maven-dependencies works'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
         mavenExcludes {
             id = 'nebula.maven-excludes'
             displayName = 'Nebula Maven Excludes Plugin'
@@ -140,13 +133,6 @@ pluginBundle {
             id = 'nebula.maven-resolved-dependencies'
             displayName = 'Nebula Maven Resolved Dependencies Plugin'
             description = 'Built on top of nebula.maven-dependencies, replacing dynamic versions with the actual resolved versions'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenResolvedDependenciesJar {
-            id = 'nebula.maven-resolved-dependencies-jar'
-            displayName = 'Nebula Maven Resolved Dependencies Jar Plugin'
-            description = 'Built on top of nebula.maven-dependencies-jar, replacing dynamic versions with the actual resolved versions'
             tags = ['nebula', 'publish', 'maven']
         }
 

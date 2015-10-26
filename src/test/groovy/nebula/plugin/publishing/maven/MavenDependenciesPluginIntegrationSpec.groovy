@@ -264,4 +264,12 @@ class MavenDependenciesPluginIntegrationSpec extends IntegrationSpec {
         dependency.version.text() == '0.0.1'
         dependency.scope.text() == 'provided'
     }
+
+    def 'does not fail on no java plugin'() {
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        noExceptionThrown()
+    }
 }
