@@ -1,3 +1,9 @@
+4.3.0 / 2015-10-26
+==================
+
+* Get selection rules into place before after evaluate, this should allow the plugin to work with other plugins that use
+  project.properties or otherwise resolve the publishing model
+
 4.2.2 / 2015-10-20
 ==================
 

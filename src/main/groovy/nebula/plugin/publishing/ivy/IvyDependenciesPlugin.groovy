@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.ivy
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
