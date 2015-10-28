@@ -175,4 +175,12 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         def b = root.dependencies.dependency.find { it.name = 'b' }
         b.@rev == '1.0'
     }
+
+    def 'non-java project publishes'() {
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        noExceptionThrown()
+    }
 }
