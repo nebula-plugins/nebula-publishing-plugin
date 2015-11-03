@@ -1,3 +1,8 @@
+4.3.1 / 2015-11-03
+==================
+
+* Bugfix so that if these plugins are applied without a language plugin they do not fail the project
+
 4.3.0 / 2015-10-26
 ==================
 
