@@ -21,6 +21,7 @@ import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyExcludesPlugin implements Plugin<Project> {
@@ -32,24 +33,24 @@ class IvyExcludesPlugin implements Plugin<Project> {
             publications {
                 nebulaIvy(IvyPublication) {
                     descriptor.withXml { XmlProvider xml ->
-                        def dependencies = xml.asNode()?.dependencies?.dependency
+                        project.plugins.withType(JavaBasePlugin) {
+                            def dependencies = xml.asNode()?.dependencies?.dependency
 
-                        project.configurations.runtime.allDependencies
-                            .findAll { it instanceof ModuleDependency }
-                            .collect { it as ModuleDependency }
-                            .findAll { !it.excludeRules.isEmpty() }
-                            .each { md ->
-                                println md
-
-                                def dep = dependencies.find { it.@org == md.group && it.@name == md.name }
-                                md.excludeRules.each { rule ->
-                                    def exclude = dep.appendNode('exclude')
-                                    if(rule.group)
-                                        exclude.@org = rule.group
-                                    if(rule.module)
-                                        exclude.@module = rule.module
-                                }
-                            }
+                            project.configurations.runtime.allDependencies
+                                    .findAll { it instanceof ModuleDependency }
+                                    .collect { it as ModuleDependency }
+                                    .findAll { !it.excludeRules.isEmpty() }
+                                    .each { md ->
+                                        def dep = dependencies.find { it.@org == md.group && it.@name == md.name }
+                                        md.excludeRules.each { rule ->
+                                            def exclude = dep.appendNode('exclude')
+                                            if (rule.group)
+                                                exclude.@org = rule.group
+                                            if (rule.module)
+                                                exclude.@module = rule.module
+                                        }
+                                    }
+                        }
                     }
                 }
             }
