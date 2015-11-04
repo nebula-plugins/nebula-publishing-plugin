@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '4.3.2'
+      id 'nebula.<publishing plugin of your choice>' version '4.4.0'
     }
 
 If using an older version of Gradle
@@ -18,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.3.2'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.0'
       }
     }
 
@@ -246,6 +246,12 @@ Eliminates this boilerplate:
       extension = 'jar'
       from sourceSets.test.output
       group 'build'
+    }
+    def conf = project.configurations.maybeCreate('test')
+    Configuration testRuntimeConf = configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
+    conf.extendsFrom(testRuntimeConf)
+    artifacts {
+        test testJar
     }
     publishing {
       publications {
