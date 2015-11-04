@@ -29,7 +29,7 @@ import org.gradle.api.publish.maven.MavenPublication
 class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenDependenciesPlugin)
+        project.plugins.apply(MavenBasePublishPlugin)
 
         project.publishing {
             publications {

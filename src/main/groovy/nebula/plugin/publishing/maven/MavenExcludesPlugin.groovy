@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.maven
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class MavenExcludesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenDependenciesPlugin)
+        project.plugins.apply(MavenBasePublishPlugin)
 
         project.publishing {
             publications {

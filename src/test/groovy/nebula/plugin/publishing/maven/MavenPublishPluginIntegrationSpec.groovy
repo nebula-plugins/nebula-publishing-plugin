@@ -27,6 +27,14 @@ class MavenPublishPluginIntegrationSpec extends IntegrationSpec {
             version = '0.1.0'
             group = 'test.nebula'
 
+            buildscript {
+                repositories { jcenter() }
+
+                dependencies {
+                    classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+                }
+            }
+
             publishing {
                 repositories {
                     maven {
@@ -51,9 +59,9 @@ class MavenPublishPluginIntegrationSpec extends IntegrationSpec {
 
         buildFile << """\
             apply plugin: 'java'
-            apply plugin: 'war'
             apply plugin: 'nebula.contacts'
             apply plugin: 'nebula.info'
+            apply plugin: 'nebula.provided-base'
 
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
@@ -67,7 +75,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationSpec {
 
             dependencies {
                 compile 'test:a:0.+'
-                providedCompile 'test:b:[1.0.0, 2.0.0)'
+                provided 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 

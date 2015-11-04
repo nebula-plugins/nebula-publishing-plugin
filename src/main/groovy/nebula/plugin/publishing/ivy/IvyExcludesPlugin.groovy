@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.ivy
-
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.ModuleDependency
-import org.gradle.api.artifacts.component.ModuleComponentSelector
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyExcludesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply IvyDependenciesPlugin
+        project.plugins.apply IvyBasePublishPlugin
 
         project.publishing {
             publications {
