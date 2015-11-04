@@ -1,3 +1,9 @@
+4.4.0 / 2015-11-04
+==================
+
+* Removed nebula.maven-dependencies and nebula.ivy-dependencies because we no longer care about publishing WARs and building insight from their dependencies
+* Added the minimal set of configurations to Ivy files necessary to make them Maven interoperable.
+
 4.3.2 / 2015-11-03
 ==================
 
