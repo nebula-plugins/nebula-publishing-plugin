@@ -40,6 +40,30 @@ class IvyBasePublishPlugin implements Plugin<Project> {
             project.ext.set(IVY_JAR, true)
         }
 
+        // CURRENT
+        /*
+            <conf name="default" visibility="public" extends="runtime"/>
+            <conf visibility="public" name="runtime"/>
+            <conf visibility="public" name="optional"/>
+            <conf visibility="public" name="provided"/>
+         */
+
+        // EXPECTED
+        /*
+            <conf name="compile" visibility="public"/>
+            <conf name="default" visibility="public" extends="runtime,master"/>
+            <conf name="javadoc" visibility="public"/>
+            <conf name="master" visibility="public"/>
+            <conf name="resources" visibility="public"/>
+            <conf name="runtime" visibility="public" extends="compile"/>
+            <conf name="sources" visibility="public"/>
+            <conf name="system" visibility="public"/>
+            <conf name="test" visibility="public" extends="runtime"/>
+            <conf name="optional" visibility="public"/>
+            <conf name="provided" visibility="public"/>
+         */
+
+
         project.publishing {
             publications {
                 nebulaIvy(IvyPublication) {
@@ -58,6 +82,31 @@ class IvyBasePublishPlugin implements Plugin<Project> {
                             infoNode = infoNode[0]
                         }
                         infoNode.appendNode('description', [:], project.description ?: '')
+
+                        def configurationsNode = root?.configurations
+                        if(!configurationsNode) {
+                            configurationsNode = root.appendNode('configurations')
+                        }
+                        else {
+                            configurationsNode = configurationsNode[0]
+                        }
+
+                        def minimalConfs = [
+                            compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
+                            runtime: ['compile'], sources: [], test: ['runtime']
+                        ]
+
+                        minimalConfs.each { minimal ->
+                            def conf = configurationsNode.conf.find { it.@name == minimal.key }
+                            if(!conf) {
+                                conf = configurationsNode.appendNode('conf')
+                            }
+                            conf.@name = minimal.key
+                            conf.@visibility = 'public'
+
+                            if(!minimal.value.empty)
+                                conf.@extends = minimal.value.join(',')
+                        }
                     }
                 }
             }

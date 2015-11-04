@@ -48,6 +48,33 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
     }
 
+    def 'verify that ivy configurations have been added for Maven interoperability'() {
+        setup:
+        buildFile << '''\
+            apply plugin: 'java'
+        '''
+
+        def expectedConfs = [
+            compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
+            runtime: ['compile'], sources: [], test: ['runtime']
+        ]
+
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+        def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
+        def confs = root.configurations.conf
+
+        then:
+        expectedConfs.each { expected ->
+            def conf = confs.find { it.@name == expected.key }
+            assert conf
+            assert conf.@extends == expected.value.join(',')
+            assert conf.@visibility == 'public'
+        }
+
+        confs.size() == expectedConfs.size()
+    }
+
     def 'verify ivy.xml is correct'() {
         buildFile << '''\
             apply plugin: 'java'
