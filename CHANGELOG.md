@@ -3,11 +3,12 @@
 
 * Removed nebula.maven-dependencies and nebula.ivy-dependencies because we no longer care about publishing WARs and building insight from their dependencies
 * Added the minimal set of configurations to Ivy files necessary to make them Maven interoperable.
+* BUGFIX: Update nebula.test-jar to behave as documented during interproject dependency
 
 4.3.2 / 2015-11-03
 ==================
 
-* Bugfix so that if these plugins are applied without a language plugin they do not fail the project
+* BUGFIX: so that if these plugins are applied without a language plugin they do not fail the project
 
 4.3.1 / 2015-10-28
 ==================

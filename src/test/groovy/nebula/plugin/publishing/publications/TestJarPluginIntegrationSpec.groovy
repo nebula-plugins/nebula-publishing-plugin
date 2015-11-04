@@ -163,7 +163,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         runtimeDep.@conf == 'test->default'
     }
 
-    def publishingBlock(String type) {
+    private def publishingBlock(String type) {
         """
         publishing {
             repositories {

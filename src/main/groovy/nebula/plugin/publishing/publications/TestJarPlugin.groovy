@@ -18,6 +18,7 @@ package nebula.plugin.publishing.publications
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.maven.MavenPublication
@@ -31,17 +32,27 @@ import org.gradle.api.tasks.bundling.Jar
  */
 @Deprecated
 class TestJarPlugin implements Plugin<Project> {
+    static final String FIXTURE_CONF = 'test'
+
     @Override
     void apply(Project project) {
         project.logger.warn('The testJar task is deprecated.  Please place common test harness code in its own project and publish separately.')
 
         project.plugins.withType(JavaPlugin) { // needed for source sets
-            project.tasks.create('testJar', Jar) {
+            def testJar = project.tasks.create('testJar', Jar) {
                 dependsOn project.tasks.getByName('testClasses')
                 classifier = 'tests'
                 extension = 'jar'
                 from project.sourceSets.test.output
                 group 'build'
+            }
+
+            def conf = project.configurations.maybeCreate(FIXTURE_CONF)
+            Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
+            conf.extendsFrom(testRuntimeConf)
+
+            project.artifacts {
+                test testJar
             }
 
             project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
