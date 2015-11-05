@@ -101,13 +101,6 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
-        mavenDependencies {
-            id = 'nebula.maven-dependencies'
-            displayName = 'Nebula Maven Dependencies Plugin'
-            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
         mavenExcludes {
             id = 'nebula.maven-excludes'
             displayName = 'Nebula Maven Excludes Plugin'
@@ -147,13 +140,6 @@ pluginBundle {
             id = 'nebula.ivy-base-publish'
             displayName = 'Nebula Ivy Base Publish Plugin'
             description = 'Setup nebulaIvy IvyPublication'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyDependencies {
-            id = 'nebula.ivy-dependencies'
-            displayName = 'Nebula Ivy Dependencies Plugin'
-            description = 'Add component.war if a war project, add component.java otherwise, add dependencies'
             tags = ['nebula', 'publish', 'ivy']
         }
 
