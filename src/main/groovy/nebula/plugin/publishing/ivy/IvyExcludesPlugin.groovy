@@ -39,12 +39,14 @@ class IvyExcludesPlugin implements Plugin<Project> {
                                     .findAll { !it.excludeRules.isEmpty() }
                                     .each { md ->
                                         def dep = dependencies.find { it.@org == md.group && it.@name == md.name }
-                                        md.excludeRules.each { rule ->
-                                            def exclude = dep.appendNode('exclude')
-                                            if (rule.group)
-                                                exclude.@org = rule.group
-                                            if (rule.module)
-                                                exclude.@module = rule.module
+                                        if(dep != null) {
+                                            md.excludeRules.each { rule ->
+                                                def exclude = dep.appendNode('exclude')
+                                                if (rule.group)
+                                                    exclude.@org = rule.group
+                                                if (rule.module)
+                                                    exclude.@module = rule.module
+                                            }
                                         }
                                     }
                         }

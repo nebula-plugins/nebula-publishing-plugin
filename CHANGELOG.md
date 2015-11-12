@@ -1,3 +1,8 @@
+4.4.2 / 2015-11-12
+==================
+
+* Bugfix to guard against trying to apply dependency excludes on transitive deps
+
 4.4.1 / 2015-11-04
 ==================
 
