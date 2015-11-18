@@ -112,8 +112,17 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         when:
         runTasksSuccessfully('publishNebulaIvyPublicationToTestIvyRepository')
 
+        def ivyXmlFile = new File(ivyPublishDir, 'ivy-0.1.0.xml')
+
         then:
         new File(ivyPublishDir, 'javadoctest-0.1.0-javadoc.jar').exists()
+        ivyXmlFile.exists()
+
+        when:
+        def ivyXml = new XmlSlurper().parse(ivyXmlFile)
+
+        then:
+        ivyXml.publications[0].artifact.find { it.@type == 'javadoc' && it.@conf == 'javadoc' }
     }
 
     def 'javadoc jar has content for ivy'() {

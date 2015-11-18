@@ -98,8 +98,17 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         when:
         runTasksSuccessfully('publishNebulaIvyPublicationToTestIvyRepository')
 
+        def ivyXmlFile = new File(ivyPublishDir, 'ivy-0.1.0.xml')
+
         then:
         new File(ivyPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+        ivyXmlFile.exists()
+
+        when:
+        def ivyXml = new XmlSlurper().parse(ivyXmlFile)
+
+        then:
+        ivyXml.publications[0].artifact.find { it.@type == 'sources' && it.@conf == 'sources' }
     }
 
     def 'source jar contains java sources for maven publication'() {

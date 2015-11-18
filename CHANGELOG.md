@@ -1,3 +1,8 @@
+4.4.3 / 2015-11-18
+==================
+
+* Bugfix to add conf and type to source and javadoc jar artifacts published to Ivy repositories
+
 4.4.2 / 2015-11-12
 ==================
 
