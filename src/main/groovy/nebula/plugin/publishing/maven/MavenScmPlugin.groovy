@@ -42,7 +42,7 @@ class MavenScmPlugin implements Plugin<Project> {
                         pom.withXml { XmlProvider xml ->
                             def root = xml.asNode()
                             if (scmInfo.selectedProvider instanceof GitScmProvider) {
-                                root.appendNode('url', calculateUrlFromOrigin(scmInfo.extension.origin))
+                                root.appendNode('url', calculateUrlFromOrigin(scmInfo.extension.origin, project))
                             }
                             def scmNode = root.appendNode('scm')
                             scmNode.appendNode('url', scmInfo.extension.origin)
@@ -59,8 +59,13 @@ class MavenScmPlugin implements Plugin<Project> {
      * Convert git syntax of git@github.com:reactivex/rxjava-core.git to https://github.com/reactivex/rxjava-core
      * @param origin
      */
-    static String calculateUrlFromOrigin(String origin) {
+    String calculateUrlFromOrigin(String origin, Project project) {
         def m = origin =~ GIT_PATTERN
-        return "https://${m[0][5]}/${m[0][7]}"
+        if (m) {
+            return "https://${m[0][5]}/${m[0][7]}"
+        } else {
+            project.logger.warn("Unable to convert $origin to https form in MavenScmPlugin. Using original value.")
+            return origin
+        }
     }
 }

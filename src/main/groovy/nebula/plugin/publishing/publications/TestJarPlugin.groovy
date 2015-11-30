@@ -47,9 +47,9 @@ class TestJarPlugin implements Plugin<Project> {
                 group 'build'
             }
 
-            def conf = project.configurations.maybeCreate(FIXTURE_CONF)
+            def fixtureConf = project.configurations.maybeCreate(FIXTURE_CONF)
             Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
-            conf.extendsFrom(testRuntimeConf)
+            fixtureConf.extendsFrom(testRuntimeConf)
 
             project.artifacts {
                 test testJar
@@ -85,7 +85,9 @@ class TestJarPlugin implements Plugin<Project> {
                 project.publishing {
                     publications {
                         nebulaIvy(IvyPublication) {
-                            artifact project.tasks.testJar
+                            artifact(project.tasks.testJar) {
+                                conf 'test'
+                            }
 
                             descriptor.withXml { XmlProvider xml ->
                                 def root = xml.asNode()
