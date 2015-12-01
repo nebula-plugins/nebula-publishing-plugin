@@ -1,3 +1,8 @@
+4.4.4 / 2015-11-30
+==================
+
+* Add conf to test jar and add safety checks to origin URL manipulation
+
 4.4.3 / 2015-11-18
 ==================
 
