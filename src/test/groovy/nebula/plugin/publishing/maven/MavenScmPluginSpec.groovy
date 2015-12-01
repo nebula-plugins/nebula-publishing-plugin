@@ -16,18 +16,28 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.PluginProjectSpec
+import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import spock.lang.Unroll
 
 class MavenScmPluginSpec extends PluginProjectSpec {
     String pluginName = 'nebula.maven-scm'
 
-    def 'test various scm patterns'() {
-        expect:
-        MavenScmPlugin.calculateUrlFromOrigin(scmOrigin) == calculatedUrl
+    @Unroll
+    def 'test scm pattern #scmOrigin'() {
+        when:
+        def project = Mock(Project)
+        project.logger >> Mock(Logger)
+        def scmPlugin = new MavenScmPlugin()
+
+        then:
+        scmPlugin.calculateUrlFromOrigin(scmOrigin, project) == calculatedUrl
 
         where:
-        scmOrigin | calculatedUrl
+        scmOrigin                                                        | calculatedUrl
+        'https://github.com/nebula-plugins/nebula-publishing-plugin'     | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
         'https://github.com/nebula-plugins/nebula-publishing-plugin.git' | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
-        'git@github.com:nebula-plugins/nebula-publishing-plugin.git' | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
-        'git@github.com:username/nebula-publishing-plugin.git' | 'https://github.com/username/nebula-publishing-plugin'
+        'git@github.com:nebula-plugins/nebula-publishing-plugin.git'     | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
+        'git@github.com:username/nebula-publishing-plugin.git'           | 'https://github.com/username/nebula-publishing-plugin'
     }
 }

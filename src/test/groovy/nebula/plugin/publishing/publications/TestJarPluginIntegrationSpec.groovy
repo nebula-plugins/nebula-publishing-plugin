@@ -147,6 +147,12 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         dependencyList.size() == 2
 
         when:
+        def publishedArtifacts = root.publications.artifact
+
+        then:
+        publishedArtifacts.find { it.@conf == 'test' }
+
+        when:
         def compileDep = dependencyList.find { it.@name == 'compileDep' }
 
         then:
