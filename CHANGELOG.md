@@ -1,3 +1,8 @@
+4.5.0 / 2016-03-21
+==================
+
+* Make ivy-excludes conditional on Gradle version to avoid duplicate excludes due to Gradle 2.11's support for Ivy excludes
+
 4.4.4 / 2015-11-30
 ==================
 
