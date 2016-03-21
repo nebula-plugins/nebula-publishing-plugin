@@ -77,7 +77,7 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
 
         when:
         BuildResult result = runTasks('publishNebulaIvyPublicationToTestLocalRepository')
-        println result.standardOutput
+        println result.output
 
         def dependencies = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml')).dependencies.dependency
         def a = dependencies.find { it.@name == 'a' }

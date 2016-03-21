@@ -20,11 +20,17 @@ import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
+import org.gradle.util.GradleVersion
 
 class IvyExcludesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply IvyBasePublishPlugin
+
+        if (GradleVersion.current() >= GradleVersion.version('2.11')) {
+            project.logger.debug("Not applying ivy-excludes logic. This version of Gradle support excludes for Ivy (https://docs.gradle.org/2.11/release-notes#published-ivy-descriptor-files-include-configured-exclusions)")
+            return
+        }
 
         project.publishing {
             publications {

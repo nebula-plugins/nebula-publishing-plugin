@@ -75,6 +75,7 @@ class IntegrationHelperSpec extends Specification {
         GradleRunner.create()
                 .withProjectDir(projectDir)
                 .withArguments(*tasks.plus('-i'))
+                .forwardOutput()
                 .build()
     }
 }
