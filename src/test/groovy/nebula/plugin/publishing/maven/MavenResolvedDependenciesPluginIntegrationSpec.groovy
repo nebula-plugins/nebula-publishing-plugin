@@ -66,9 +66,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.version.text() == '1.1.0'
+        def a = findDependency('a')
+        a.version.text() == '1.1.0'
     }
 
     def 'handle maven style dynamic versions'() {
@@ -90,9 +89,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.version.text() == '1.4.1'
+        def d = findDependency('d')
+        d.version.text() == '1.4.1'
     }
 
     def 'omitted versions are replaced resolved version'() {
@@ -116,9 +114,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
-        def b = root.dependencies.dependency.find { it.name = 'b' }
-        b.version.text() == '1.0.0'
+        def a = findDependency('a')
+        a.version.text() == '1.0.0'
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
@@ -149,8 +146,63 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
-        def b = root.dependencies.dependency.find { it.name = 'b' }
+        def b = findDependency('sub')
         b.version.text() == '1.0'
+    }
+
+    def 'conflict resolution reflected in published metadata'() {
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                jcenter()
+            }
+
+            dependencies {
+                 compile 'com.google.guava:guava:16.0'
+                 compile 'com.google.truth:truth:0.28'
+            }
+"""
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def d = findDependency('guava')
+        d.version == '18.0'
+    }
+
+    def 'module replacements reflected in published metadata'() {
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                jcenter()
+            }
+
+            dependencies {
+                 compile 'com.google.collections:google-collections:1.0'
+                 compile 'com.google.truth:truth:0.28'
+                 modules {
+                     module('com.google.collections:google-collections') {
+                         replacedBy('com.google.guava:guava')
+                     }
+                 }
+            }
+"""
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def d = findDependency('guava')
+        d.version == '18.0'
+    }
+
+    def findDependency(String artifactId) {
+        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def d = root.dependencies.dependency.find {
+            it.artifactId == artifactId
+        }
+        assert d.size() > 0: "Could not find dependency '$artifactId'"
+        return d
     }
 }

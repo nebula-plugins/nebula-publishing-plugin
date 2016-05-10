@@ -62,9 +62,12 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
 
                                 def versionNode = dep.version
                                 if (!versionNode) {
-                                    versionNode = dep.appendNode('version')
+                                    dep.appendNode('version')
                                 }
-                                dep.version[0].value = resolved?.selected?.moduleVersion?.version
+                                def moduleVersion = resolved.selected.moduleVersion
+                                dep.groupId[0].value = moduleVersion.group
+                                dep.artifactId[0].value = moduleVersion.name
+                                dep.version[0].value = moduleVersion.version
                             }
                         }
                     }

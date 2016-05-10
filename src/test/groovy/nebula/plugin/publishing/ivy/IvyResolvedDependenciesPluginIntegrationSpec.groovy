@@ -75,9 +75,8 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                 .build()
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.@rev == '1.1.0'
+        def a = findDependency('a')
+        a.@rev == '1.1.0'
     }
 
     def 'handle ivy style dynamic versions'() {
@@ -105,9 +104,8 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                 .build()
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def dependency = root.dependencies.dependency[0]
-        dependency.@rev == '1.4.1'
+        def d = findDependency('d')
+        d.@rev == '1.4.1'
     }
 
     def 'omitted versions are replaced resolved version'() {
@@ -131,8 +129,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def a = root.dependencies.dependency.find { it.@name = 'a' }
+        def a = findDependency('a')
         a.@rev == '1.0.0'
     }
 
@@ -171,8 +168,63 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
-        def b = root.dependencies.dependency.find { it.name = 'b' }
+        def b = findDependency('sub')
         b.@rev == '1.0'
+    }
+
+    def 'conflict resolution reflected in published metadata'() {
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                jcenter()
+            }
+
+            dependencies {
+                 compile 'com.google.guava:guava:16.0'
+                 compile 'com.google.truth:truth:0.28'
+            }
+"""
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def d = findDependency('guava')
+        d.@rev == '18.0'
+    }
+
+    def 'module replacements reflected in published metadata'() {
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                jcenter()
+            }
+
+            dependencies {
+                 compile 'com.google.collections:google-collections:1.0'
+                 compile 'com.google.truth:truth:0.28'
+                 modules {
+                     module('com.google.collections:google-collections') {
+                         replacedBy('com.google.guava:guava')
+                     }
+                 }
+            }
+"""
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def d = findDependency('guava')
+        d.@rev == '18.0'
+    }
+
+    def findDependency(String module) {
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
+        def d = root.dependencies.dependency.find {
+            it.@name == module
+        }
+        assert d.size() > 0: "Could not find dependency '$module'"
+        return d
     }
 }

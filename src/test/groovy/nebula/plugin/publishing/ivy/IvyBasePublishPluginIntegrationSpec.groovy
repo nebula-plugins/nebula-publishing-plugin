@@ -223,6 +223,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
     boolean assertDependency(String org, String name, String rev, String conf = null) {
         def dependencies = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml')).dependencies.dependency
         def found = dependencies.find { it.@name == name && it.@org == org }
+        assert found
         assert found.@rev == rev
         assert !conf || found.@conf == conf
         found

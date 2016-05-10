@@ -59,7 +59,11 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                                 if (!resolved) {
                                     return  // continue loop if a dependency is not found in dependencyMap
                                 }
-                                dep.@rev = resolved?.selected?.moduleVersion?.version
+
+                                def moduleVersion = resolved.selected.moduleVersion
+                                dep.@org = moduleVersion.group
+                                dep.@name = moduleVersion.name
+                                dep.@rev = moduleVersion.version
                             }
                         }
                     }
