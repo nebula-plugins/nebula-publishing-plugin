@@ -13,6 +13,7 @@ plugins {
     id 'nebula.nebula-release' version '3.0.5'
     id 'nebula.nebula-bintray' version '3.1.0'
     id 'nebula.optional-base' version '3.0.3'
+    id 'nebula.dependency-lock' version '4.3.0'
     id 'com.gradle.plugin-publish' version '0.9.4'
     id 'com.github.kt3k.coveralls' version '2.4.0'
     id 'org.ysb33r.gradletest' version '0.5.4'
@@ -53,15 +54,15 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile localGroovy()
     compile gradleApi()
-    compile 'com.netflix.nebula:nebula-core:3.0.0'
-    compile 'com.netflix.nebula:gradle-info-plugin:3.0.3', optional
-    compile 'com.netflix.nebula:gradle-contacts-plugin:3.0.1', optional
-    testCompile('com.netflix.nebula:nebula-test:4.0.0') {
+    compile 'com.netflix.nebula:nebula-core:latest.release'
+    compile 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
+    compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
+
+    testCompile gradleTestKit()
+    testCompile('com.netflix.nebula:nebula-test:latest.release') {
         exclude group: 'org.codehaus.groovy'
     }
-    testCompile gradleTestKit()
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
