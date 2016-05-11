@@ -50,7 +50,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         publishDir = new File(projectDir, 'testrepo/test.nebula/resolvedivytest/0.1.0')
     }
 
-    def 'dynamic versions are replaced by the resolved version'() {
+    def 'dynamic versions are replaced by the resolved version and have a revConstraint'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()
         def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
@@ -77,9 +77,40 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         then:
         def a = findDependency('a')
         a.@rev == '1.1.0'
+        a.@revConstraint == '1.+'
     }
 
-    def 'handle ivy style dynamic versions'() {
+    def 'latest.* versions are replaced by the resolved version and have a revConstraint'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule('test.resolved:a:1.1.0').build()
+        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
+        generator.generateTestIvyRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                ${generator.ivyRepositoryBlock}
+            }
+
+            dependencies {
+                compile 'test.resolved:a:latest.integration'
+            }
+        """.stripIndent()
+
+        when:
+        GradleRunner.create()
+                .withProjectDir(projectDir)
+                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
+                .build()
+
+        then:
+        def a = findDependency('a')
+        a.@rev == '1.1.0'
+        a.@revConstraint == 'latest.integration'
+    }
+
+    def 'range versions are replaced by the resolved version and have a revConstraint'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:d:1.3.0')
                 .addModule('test.resolved:d:1.4.1').build()
         def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
@@ -106,6 +137,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         then:
         def d = findDependency('d')
         d.@rev == '1.4.1'
+        d.@revConstraint == '[1.0.0, 2.0.0['
     }
 
     def 'omitted versions are replaced resolved version'() {
