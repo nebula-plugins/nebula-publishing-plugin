@@ -19,6 +19,9 @@ import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionSelectorScheme
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.ExactVersionSelector
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
@@ -58,6 +61,15 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
 
                                 if (!resolved) {
                                     return  // continue loop if a dependency is not found in dependencyMap
+                                }
+
+                                if (dep.@rev) {
+                                    def version = dep.@rev as String
+                                    def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator())
+                                    def selector = scheme.parseSelector(version)
+                                    if (!(selector instanceof ExactVersionSelector)) {
+                                        dep.@revConstraint = version
+                                    }
                                 }
 
                                 def moduleVersion = resolved.selected.moduleVersion
