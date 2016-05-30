@@ -1,21 +1,24 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-}
+/*
+ * Copyright 2014-2015 Netflix, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript { repositories { jcenter() } } // Some plugin dependencies (namely JFrog) are not in Maven Central
 
 plugins {
-    id 'groovy'
-    id 'idea'
-    id 'jacoco'
-    id 'maven-publish'
-    id 'nebula.contacts' version '3.0.1'
-    id 'nebula.nebula-release' version '3.0.5'
-    id 'nebula.nebula-bintray' version '3.1.0'
-    id 'nebula.optional-base' version '3.0.3'
-    id 'nebula.dependency-lock' version '4.3.0'
     id 'com.gradle.plugin-publish' version '0.9.4'
-    id 'com.github.kt3k.coveralls' version '2.4.0'
+    id 'nebula.plugin-plugin' version '4.14.0'
     id 'org.ysb33r.gradletest' version '0.5.4'
 }
 
@@ -33,13 +36,6 @@ contacts {
     }
 }
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
-repositories {
-    jcenter()
-}
-
 // Write the plugin's classpath to a file to share with the tests
 task createClasspathManifest {
     def outputDir = file("$buildDir/$name")
@@ -54,32 +50,11 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile gradleApi()
-    compile 'com.netflix.nebula:nebula-core:latest.release'
     compile 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
     compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
 
     testCompile gradleTestKit()
-    testCompile('com.netflix.nebula:nebula-test:latest.release') {
-        exclude group: 'org.codehaus.groovy'
-    }
-    testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
-        exclude group: 'org.codehaus.groovy'
-    }
     testRuntime files(tasks.createClasspathManifest)
-}
-
-test {
-    minHeapSize = '512m'
-    maxHeapSize = '1g'
-    jvmArgs '-XX:MaxPermSize=128m'
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled = true // coveralls plugin depends on xml format report
-        html.enabled = true
-    }
 }
 
 pluginBundle {
@@ -197,71 +172,6 @@ pluginBundle {
     mavenCoordinates {
         groupId = 'com.netflix.nebula'
         artifactId = 'nebula-publishing-plugin'
-    }
-}
-
-task sourceJar(type: Jar) {
-    dependsOn tasks.classes
-    from sourceSets.main.allSource
-    classifier 'sources'
-    extension 'jar'
-    group 'build'
-}
-
-task javadocJar(type: Jar) {
-    dependsOn tasks.javadoc
-    from tasks.javadoc.destinationDir
-    classifier 'javadoc'
-    extension 'jar'
-    group 'build'
-}
-
-task groovydocJar(type: Jar) {
-    dependsOn tasks.groovydoc
-    from tasks.groovydoc.destinationDir
-    classifier 'groovydoc'
-    extension 'jar'
-    group 'build'
-}
-
-publishing {
-    publications {
-        nebula(MavenPublication) {
-            from components.java
-            artifact tasks.sourceJar
-            artifact tasks.javadocJar
-            artifact tasks.groovydocJar
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('name', project.name)
-                root.appendNode('description', project.description)
-                def pomProperties = root.appendNode('properties')
-                pomProperties.appendNode('nebula_Manifest_Version', '1.0')
-                pomProperties.appendNode('nebula_Implementation_Title', "${project.group}:${project.name}:${project.version}")
-                pomProperties.appendNode('nebula_Implementation_Version', project.version)
-                pomProperties.appendNode('nebula_Build_Date', new Date().format('yyyy-MM-dd_HH:mm:ss'))
-                pomProperties.appendNode('nebula_Created_By', "${System.getProperty('java.runtime.version')} (${System.getProperty('java.vm.specification.vendor')})")
-                pomProperties.appendNode('nebula_Build_Java_Version', System.getProperty('java.version'))
-                pomProperties.appendNode('nebula_X_Compile_Target_JDK', project.targetCompatibility)
-                pomProperties.appendNode('nebula_X_Compile_Source_JDK', project.sourceCompatibility)
-                root.appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin')
-                root.appendNode('scm').appendNode('url', 'https://github.com/nebula-plugins/nebula-publishing-plugin.git')
-                def devs = root.appendNode('developers')
-                def rob = devs.appendNode('developer')
-                rob.appendNode('id', 'rspieldenner')
-                rob.appendNode('name', 'Rob Spieldenner')
-                rob.appendNode('email', 'rob.spieldenner@gmail.com')
-                def justin = devs.appendNode('developer')
-                justin.appendNode('id', 'quidryan')
-                justin.appendNode('name', 'Justin Ryan')
-                justin.appendNode('email', 'justin@halfempty.org')
-                def apache = root.appendNode('licenses').appendNode('license')
-                apache.appendNode('name', 'The Apache Software License, Version 2.0')
-                apache.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                apache.appendNode('distribution', 'repo')
-            }
-        }
     }
 }
 
