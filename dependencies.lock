@@ -93,7 +93,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "4.0.0",
+            "locked": "4.1.0",
             "requested": "latest.release"
         },
         "org.spockframework:spock-core": {
@@ -115,7 +115,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "4.0.0",
+            "locked": "4.1.0",
             "requested": "latest.release"
         },
         "org.spockframework:spock-core": {
@@ -137,7 +137,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "4.0.0",
+            "locked": "4.1.0",
             "requested": "latest.release"
         },
         "org.spockframework:spock-core": {
@@ -159,7 +159,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "4.0.0",
+            "locked": "4.1.0",
             "requested": "latest.release"
         },
         "org.spockframework:spock-core": {
