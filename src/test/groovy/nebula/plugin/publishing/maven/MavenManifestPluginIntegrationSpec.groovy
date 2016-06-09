@@ -20,7 +20,8 @@ import nebula.test.IntegrationSpec
 class MavenManifestPluginIntegrationSpec extends IntegrationSpec {
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenManifestPlugin)}
+            apply plugin: 'nebula.maven-manifest'
+            apply plugin: 'nebula.maven-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

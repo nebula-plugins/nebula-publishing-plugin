@@ -22,23 +22,9 @@ import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyBasePublishPlugin implements Plugin<Project> {
-    static final String IVY_WAR = 'nebulaPublish.ivy.war'
-    static final String IVY_JAR = 'nebulaPublish.ivy.jar'
-
     @Override
     void apply(Project project) {
         project.plugins.apply org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
-
-        project.ext.set(IVY_WAR, false)
-        project.ext.set(IVY_JAR, false)
-
-        project.plugins.withType(WarPlugin) {
-            project.ext.set(IVY_WAR, true)
-        }
-
-        project.plugins.withType(JavaPlugin) {
-            project.ext.set(IVY_JAR, true)
-        }
 
         // CURRENT
         /*
@@ -63,15 +49,9 @@ class IvyBasePublishPlugin implements Plugin<Project> {
             <conf name="provided" visibility="public"/>
          */
 
-
         project.publishing {
             publications {
-                nebulaIvy(IvyPublication) {
-                    if (project.ext.get(IVY_WAR)) {
-                        from project.components.web
-                    } else if (project.ext.get(IVY_JAR)) {
-                        from project.components.java
-                    }
+                withType(IvyPublication) {
                     descriptor.status = project.status
                     descriptor.withXml { XmlProvider xml ->
                         def root = xml.asNode()

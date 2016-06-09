@@ -26,7 +26,7 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 class MavenDeveloperPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenBasePublishPlugin)
+        project.plugins.apply MavenBasePublishPlugin
 
         try {
             Class.forName('nebula.plugin.contacts.BaseContactsPlugin')
@@ -38,7 +38,7 @@ class MavenDeveloperPlugin implements Plugin<Project> {
         project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
             project.publishing {
                 publications {
-                    nebula(MavenPublication) {
+                    withType(MavenPublication) {
                         pom.withXml { XmlProvider xml ->
                             def myContacts = contactsPlugin.getAllContacts()
                             if (myContacts) {

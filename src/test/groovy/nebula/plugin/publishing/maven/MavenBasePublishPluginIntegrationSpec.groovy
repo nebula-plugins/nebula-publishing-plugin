@@ -24,7 +24,8 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenBasePublishPlugin)}
+            apply plugin: 'nebula.maven-base-publish'
+            apply plugin: 'nebula.maven-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

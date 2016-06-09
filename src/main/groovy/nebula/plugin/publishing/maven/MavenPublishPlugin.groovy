@@ -17,13 +17,21 @@ package nebula.plugin.publishing.maven
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.WarPlugin
+import org.gradle.api.publish.maven.MavenPublication
 
 class MavenPublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply MavenResolvedDependenciesPlugin
-        project.plugins.apply MavenDeveloperPlugin
-        project.plugins.apply MavenManifestPlugin
-        project.plugins.apply MavenScmPlugin
+        project.plugins.with {
+            apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+            apply MavenNebulaPublishPlugin
+            apply MavenBasePublishPlugin
+            apply MavenResolvedDependenciesPlugin
+            apply MavenDeveloperPlugin
+            apply MavenManifestPlugin
+            apply MavenScmPlugin
+        }
     }
 }

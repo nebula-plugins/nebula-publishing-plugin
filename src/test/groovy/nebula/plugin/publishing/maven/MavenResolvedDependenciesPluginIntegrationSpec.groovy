@@ -25,7 +25,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenResolvedDependenciesPlugin)}
+            apply plugin: 'nebula.maven-resolved-dependencies'
+            apply plugin: 'nebula.maven-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'
