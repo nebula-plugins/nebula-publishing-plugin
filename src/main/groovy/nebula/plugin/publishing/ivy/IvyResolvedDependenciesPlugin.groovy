@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.ivy
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -25,14 +26,17 @@ import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.ExactVer
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
+/**
+ * Replaces first order dependencies with the selected versions when publishing.
+ */
 class IvyResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(IvyBasePublishPlugin)
+        project.plugins.apply IvyBasePublishPlugin
 
         project.publishing {
             publications {
-                nebulaIvy(IvyPublication) {
+                withType(IvyPublication) {
                     descriptor.withXml { XmlProvider xml ->
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency

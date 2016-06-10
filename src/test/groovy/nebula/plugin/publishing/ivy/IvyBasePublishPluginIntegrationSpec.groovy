@@ -26,7 +26,8 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         keepFiles = true
 
         buildFile << """\
-            apply plugin: ${IvyBasePublishPlugin.name}
+            apply plugin: 'nebula.ivy-base-publish'
+            apply plugin: 'nebula.ivy-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

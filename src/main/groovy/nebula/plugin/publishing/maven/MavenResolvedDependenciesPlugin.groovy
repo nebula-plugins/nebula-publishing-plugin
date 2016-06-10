@@ -24,16 +24,16 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.maven.MavenPublication
 
 /**
- * Replaces dynamic constraints with fixed constraints
+ * Replaces first order dependencies with the selected versions when publishing.
  */
 class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenBasePublishPlugin)
+        project.plugins.apply MavenBasePublishPlugin
 
         project.publishing {
             publications {
-                nebula(MavenPublication) {
+                withType(MavenPublication) {
                     pom.withXml { XmlProvider xml->
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency

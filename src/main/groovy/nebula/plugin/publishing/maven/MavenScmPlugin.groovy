@@ -26,7 +26,7 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 class MavenScmPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(MavenBasePublishPlugin)
+        project.plugins.apply MavenBasePublishPlugin
 
         try {
             Class.forName('nebula.plugin.info.scm.ScmInfoPlugin')
@@ -38,7 +38,7 @@ class MavenScmPlugin implements Plugin<Project> {
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
             project.publishing {
                 publications {
-                    nebula(MavenPublication) {
+                    withType(MavenPublication) {
                         pom.withXml { XmlProvider xml ->
                             def root = xml.asNode()
                             if (scmInfo.selectedProvider instanceof GitScmProvider) {
@@ -59,7 +59,7 @@ class MavenScmPlugin implements Plugin<Project> {
      * Convert git syntax of git@github.com:reactivex/rxjava-core.git to https://github.com/reactivex/rxjava-core
      * @param origin
      */
-    String calculateUrlFromOrigin(String origin, Project project) {
+    static String calculateUrlFromOrigin(String origin, Project project) {
         def m = origin =~ GIT_PATTERN
         if (m) {
             return "https://${m[0][5]}/${m[0][7]}"

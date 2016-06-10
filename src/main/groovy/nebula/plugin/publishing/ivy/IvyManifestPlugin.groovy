@@ -22,7 +22,7 @@ class IvyManifestPlugin implements Plugin<Project> {
         project.plugins.withType(InfoBrokerPlugin) { InfoBrokerPlugin infoBroker ->
             project.publishing {
                 publications {
-                    nebulaIvy(IvyPublication) {
+                    withType(IvyPublication) {
                         descriptor.withXml { XmlProvider xml ->
                             // the ivy info>description tag is the only one which can contain free
                             // text, including arbitrary xml

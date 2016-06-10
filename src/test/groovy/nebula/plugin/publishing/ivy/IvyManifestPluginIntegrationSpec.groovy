@@ -23,6 +23,7 @@ class IvyManifestPluginIntegrationSpec extends IntegrationSpec {
     def setup() {
         buildFile << """\
             apply plugin: 'nebula.ivy-manifest'
+            apply plugin: 'nebula.ivy-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

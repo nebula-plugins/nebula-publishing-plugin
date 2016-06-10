@@ -22,7 +22,7 @@ import nebula.test.dependencies.GradleDependencyGenerator
 class MavenPublishPluginIntegrationSpec extends IntegrationSpec {
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishPlugin)}
+            apply plugin: 'nebula.maven-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

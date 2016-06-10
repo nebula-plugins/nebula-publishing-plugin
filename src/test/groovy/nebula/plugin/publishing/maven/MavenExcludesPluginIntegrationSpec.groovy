@@ -23,7 +23,8 @@ import nebula.test.dependencies.ModuleBuilder
 class MavenExcludesPluginIntegrationSpec extends IntegrationSpec {
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenExcludesPlugin)}
+            apply plugin: 'nebula.maven-excludes'
+            apply plugin: 'nebula.maven-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'

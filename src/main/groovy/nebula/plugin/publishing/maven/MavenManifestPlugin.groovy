@@ -37,7 +37,7 @@ class MavenManifestPlugin implements Plugin<Project> {
         project.plugins.withType(InfoBrokerPlugin) { InfoBrokerPlugin infoBroker ->
             project.publishing {
                 publications {
-                    nebula(MavenPublication) {
+                    withType(MavenPublication) {
                         pom.withXml { XmlProvider xml ->
                             Map<String, String> manifest = infoBroker.buildManifest()
 

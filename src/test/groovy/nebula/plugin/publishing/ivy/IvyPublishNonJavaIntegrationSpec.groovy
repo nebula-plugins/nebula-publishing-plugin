@@ -24,7 +24,7 @@ class IvyPublishNonJavaIntegrationSpec extends IntegrationSpec {
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
         buildFile << """\
-            ${applyPlugin(IvyPublishPlugin)}
+            apply plugin: 'nebula.ivy-publish'
 
             group = 'test.nebula'
             version = '0.1.0'

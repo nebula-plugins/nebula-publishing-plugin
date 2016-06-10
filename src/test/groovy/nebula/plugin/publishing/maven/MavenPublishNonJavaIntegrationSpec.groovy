@@ -24,7 +24,7 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationSpec {
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
         buildFile << """\
-            ${applyPlugin(MavenPublishPlugin)}
+            apply plugin: 'nebula.maven-publish'
 
             group = 'test.nebula'
             version = '0.1.0'

@@ -34,7 +34,7 @@ class IvyExcludesPlugin implements Plugin<Project> {
 
         project.publishing {
             publications {
-                nebulaIvy(IvyPublication) {
+                withType(IvyPublication) {
                     descriptor.withXml { XmlProvider xml ->
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency

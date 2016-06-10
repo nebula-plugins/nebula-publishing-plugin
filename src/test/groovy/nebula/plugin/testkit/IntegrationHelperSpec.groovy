@@ -21,7 +21,7 @@ import org.junit.Rule
 import org.junit.rules.TestName
 import spock.lang.Specification
 
-class IntegrationHelperSpec extends Specification {
+abstract class IntegrationHelperSpec extends Specification {
     boolean keepFiles = false
     @Rule TestName testName = new TestName()
     File projectDir

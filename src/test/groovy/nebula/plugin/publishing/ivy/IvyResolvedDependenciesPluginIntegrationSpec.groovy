@@ -29,6 +29,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
 
         buildFile << """\
             apply plugin: 'nebula.ivy-resolved-dependencies'
+            apply plugin: 'nebula.ivy-nebula-publish'
 
             version = '0.1.0'
             group = 'test.nebula'
