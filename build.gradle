@@ -49,8 +49,8 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
-    compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
+    compile 'com.netflix.nebula:gradle-info-plugin:3.1.0', optional
+    compile 'com.netflix.nebula:gradle-contacts-plugin:3.0.1', optional
 
     testCompile gradleTestKit()
     testRuntime files(tasks.createClasspathManifest)
