@@ -146,6 +146,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'ivy']
         }
 
+        compileApi {
+            id = 'nebula.compile-api'
+            displayName = 'Nebula compileApi Scope Plugin'
+            description = 'Adds a compileApi configuration, dependencies in this configuration will be put in compile conf/scope of ivy/maven'
+            tags = ['nebula', 'publish', 'api-scope', 'compileApi']
+        }
+
         javadocJar {
             id = 'nebula.javadoc-jar'
             displayName = 'Nebula Javadoc Jar Publishing plugin'

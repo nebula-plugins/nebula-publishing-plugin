@@ -148,7 +148,6 @@ class ApiScopePluginIntegrationSpec extends IntegrationHelperSpec {
         BuildResult result = runTasks('publishTestNebulaPublicationToTestLocalRepository')
 
         then:
-        println new File(projectDir, 'build/testLocal/test/nebula/testmaven/0.1.0/testmaven-0.1.0.pom').text
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/testLocal/test/nebula/testmaven/0.1.0/testmaven-0.1.0.pom'))
         def b = pom.dependencies.dependency.find { it.artifactId == 'b' }
         b.artifactId == 'b'
@@ -201,7 +200,6 @@ class ApiScopePluginIntegrationSpec extends IntegrationHelperSpec {
         BuildResult result = runTasks('publishTestNebulaPublicationToTestLocalRepository')
 
         then:
-        println new File(projectDir, 'build/testLocal/test.nebula/testivy/0.1.0/ivy-0.1.0.xml').text
         def ivy = new XmlSlurper().parse(new File(projectDir, 'build/testLocal/test.nebula/testivy/0.1.0/ivy-0.1.0.xml'))
         def a = ivy.dependencies.dependency.find { it.@name == 'a' }
         a.@name == 'a'
@@ -256,7 +254,6 @@ class ApiScopePluginIntegrationSpec extends IntegrationHelperSpec {
         BuildResult result = runTasks('publishTestNebulaPublicationToTestLocalRepository')
 
         then:
-        println new File(projectDir, 'build/testLocal/test.nebula/testivy/0.1.0/ivy-0.1.0.xml').text
         def ivy = new XmlSlurper().parse(new File(projectDir, 'build/testLocal/test.nebula/testivy/0.1.0/ivy-0.1.0.xml'))
         def b = ivy.dependencies.dependency.find { it.@name == 'b' }
         b.@name == 'b'

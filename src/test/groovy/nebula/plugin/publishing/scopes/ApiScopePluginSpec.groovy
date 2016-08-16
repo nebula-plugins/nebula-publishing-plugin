@@ -42,8 +42,4 @@ class ApiScopePluginSpec extends PluginProjectSpec {
         where:
         plugin << ['java', 'groovy', 'scala']
     }
-
-    def 'x'() {
-
-    }
 }
