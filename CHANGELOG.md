@@ -1,4 +1,9 @@
-4.9.0 / 2016-08-02
+4.9.1 / 2016-08-16
+==================
+
+* Republish after adding `nebula.compileApi` to gradle plugin portal block
+
+4.9.0 / 2016-08-16
 ==================
 
 * Add scope to gradle to automatically put those dependencies in the compile scope of the pom and ivy files
