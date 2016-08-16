@@ -185,6 +185,10 @@ Place excludes from single dependencies into the ivy.xml
 
 ## Extra Publication Plugins
 
+### nebula.compile-api
+
+Add a `compileApi` dependency scope that will place those dependencies in the generated ivy or pom files compile conf/scope
+
 ### nebula.javadoc-jar
 
 Creates a javadocJar task to package up javadoc and add it to publications so it is published.
@@ -287,11 +291,17 @@ Tested with Oracle JDK8
 | 2.6            | yes   |
 | 2.7            | yes   |
 | 2.8            | yes   |
+| 2.9            | yes   |
+| 2.10           | yes   |
+| 2.11           | yes   |
+| 2.12           | yes   |
+| 2.13           | yes   |
+| 2.14.1         | yes   |
 
 LICENSE
 =======
 
-Copyright 2014-2015 Netflix, Inc.
+Copyright 2014-2016 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

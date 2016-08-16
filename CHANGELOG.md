@@ -1,3 +1,8 @@
+4.9.0 / 2016-08-02
+==================
+
+* Add scope to gradle to automatically put those dependencies in the compile scope of the pom and ivy files
+
 4.5.0 / 2016-03-21
 ==================
 
