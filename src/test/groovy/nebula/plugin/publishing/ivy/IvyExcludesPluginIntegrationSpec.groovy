@@ -85,15 +85,14 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
         def b = dependencies.find { it.@name == 'b' }
 
         then:
-        a.children().size() == 2
-        a.exclude[0].@org == 'testjava'
-        a.exclude[0].@module == 'ex1'
-        !a.exclude[1].attributes().org
-        a.exclude[1].@module == 'ex2'
+        def aChildren = a.children()
+        aChildren.size() == 2
+        aChildren.find { it.@org == 'testjava' && it.@module == 'ex1' }
+        aChildren.find { !it.attributes().org && it.@module == 'ex2' }
 
         then:
-        b.children().size() == 1
-        b.exclude[0].@org == 'testjava'
-        !b.exclude[0].attributes().module
+        def bChildren = b.children()
+        bChildren.size() == 1
+        bChildren.find { it.@org == 'testjava' && !it.attributes().module }
     }
 }
