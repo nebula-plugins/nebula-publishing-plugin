@@ -40,11 +40,9 @@ class JavadocJarPlugin implements Plugin<Project> {
             project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
                 project.plugins.apply(MavenBasePublishPlugin)
 
-                project.publishing {
-                    publications {
-                        nebula(MavenPublication) {
-                            artifact project.tasks.javadocJar
-                        }
+                project.publishing.publications {
+                    nebula(MavenPublication) {
+                        artifact project.tasks.javadocJar
                     }
                 }
             }
@@ -52,13 +50,11 @@ class JavadocJarPlugin implements Plugin<Project> {
             project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
                 project.plugins.apply(IvyBasePublishPlugin)
 
-                project.publishing {
-                    publications {
-                        nebulaIvy(IvyPublication) {
-                            artifact(project.tasks.javadocJar) {
-                                type 'javadoc'
-                                conf 'javadoc'
-                            }
+                project.publishing.publications {
+                    nebulaIvy(IvyPublication) {
+                        artifact(project.tasks.javadocJar) {
+                            type 'javadoc'
+                            conf 'javadoc'
                         }
                     }
                 }

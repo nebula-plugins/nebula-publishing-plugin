@@ -39,11 +39,9 @@ class SourceJarPlugin implements Plugin<Project> {
             project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
                 project.plugins.apply(MavenBasePublishPlugin)
 
-                project.publishing {
-                    publications {
-                        nebula(MavenPublication) {
-                            artifact project.tasks.sourceJar
-                        }
+                project.publishing.publications {
+                    nebula(MavenPublication) {
+                        artifact project.tasks.sourceJar
                     }
                 }
             }
@@ -51,13 +49,11 @@ class SourceJarPlugin implements Plugin<Project> {
             project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
                 project.plugins.apply(IvyBasePublishPlugin)
 
-                project.publishing {
-                    publications {
-                        nebulaIvy(IvyPublication) {
-                            artifact(project.tasks.sourceJar) {
-                                type 'sources'
-                                conf 'sources'
-                            }
+                project.publishing.publications {
+                    nebulaIvy(IvyPublication) {
+                        artifact(project.tasks.sourceJar) {
+                            type 'sources'
+                            conf 'sources'
                         }
                     }
                 }
