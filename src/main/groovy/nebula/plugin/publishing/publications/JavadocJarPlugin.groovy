@@ -14,51 +14,23 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.publications
-import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
-import nebula.plugin.publishing.maven.MavenBasePublishPlugin
-import org.gradle.api.Plugin
+
+import nebula.plugin.publishing.PublicationBase
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.api.tasks.javadoc.Javadoc
 
-class JavadocJarPlugin implements Plugin<Project> {
+class JavadocJarPlugin implements PublicationBase {
     @Override
     void apply(Project project) {
         project.plugins.withType(JavaPlugin) {
-            Javadoc javadocTask = (Javadoc) project.tasks.getByName('javadoc')
-            project.tasks.create('javadocJar', Jar) {
-                dependsOn javadocTask
-                from javadocTask.destinationDir
-                classifier 'javadoc'
-                extension 'jar'
-                group 'build'
-            }
 
-            project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
-                project.plugins.apply(MavenBasePublishPlugin)
+            def javadocJar = addTaskLocal(project, [name       : TASK_NAME_JAVADOC_JAR,
+                                                    description: TASK_DESC_JAVADOC_JAR,
+                                                    group      : CORE_GROUP_BUILD,
+                                                    type       : Jar])
 
-                project.publishing.publications {
-                    nebula(MavenPublication) {
-                        artifact project.tasks.javadocJar
-                    }
-                }
-            }
-
-            project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
-                project.plugins.apply(IvyBasePublishPlugin)
-
-                project.publishing.publications {
-                    nebulaIvy(IvyPublication) {
-                        artifact(project.tasks.javadocJar) {
-                            type 'javadoc'
-                            conf 'javadoc'
-                        }
-                    }
-                }
-            }
+            buildConfigureTask(project, javadocJar, ARCHIVE_CLASSIFIER_JAVADOC, CORE_TASK_JAVADOC, EXTENSION_JAR)
         }
     }
 }

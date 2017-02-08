@@ -15,49 +15,22 @@
  */
 package nebula.plugin.publishing.publications
 
-import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
-import nebula.plugin.publishing.maven.MavenBasePublishPlugin
-import org.gradle.api.Plugin
+import nebula.plugin.publishing.PublicationBase
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 
-class SourceJarPlugin implements Plugin<Project> {
+class SourceJarPlugin implements PublicationBase {
     @Override
     void apply(Project project) {
         project.plugins.withType(JavaPlugin) {
-            project.tasks.create('sourceJar', Jar) {
-                dependsOn project.tasks.getByName('classes')
-                from project.sourceSets.main.allSource
-                classifier 'sources'
-                extension 'jar'
-                group 'build'
-            }
 
-            project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
-                project.plugins.apply(MavenBasePublishPlugin)
+            def sourceJar = addTaskLocal(project, [name       : TASK_NAME_SOURCE_JAR,
+                                                   description: TASK_DESC_SOURCE_JAR,
+                                                   group      : CORE_GROUP_BUILD,
+                                                   type       : Jar])
 
-                project.publishing.publications {
-                    nebula(MavenPublication) {
-                        artifact project.tasks.sourceJar
-                    }
-                }
-            }
-
-            project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
-                project.plugins.apply(IvyBasePublishPlugin)
-
-                project.publishing.publications {
-                    nebulaIvy(IvyPublication) {
-                        artifact(project.tasks.sourceJar) {
-                            type 'sources'
-                            conf 'sources'
-                        }
-                    }
-                }
-            }
+            buildConfigureTask(project, sourceJar, ARCHIVE_CLASSIFIER_SOURCES, CORE_TASK_CLASSES, EXTENSION_JAR, true, ['main'])
         }
     }
 }
