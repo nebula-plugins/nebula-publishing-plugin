@@ -56,7 +56,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url '${mavenrepo.toURI().toURL()}' } }
 
             dependencies {
                 compile 'test.resolved:a:1.+'
@@ -79,7 +79,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url '${mavenrepo.toURI().toURL()}' } }
 
             dependencies {
                 compile 'test.resolved:d:[1.0.0, 2.0.0)'
@@ -103,7 +103,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url '${mavenrepo.toURI().toURL()}' } }
 
             dependencies {
                 compile 'test.resolved:b:1.0.0'
@@ -130,7 +130,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
                 apply plugin: 'java'
                 ${applyPlugin(MavenResolvedDependenciesPlugin)}
 
-                repositories { maven { url '${mavenrepo.absolutePath}' } }
+                repositories { maven { url '${mavenrepo.toURI().toURL()}' } }
             }
 
             dependencies {

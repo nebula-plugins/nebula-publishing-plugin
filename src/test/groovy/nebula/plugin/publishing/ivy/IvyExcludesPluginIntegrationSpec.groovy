@@ -62,7 +62,7 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
             apply plugin: 'java'
 
             repositories {
-                ivy { url '${ivyrepo.absolutePath}' }
+                ivy { url "${ivyrepo.toURI().toURL()}" }
             }
 
             dependencies {

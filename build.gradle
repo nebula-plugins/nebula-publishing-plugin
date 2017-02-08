@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+buildscript{
+    repositories{
+        mavenLocal()
+    }
+    dependencies {
+        classpath "com.netflix.nebula:nebula-test:5.1.0-dev.9+FixingForWindows.3369d92"
+    }
+}
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.7'
@@ -56,11 +64,25 @@ dependencies {
     testRuntime files(tasks.createClasspathManifest)
 }
 
+repositories {
+    mavenLocal()
+}
+allprojects {
+    //noinspection GroovyAssignabilityCheck
+    configurations.all {
+        //noinspection GroovyAssignabilityCheck
+        resolutionStrategy.dependencySubstitution {
+            substitute module('com.netflix.nebula:nebula-test:5.0.0') with module('com.netflix.nebula:nebula-test:5.1.0-dev.9+FixingForWindows.3369d92')
+        }
+    }
+}
+
 pluginBundle {
     website = 'https://github.com/nebula-plugins/nebula-publishing-plugin'
     vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
 
+    //noinspection GroovyAssignabilityCheck
     plugins {
         mavenApacheLicense {
             id = 'nebula.maven-apache-license'
@@ -158,6 +180,20 @@ pluginBundle {
             displayName = 'Nebula Javadoc Jar Publishing plugin'
             description = 'Create a javadocJar task to package up the javadoc and add it to the publications'
             tags = ['nebula', 'publish', 'javadoc']
+        }
+
+        groovydocJar {
+            id = 'nebula.groovydoc-jar'
+            displayName = 'Nebula Groovydoc Jar Publishing plugin'
+            description = 'Create a groovydocJar task to package up the groovydoc and add it to the publications'
+            tags = ['nebula', 'publish', 'groovydoc']
+        }
+
+        scaladocJar {
+            id = 'nebula.scaladoc-jar'
+            displayName = 'Nebula Scaladoc Jar Publishing plugin'
+            description = 'Create a scaladocJar task to package up the scaladoc and add it to the publications'
+            tags = ['nebula', 'publish', 'scaladoc']
         }
 
         sourceJar {

@@ -57,7 +57,7 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """\
             apply plugin: 'java'
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url '${mavenrepo.toURI().toURL()}' }
             }
 
             dependencies {
