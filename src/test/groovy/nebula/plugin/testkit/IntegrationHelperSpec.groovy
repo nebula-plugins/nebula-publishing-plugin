@@ -78,8 +78,4 @@ abstract class IntegrationHelperSpec extends Specification {
                 .forwardOutput()
                 .build()
     }
-
-    String fixWindowsPath(File input){
-        input.absolutePath.replaceAll(~ /[\\\\]/, "/")
-    }
 }

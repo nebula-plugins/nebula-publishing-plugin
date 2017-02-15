@@ -204,7 +204,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
             apply plugin: 'java'
 
             repositories {
-                ivy { url file("${fixWindowsPath(ivyrepo)}") }
+                ivy { url "${ivyrepo.toURI().toURL()}" }
             }
 
             dependencies {

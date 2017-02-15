@@ -150,7 +150,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url file("${fixWindowsPath(mavenrepo)}") } }
+            repositories { maven { url "${mavenrepo.toURI().toURL()}" } }
 
             dependencies {
                 compile 'test.resolved:b:1.0.0'
