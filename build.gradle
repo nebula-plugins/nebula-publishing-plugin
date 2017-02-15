@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-buildscript{
-    repositories{
-        mavenLocal()
-    }
-    dependencies {
-        classpath "com.netflix.nebula:nebula-test:5.1.0-dev.9+FixingForWindows.3369d92"
-    }
-}
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.7'
-    id 'nebula.plugin-plugin' version '5.1.0'
+    id 'nebula.plugin-plugin' version '5.1.1'
     id 'org.ysb33r.gradletest' version '0.5.4'
 }
 
@@ -62,19 +54,6 @@ dependencies {
 
     testCompile gradleTestKit()
     testRuntime files(tasks.createClasspathManifest)
-}
-
-repositories {
-    mavenLocal()
-}
-allprojects {
-    //noinspection GroovyAssignabilityCheck
-    configurations.all {
-        //noinspection GroovyAssignabilityCheck
-        resolutionStrategy.dependencySubstitution {
-            substitute module('com.netflix.nebula:nebula-test:5.0.0') with module('com.netflix.nebula:nebula-test:5.1.0-dev.9+FixingForWindows.3369d92')
-        }
-    }
 }
 
 pluginBundle {
