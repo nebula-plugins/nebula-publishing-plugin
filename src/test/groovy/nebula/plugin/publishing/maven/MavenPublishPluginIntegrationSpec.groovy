@@ -64,7 +64,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationSpec {
             apply plugin: 'nebula.provided-base'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url '${mavenrepo.toURI().toURL()}' }
             }
 
             contacts {

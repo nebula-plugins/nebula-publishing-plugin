@@ -20,6 +20,7 @@ import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Ignore
 
 @Deprecated
 class TestJarPluginIntegrationSpec extends IntegrationSpec {
@@ -42,7 +43,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
 
             repositories {
                 jcenter()
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url '${mavenrepo.toURI().toURL()}' }
             }
         """.stripIndent()
 
@@ -54,6 +55,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         unzipDir = new File(projectDir, 'unpacked')
     }
 
+    @Ignore
     def 'create test jar'() {
         setup:
         buildFile << """

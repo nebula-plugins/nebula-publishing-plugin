@@ -17,7 +17,7 @@
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.7'
-    id 'nebula.plugin-plugin' version '5.1.0'
+    id 'nebula.plugin-plugin' version '5.1.1'
     id 'org.ysb33r.gradletest' version '0.5.4'
 }
 
@@ -49,7 +49,7 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile 'com.netflix.nebula:gradle-info-plugin:3.1.0', optional
+    compile 'com.netflix.nebula:gradle-info-plugin:3.5.0', optional
     compile 'com.netflix.nebula:gradle-contacts-plugin:3.0.1', optional
 
     testCompile gradleTestKit()
@@ -61,6 +61,7 @@ pluginBundle {
     vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
 
+    //noinspection GroovyAssignabilityCheck
     plugins {
         mavenApacheLicense {
             id = 'nebula.maven-apache-license'
@@ -158,6 +159,20 @@ pluginBundle {
             displayName = 'Nebula Javadoc Jar Publishing plugin'
             description = 'Create a javadocJar task to package up the javadoc and add it to the publications'
             tags = ['nebula', 'publish', 'javadoc']
+        }
+
+        groovydocJar {
+            id = 'nebula.groovydoc-jar'
+            displayName = 'Nebula Groovydoc Jar Publishing plugin'
+            description = 'Create a groovydocJar task to package up the groovydoc and add it to the publications'
+            tags = ['nebula', 'publish', 'groovydoc']
+        }
+
+        scaladocJar {
+            id = 'nebula.scaladoc-jar'
+            displayName = 'Nebula Scaladoc Jar Publishing plugin'
+            description = 'Create a scaladocJar task to package up the scaladoc and add it to the publications'
+            tags = ['nebula', 'publish', 'scaladoc']
         }
 
         sourceJar {

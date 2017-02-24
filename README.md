@@ -189,7 +189,7 @@ Place excludes from single dependencies into the ivy.xml
 
 Add a `compileApi` dependency scope that will place those dependencies in the generated ivy or pom files compile conf/scope
 
-### nebula.javadoc-jar
+### <a name="javadoc-jar"></a>nebula.javadoc-jar
 
 Creates a javadocJar task to package up javadoc and add it to publications so it is published.
 
@@ -212,6 +212,18 @@ Eliminates this boilerplate:
         }
       }
     }
+    
+### nebula.groovydoc-jar
+
+Creates a groovydocJar task to package up groovydoc and add it to publications so it is published.
+
+Eliminates nearly identical boilerplate as [nebula.javadoc-jar](#javadoc-jar) tuned for Groovy
+
+### nebula.scaladoc-jar
+
+Creates a scaladoc task to package up scaladoc and add it to publications so it is published.
+
+Eliminates nearly identical boilerplate as [nebula.javadoc-jar](#javadoc-jar) tuned for Scala
 
 ### nebula.source-jar
 

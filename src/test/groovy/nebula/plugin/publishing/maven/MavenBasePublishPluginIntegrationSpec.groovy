@@ -177,7 +177,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        new File(publishDir, 'maventest-0.1.0.pom').text == expectedPom
+        new File(publishDir, 'maventest-0.1.0.pom').text.normalize() == expectedPom.normalize()
     }
 
     def 'verify pom contains compile dependencies'() {
@@ -188,7 +188,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
             apply plugin: 'java'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url '${mavenrepo.toURI().toURL()}' }
             }
 
             dependencies {
@@ -216,7 +216,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
             apply plugin: 'java'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url '${mavenrepo.toURI().toURL()}' }
             }
 
             dependencies {
