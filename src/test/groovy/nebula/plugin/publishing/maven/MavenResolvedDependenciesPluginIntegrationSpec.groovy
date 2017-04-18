@@ -198,12 +198,53 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         d.version == '18.0'
     }
 
+    def 'works with java-library plugin and dependency-recommender'() {
+        buildFile << '''\
+            buildscript {
+                repositories { jcenter() }
+                dependencies { classpath 'com.netflix.nebula:nebula-dependency-recommender:4.1.0' }
+            }
+
+            apply plugin: 'java-library'
+            apply plugin: 'nebula.dependency-recommender'            
+            
+            repositories { jcenter() }
+            dependencies {
+                api 'com.google.truth:truth'
+                implementation 'com.google.collections:google-collections'
+            }
+            
+            dependencyRecommendations {
+                map recommendations: [
+                    'com.google.truth:truth': '0.28',
+                    'com.google.collections:google-collections': '1.0'
+                ]
+            }
+        '''.stripIndent()
+
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        findDependencyInScope('truth', 'compile').version == '0.28'
+        findDependencyInScope('google-collections', 'runtime').version == '1.0'
+    }
+
     def findDependency(String artifactId) {
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def d = root.dependencies.dependency.find {
             it.artifactId == artifactId
         }
         assert d.size() > 0: "Could not find dependency '$artifactId'"
+        return d
+    }
+
+    def findDependencyInScope(String artifactId, String scope) {
+        def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
+        def d = root.dependencies.dependency.find {
+            it.artifactId == artifactId && it.scope == scope
+        }
+        assert d.size() > 0: "Could not find dependency '$artifactId' in scope '$scope'"
         return d
     }
 }
