@@ -175,7 +175,7 @@ Link all the other ivy plugins together.
 
 Adds a properties block to the ivy.xml. Copying in data from our [gradle-info-plugin](https://github.com/nebula-plugins/gradle-info-plugin).
 
-### nebula.ivy-resolved
+### nebula.ivy-resolved-dependencies
 
 Walk through all project dependencies and replace all dynamic dependencies with what those jars currently resolve to.
 
