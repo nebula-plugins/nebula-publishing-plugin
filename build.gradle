@@ -26,10 +26,6 @@ description 'Gradle plugin to ease use of ivy-publish and maven-publish'
 group = 'com.netflix.nebula'
 
 contacts {
-    'justin@halfempty.org' {
-        moniker 'Justin Ryan'
-        github 'quidryan'
-    }
     'rob.spieldenner@gmail.com' {
         moniker 'Rob Spieldenner'
         github 'rspieldenner'
@@ -146,12 +142,12 @@ gradlePlugin {
 
         javadocJar {
             id = 'nebula.javadoc-jar'
-            implementationClass = 'nebula.plugin.publishing.publications.deprecated.DeprecatedJavadocJarPlugin'
+            implementationClass = 'nebula.plugin.publishing.publications.JavadocJarPlugin'
         }
 
         sourceJar {
             id = 'nebula.source-jar'
-            implementationClass = 'nebula.plugin.publishing.publications.deprecated.DeprecatedSourceJarPlugin'
+            implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
         }
     }
 }
