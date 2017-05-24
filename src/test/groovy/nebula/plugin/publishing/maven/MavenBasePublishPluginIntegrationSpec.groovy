@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,19 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationSpec
+import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
+class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         buildFile << """\
-            apply plugin: 'nebula.maven-base-publish'
-            apply plugin: 'nebula.maven-nebula-publish'
+            plugins {
+                id 'nebula.maven-base-publish'
+                id 'nebula.maven-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -49,7 +51,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
 
     def 'name appears in pom'() {
         when:
-        runTasksSuccessfully('generatePomFileForNebulaPublication')
+        runTasks('generatePomFileForNebulaPublication')
 
         then:
         def pomFile = new File(projectDir, 'build/publications/nebula/pom-default.xml')
@@ -65,7 +67,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForNebulaPublication')
+        runTasks('generatePomFileForNebulaPublication')
 
         then:
         def pomFile = new File(projectDir, 'build/publications/nebula/pom-default.xml')
@@ -80,7 +82,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.jar').exists()
@@ -93,7 +95,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.jar').exists()
@@ -106,7 +108,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.jar').exists()
@@ -119,7 +121,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.war').exists()
@@ -133,7 +135,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.war').exists()
@@ -148,7 +150,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.war').exists()
@@ -174,7 +176,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         new File(publishDir, 'maventest-0.1.0.pom').text == expectedPom
@@ -197,7 +199,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
@@ -205,7 +207,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         dependency.groupId.text() == 'testjava'
         dependency.artifactId.text() == 'a'
         dependency.version.text() == '0.0.1'
-        dependency.scope.text() == 'runtime'
+        dependency.scope.text() == 'compile'
     }
 
     def 'verify pom contains runtime dependencies'() {
@@ -225,7 +227,63 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
+        def dependency = root.dependencies.dependency[0]
+        dependency.groupId.text() == 'testjava'
+        dependency.artifactId.text() == 'c'
+        dependency.version.text() == '0.0.1'
+        dependency.scope.text() == 'compile'
+    }
+
+    def 'verify pom contains api dependencies from java-library'() {
+        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java-library'
+
+            repositories {
+                maven { url '${mavenrepo.absolutePath}' }
+            }
+
+            dependencies {
+                api 'testjava:c:0.0.1'
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
+        def dependency = root.dependencies.dependency[0]
+        dependency.groupId.text() == 'testjava'
+        dependency.artifactId.text() == 'c'
+        dependency.version.text() == '0.0.1'
+        dependency.scope.text() == 'compile'
+    }
+
+    def 'verify pom contains implementation dependencies from java-library'() {
+        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java-library'
+
+            repositories {
+                maven { url '${mavenrepo.absolutePath}' }
+            }
+
+            dependencies {
+                implementation 'testjava:c:0.0.1'
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
@@ -238,7 +296,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationSpec {
 
     def 'does not fail on no java plugin'() {
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
         noExceptionThrown()

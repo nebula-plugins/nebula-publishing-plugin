@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,23 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.plugin.testkit.IntegrationHelperSpec
+import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 import org.gradle.testkit.runner.GradleRunner
 
-class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec {
+class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         keepFiles = true
 
         buildFile << """\
-            apply plugin: 'nebula.ivy-resolved-dependencies'
-            apply plugin: 'nebula.ivy-nebula-publish'
+            plugins {
+                id 'nebula.ivy-resolved-dependencies'
+                id 'nebula.ivy-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -42,11 +44,11 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                     }
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         settingsFile << '''\
             rootProject.name = 'resolvedivytest'
-        '''.stripIndent()
+            '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/resolvedivytest/0.1.0')
     }
@@ -67,13 +69,10 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
             dependencies {
                 compile 'test.resolved:a:1.+'
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def a = findDependency('a')
@@ -97,13 +96,10 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
             dependencies {
                 compile 'test.resolved:a:latest.integration'
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def a = findDependency('a')
@@ -127,13 +123,10 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
             dependencies {
                 compile 'test.resolved:d:[1.0.0, 2.0.0['
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
-        GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withArguments('publishNebulaIvyPublicationToTestLocalRepository')
-                .build()
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def d = findDependency('d')
@@ -156,7 +149,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                 compile 'test.resolved:b:1.0.0'
                 compile 'test.resolved:a'
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -186,7 +179,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
             dependencies {
                 compile project(':sub')
             }
-        """.stripIndent()
+            """.stripIndent()
 
         addSubproject('sub', '''\
             group = 'nebula.hello'
@@ -195,7 +188,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
             dependencies {
                 compile 'test.resolved:b:1.+'
             }
-        '''.stripIndent())
+            '''.stripIndent())
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -217,11 +210,12 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                  compile 'com.google.guava:guava:16.0'
                  compile 'com.google.truth:truth:0.28'
             }
-"""
+            """.stripIndent()
         when:
-        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+        def r = runTasks('publishNebulaIvyPublicationToTestLocalRepository', 'dependencies')
 
         then:
+        println r.output
         def d = findDependency('guava')
         d.@rev == '18.0'
     }
@@ -243,7 +237,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationHelperSpec
                      }
                  }
             }
-"""
+            """.stripIndent()
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 

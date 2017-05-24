@@ -19,6 +19,7 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.9.7'
     id 'nebula.plugin-plugin' version '5.6.0'
     id 'org.ysb33r.gradletest' version '0.5.4'
+    id 'java-gradle-plugin'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
@@ -54,6 +55,105 @@ dependencies {
 
     testCompile gradleTestKit()
     testRuntime files(tasks.createClasspathManifest)
+}
+
+gradlePlugin {
+    plugins {
+        mavenApacheLicense {
+            id = 'nebula.maven-apache-license'
+            implementationClass = 'nebula.plugin.publishing.maven.license.MavenApacheLicensePlugin'
+        }
+
+        mavenBasePublish {
+            id = 'nebula.maven-base-publish'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
+        }
+
+        mavenCompileOnly {
+            id = 'nebula.maven-compile-only'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenCompileOnlyPlugin'
+        }
+
+        mavenDeveloper {
+            id = 'nebula.maven-developer'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
+        }
+
+        mavenExcludes {
+            id = 'nebula.maven-excludes'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenExcludesPlugin'
+        }
+
+        mavenManifest {
+            id = 'nebula.maven-manifest'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenManifestPlugin'
+        }
+
+        mavenNebulaPublish {
+            id = 'nebula.maven-nebula-publish'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenNebulaPublishPlugin'
+        }
+
+        mavenPublish {
+            id = 'nebula.maven-publish'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenPublishPlugin'
+        }
+
+        mavenResolvedDependencies {
+            id = 'nebula.maven-resolved-dependencies'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
+        }
+
+        mavenScm {
+            id = 'nebula.maven-scm'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenScmPlugin'
+        }
+
+        ivyBasePublish {
+            id = 'nebula.ivy-base-publish'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyBasePublishPlugin'
+        }
+
+        ivyExcludes {
+            id = 'nebula.ivy-excludes'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyExcludesPlugin'
+        }
+
+        ivyManifest {
+            id = 'nebula.ivy-manifest'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyManifestPlugin'
+        }
+
+        ivyNebulaPublish {
+            id = 'nebula.ivy-nebula-publish'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyNebulaPublishPlugin'
+        }
+
+        ivyPublish {
+            id = 'nebula.ivy-publish'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyPublishPlugin'
+        }
+
+        ivyResolvedDependencies {
+            id = 'nebula.ivy-resolved-dependencies'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
+        }
+
+        compileApi {
+            id = 'nebula.compile-api'
+            implementationClass = 'nebula.plugin.publishing.scopes.ApiScopePlugin'
+        }
+
+        javadocJar {
+            id = 'nebula.javadoc-jar'
+            implementationClass = 'nebula.plugin.publishing.publications.deprecated.DeprecatedJavadocJarPlugin'
+        }
+
+        sourceJar {
+            id = 'nebula.source-jar'
+            implementationClass = 'nebula.plugin.publishing.publications.deprecated.DeprecatedSourceJarPlugin'
+        }
+    }
 }
 
 pluginBundle {
@@ -165,13 +265,6 @@ pluginBundle {
             displayName = 'Nebula Source Jar Publishing plugin'
             description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
             tags = ['nebula', 'publish', 'source']
-        }
-
-        testJar {
-            id = 'nebula.test-jar'
-            displayName = 'Nebula Test Jar Publishing plugin'
-            description = 'Create a testJar task to package up test classes and add it to the publications'
-            tags = ['nebula', 'publish', 'test']
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,17 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.test.IntegrationTestKitSpec
 
-class IvyManifestPluginIntegrationSpec extends IntegrationSpec {
+class IvyManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         buildFile << """\
-            apply plugin: 'nebula.ivy-manifest'
-            apply plugin: 'nebula.ivy-nebula-publish'
+            plugins {
+                id 'nebula.ivy-manifest'
+                id 'nebula.ivy-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -36,11 +38,11 @@ class IvyManifestPluginIntegrationSpec extends IntegrationSpec {
                     }
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
-        '''.stripIndent()
+            '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
     }
@@ -49,10 +51,10 @@ class IvyManifestPluginIntegrationSpec extends IntegrationSpec {
         buildFile << '''\
             apply plugin: 'java'
             apply plugin: 'nebula.info'
-        '''
+            '''
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository')
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def desc = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))

@@ -43,11 +43,16 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                             def dependencyMap = [:]
 
                             dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
+                            dependencyMap['compile'] = project.configurations.compileClasspath.incoming.resolutionResult.allDependencies
                             dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
                                 def group = dep.@org
                                 def name = dep.@name
                                 def scope = dep.@conf
+
+                                if (scope == 'compile->default') {
+                                    scope = 'compile'
+                                }
 
                                 if (scope == 'provided->default' || scope == 'runtime->default') {
                                     scope = 'runtime'

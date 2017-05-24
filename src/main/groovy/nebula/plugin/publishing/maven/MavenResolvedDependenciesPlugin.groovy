@@ -43,6 +43,8 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
 
                             dependencyMap['runtime'] = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
 
+                            dependencyMap['compileOnly'] = project.configurations.compileOnly.incoming.resolutionResult.allDependencies
+
                             dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
                                 def group = dep.groupId.text()

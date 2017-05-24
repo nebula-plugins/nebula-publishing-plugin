@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,15 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationSpec
+import nebula.test.IntegrationTestKitSpec
 
-class MavenScmPluginIntegrationSpec extends IntegrationSpec {
+class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
-            apply plugin: 'nebula.maven-scm'
-            apply plugin: 'nebula.maven-nebula-publish'
+            plugins {
+                id 'nebula.maven-scm'
+                id 'nebula.maven-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -38,7 +40,7 @@ class MavenScmPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('generatePomFileForNebulaPublication')
+        runTasks('generatePomFileForNebulaPublication')
 
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
