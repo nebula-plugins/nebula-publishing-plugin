@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 Netflix, Inc.
+ * Copyright 2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,14 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
-import nebula.test.dependencies.ModuleBuilder
 
-class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
+    File publishDir
+
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-excludes'
+                id 'nebula.maven-compile-only'
                 id 'nebula.maven-nebula-publish'
             }
 
@@ -42,41 +43,37 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         settingsFile << '''\
-            rootProject.name = 'excludesmaven'
+            rootProject.name = 'maventest'
         '''.stripIndent()
+
+        publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
     }
 
-    def 'add excludes to dependencies'() {
-        def graph = new DependencyGraphBuilder()
-                .addModule(new ModuleBuilder('test:a:1.0.0')
-                            .addDependency('test:b:2.0.0')
-                            .addDependency('test:c:0.9.0')
-                            .build())
-                .addModule('test:b:1.9.2')
-                .build()
+    def 'verify pom contains compileOnly dependencies'() {
+        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
             apply plugin: 'java'
+
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
             }
 
             dependencies {
-                compile('test:a:1.0.0') {
-                    exclude group: 'test', module: 'b'
-                }
+                compileOnly 'testjava:c:0.0.1'
             }
         """.stripIndent()
 
         when:
-        runTasks('generatePomFileForNebulaPublication')
+        runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
-        pom.dependencies.dependency[0].exclusions.exclusion.size() == 1
-        def aExclusion = pom.dependencies.dependency[0].exclusions.exclusion[0]
-        aExclusion.groupId == 'test'
-        aExclusion.artifactId == 'b'
+        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
+        def dependency = root.dependencies.dependency[0]
+        dependency.groupId.text() == 'testjava'
+        dependency.artifactId.text() == 'c'
+        dependency.version.text() == '0.0.1'
+        dependency.scope.text() == 'provided'
     }
 }

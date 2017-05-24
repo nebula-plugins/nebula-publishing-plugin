@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,21 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.plugin.testkit.IntegrationHelperSpec
+import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
+class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         keepFiles = true
 
         buildFile << """\
-            apply plugin: 'nebula.ivy-base-publish'
-            apply plugin: 'nebula.ivy-nebula-publish'
+            plugins {
+                id 'nebula.ivy-base-publish'
+                id 'nebula.ivy-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -40,11 +42,11 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
                     }
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
-        '''.stripIndent()
+            '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
     }
@@ -53,7 +55,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         setup:
         buildFile << '''\
             apply plugin: 'java'
-        '''
+            '''
 
         def expectedConfs = [
             compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
@@ -81,7 +83,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
             apply plugin: 'java'
 
             description = 'test description'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -98,7 +100,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         artifact.@name == 'ivytest'
         artifact.@type == 'jar'
         artifact.@ext == 'jar'
-        artifact.@conf == 'runtime'
+        artifact.@conf == 'compile'
     }
 
     def 'status changes when set'() {
@@ -106,7 +108,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
             apply plugin: 'java'
 
             status = 'release'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -119,7 +121,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
     def 'creates a jar publication'() {
         buildFile << '''\
             apply plugin: 'java'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -132,7 +134,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
     def 'creates a jar publication for scala projects'() {
         buildFile << '''\
             apply plugin: 'scala'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -144,7 +146,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
     def 'creates a jar publication for groovy projects'() {
         buildFile << '''\
             apply plugin: 'groovy'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -156,7 +158,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
     def 'creates a war publication'() {
         buildFile << '''\
             apply plugin: 'war'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -170,7 +172,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         buildFile << '''\
             apply plugin: 'java'
             apply plugin: 'war'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -185,7 +187,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
         buildFile << '''\
             apply plugin: 'war'
             apply plugin: 'java'
-        '''.stripIndent()
+            '''.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -211,14 +213,14 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationHelperSpec {
                 compile 'testjava:a:0.0.1'
                 runtime 'testjava:b:0.0.1'
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        assertDependency('testjava', 'a', '0.0.1', 'runtime->default')
-        assertDependency('testjava', 'b', '0.0.1', 'runtime->default')
+        assertDependency('testjava', 'a', '0.0.1', 'compile->default')
+        assertDependency('testjava', 'b', '0.0.1', 'compile->default')
     }
 
     boolean assertDependency(String org, String name, String rev, String conf = null) {

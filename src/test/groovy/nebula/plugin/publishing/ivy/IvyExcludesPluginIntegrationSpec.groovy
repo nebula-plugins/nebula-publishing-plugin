@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.plugin.testkit.IntegrationHelperSpec
+import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.gradle.testkit.runner.BuildResult
 
-class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
+class IvyExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         buildFile << """\
-            apply plugin: 'nebula.ivy-excludes'
-            apply plugin: 'nebula.ivy-nebula-publish'
+            plugins {
+                id 'nebula.ivy-excludes'
+                id 'nebula.ivy-nebula-publish'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -39,11 +41,11 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
                     }
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
-        '''.stripIndent()
+            '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
     }
@@ -74,7 +76,7 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationHelperSpec {
                     exclude group: 'testjava'
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
         BuildResult result = runTasks('publishNebulaIvyPublicationToTestLocalRepository')

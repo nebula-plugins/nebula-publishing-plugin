@@ -10,7 +10,7 @@
 To apply this plugin if using Gradle 2.1 or newer
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '4.9.1'
+      id 'nebula.<publishing plugin of your choice>' version '5.0.0-rc.1'
     }
 
 If using an older version of Gradle
@@ -18,7 +18,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.9.1'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:5.0.0-rc.1'
       }
     }
 
@@ -26,11 +26,6 @@ If using an older version of Gradle
 
 
 Provides publishing related plugins to reduce boiler plate and add functionality to maven-publish/ivy-publish.
-
-* DEPRECATED: 'nebula-source-jar' - Creates a sources jar, that contains the source files. Replace with 'nebula.source-jar'.
-* DEPRECATED: 'nebula-javadoc-jar' - Create a javadoc jar, that contains the html files from javadoc. Replace with 'nebula.javadoc-jar'.
-* DEPRECATED: 'nebula-test-jar' - Creates a jar containing test classes, and a "test" configuration that other projects can depend on. Occasionally projects may want to depend on test fixtures from other modules. To add a dependency on this you will add `testCompile project(path: ':<project>', configuration: 'test')` to the `dependencies` block. Replace with 'nebula.test-jar'.
-
 
 ## Maven Related Publishing Plugins
 
@@ -236,45 +231,6 @@ Eliminates this boilerplate:
         }
       }
     }
-
-### nebula.test-jar - DEPRECATED
-
-We will be removing this functionality in the next major release. We feel it is better to create a project for any
-shared test harnesses than to try and create an extra jar out of the test classes.
-
-Eliminates this boilerplate:
-
-    tasks.create('testJar', Jar) {
-      dependsOn tasks.testClasses
-      classifier = 'tests'
-      extension = 'jar'
-      from sourceSets.test.output
-      group 'build'
-    }
-    def conf = project.configurations.maybeCreate('test')
-    Configuration testRuntimeConf = configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
-    conf.extendsFrom(testRuntimeConf)
-    artifacts {
-        test testJar
-    }
-    publishing {
-      publications {
-        nebula(MavenPublication) { // if maven-publish is applied
-          artifact tasks.testJar
-
-          pom.withXml { XmlProvider xml ->
-            // code to add dependencies into the pom under the test scope see source code nebula.plugin.publishing.publications.TestJarPlugin
-          }
-        }
-        nebulaIvy(IvyPublication) { // if ivy-publish is applied
-          artifact tasks.testJar
-          
-          descriptor.withXml { XmlProvider xml ->
-            // code to add dependencies into ivy.xml for the test scope
-          }
-        }
-      }
-    }
     
 Gradle Compatibility Tested
 ---------------------------
@@ -282,26 +238,15 @@ Gradle Compatibility Tested
 Built with Oracle JDK7
 Tested with Oracle JDK8
 
-| Gradle Version | Works |
-| :------------: | :---: |
-| 2.2.1          | yes   |
-| 2.3            | yes   |
-| 2.4            | yes   |
-| 2.5            | yes   |
-| 2.6            | yes   |
-| 2.7            | yes   |
-| 2.8            | yes   |
-| 2.9            | yes   |
-| 2.10           | yes   |
-| 2.11           | yes   |
-| 2.12           | yes   |
-| 2.13           | yes   |
-| 2.14.1         | yes   |
+| Gradle Version    | Works |
+| :---------------: | :---: |
+| < 4.0-milestone-2 | no    |
+| 4.0-milestone-2   | yes   |
 
 LICENSE
 =======
 
-Copyright 2014-2016 Netflix, Inc.
+Copyright 2014-2017 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
