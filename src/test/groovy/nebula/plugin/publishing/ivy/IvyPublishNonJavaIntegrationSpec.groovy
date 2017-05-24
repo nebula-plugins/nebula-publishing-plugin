@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.test.IntegrationTestKitSpec
 
-class IvyPublishNonJavaIntegrationSpec extends IntegrationSpec {
+class IvyPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
     def 'when applied to non java project do not break'() {
         setup:
         def dir = new File(projectDir, 'zip')
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
         buildFile << """\
-            apply plugin: 'nebula.ivy-publish'
+            plugins {
+                id 'nebula.ivy-publish'
+            }
 
             group = 'test.nebula'
             version = '0.1.0'
@@ -49,10 +51,10 @@ class IvyPublishNonJavaIntegrationSpec extends IntegrationSpec {
                     }
                 }
             }
-        """.stripIndent()
+            """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestivyRepository')
+        runTasks('publishNebulaIvyPublicationToTestivyRepository')
 
         then:
         noExceptionThrown()

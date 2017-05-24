@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,18 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationSpec
+import nebula.test.IntegrationTestKitSpec
 
-class MavenPublishNonJavaIntegrationSpec extends IntegrationSpec {
+class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
     def 'when applied to non java project do not break'() {
         setup:
         def dir = new File(projectDir, 'zip')
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
         buildFile << """\
-            apply plugin: 'nebula.maven-publish'
+            plugins {
+                id 'nebula.maven-publish'
+            }
 
             group = 'test.nebula'
             version = '0.1.0'
@@ -52,7 +54,7 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestmavenRepository')
+        runTasks('publishNebulaPublicationToTestmavenRepository')
 
         then:
         noExceptionThrown()

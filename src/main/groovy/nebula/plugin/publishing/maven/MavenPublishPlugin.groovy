@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
             apply MavenNebulaPublishPlugin
             apply MavenBasePublishPlugin
+            apply MavenCompileOnlyPlugin
             apply MavenResolvedDependenciesPlugin
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
