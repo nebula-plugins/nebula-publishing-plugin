@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Netflix, Inc.
+ * Copyright 2014-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 plugins {
     id 'com.gradle.plugin-publish' version '0.9.7'
     id 'nebula.plugin-plugin' version '5.7.0'
@@ -149,6 +147,11 @@ gradlePlugin {
             id = 'nebula.source-jar'
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
         }
+
+        testJar {
+            id = 'nebula.test-jar'
+            implementationClass = 'nebula.plugin.publishing.publications.TestJarPlugin'
+        }
     }
 }
 
@@ -261,6 +264,13 @@ pluginBundle {
             displayName = 'Nebula Source Jar Publishing plugin'
             description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
             tags = ['nebula', 'publish', 'source']
+        }
+
+        testJar {
+            id = 'nebula.test-jar'
+            displayName = 'Nebula Test Jar Publishing plugin'
+            description = 'Create a testJar task to package up test classes and add it to the publications'
+            tags = ['nebula', 'publish', 'test']
         }
     }
 
