@@ -50,6 +50,7 @@ class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
     }
 
     def 'verify pom contains compileOnly dependencies'() {
+        keepFiles = true
         def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 

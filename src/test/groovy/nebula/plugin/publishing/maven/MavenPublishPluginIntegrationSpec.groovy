@@ -18,10 +18,12 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import org.gradle.testkit.runner.GradleRunner
 import spock.lang.Ignore
 
 class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
+        keepFiles = true
         buildFile << """\
             plugins {
                 id 'nebula.maven-publish'
@@ -29,14 +31,6 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
             version = '0.1.0'
             group = 'test.nebula'
-
-            buildscript {
-                repositories { jcenter() }
-
-                dependencies {
-                    classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-                }
-            }
 
             publishing {
                 repositories {
@@ -53,7 +47,6 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         '''.stripIndent()
     }
 
-    @Ignore
     def 'all of the features work together'() {
         def graph = new DependencyGraphBuilder()
                 .addModule('test:a:0.0.1')
@@ -65,7 +58,6 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             apply plugin: 'java'
             apply plugin: 'nebula.contacts'
             apply plugin: 'nebula.info'
-            apply plugin: 'nebula.provided-base'
 
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
@@ -79,7 +71,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
             dependencies {
                 compile 'test:a:0.+'
-                provided 'test:b:[1.0.0, 2.0.0)'
+                compileOnly 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 

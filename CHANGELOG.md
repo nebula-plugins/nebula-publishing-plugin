@@ -1,8 +1,13 @@
-5.0.0-rc.1 / 2017-05-23
-=======================
+5.0.1 / 2017-06-02
+==================
+
+* BUGFIX don't add empty dependencies block 
+
+5.0.0 / 2017-05-31
+==================
 
 * Build with gradle 4.0-milestone-2 as we saw issues using our plugin built with 3.5 on a 4.0-milestone-2 test project
-* BREAKING: removed deprecated plugins: `nebula.test-jar` and old names `nebula-test-jar`, `nebula-source-jar`, `nebula-javadoc-jar`
+* BREAKING: old names `nebula-test-jar`, `nebula-source-jar`, `nebula-javadoc-jar`
 
 4.9.1 / 2016-08-16
 ==================
