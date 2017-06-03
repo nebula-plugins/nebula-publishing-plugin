@@ -38,27 +38,26 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency
                             def dependencyMap = [:]
-
                             dependencyMap['compile'] = project.configurations.compileClasspath.incoming.resolutionResult.allDependencies
-
                             dependencyMap['runtime'] = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
-
                             dependencyMap['compileOnly'] = project.configurations.compileOnly.incoming.resolutionResult.allDependencies
+                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['compile'] - dependencyMap['runtime']
 
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
-                                def group = dep.groupId.text()
-                                def name = dep.artifactId.text()
-                                def scope = dep.scope.text()
+                                String group = dep.groupId.text()
+                                String name = dep.artifactId.text()
+                                String scope = dep.scope.text()
 
+                                ResolvedDependencyResult resolved
                                 if (scope == 'provided') {
                                     scope = 'runtime'
-                                }
-
-                                ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    (r.requested instanceof ModuleComponentSelector) &&
-                                            (r.requested.group == group) &&
-                                            (r.requested.module == name)
+                                    resolved = resolvedDep(dependencyMap, scope, group, name)
+                                    if (!resolved) {
+                                        scope = 'compileOnly'
+                                        resolved = resolvedDep(dependencyMap, scope, group, name)
+                                    }
+                                } else {
+                                    resolved = resolvedDep(dependencyMap, scope, group, name)
                                 }
 
                                 if (!resolved) {
@@ -78,6 +77,14 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
                     }
                 }
             }
+        }
+    }
+
+    ResolvedDependencyResult resolvedDep(Map dependencyMap, String scope, String group, String name) {
+        dependencyMap[scope].find { r ->
+            (r.requested instanceof ModuleComponentSelector) &&
+                    (r.requested.group == group) &&
+                    (r.requested.module == name)
         }
     }
 }

@@ -18,6 +18,7 @@ package nebula.plugin.publishing.maven
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.maven.MavenPublication
 
@@ -31,13 +32,16 @@ class MavenCompileOnlyPlugin implements Plugin<Project> {
                     pom.withXml { XmlProvider xml ->
                         project.plugins.withType(JavaBasePlugin) {
                             def root = xml.asNode()
-                            def deps = root.dependencies ? root.dependencies[0] : root.appendNode('dependencies')
-                            project.configurations.compileOnly.dependencies.each { dep ->
-                                deps.appendNode('dependency').with {
-                                    appendNode('groupId', dep.group)
-                                    appendNode('artifactId', dep.name)
-                                    appendNode('version', dep.version)
-                                    appendNode('scope', 'provided')
+                            def dependencies = project.configurations.compileOnly.dependencies
+                            if (dependencies.size() > 0) {
+                                def deps = root.dependencies ? root.dependencies[0] : root.appendNode('dependencies')
+                                dependencies.each { dep ->
+                                    deps.appendNode('dependency').with {
+                                        appendNode('groupId', dep.group)
+                                        appendNode('artifactId', dep.name)
+                                        appendNode('version', dep.version)
+                                        appendNode('scope', 'provided')
+                                    }
                                 }
                             }
                         }
