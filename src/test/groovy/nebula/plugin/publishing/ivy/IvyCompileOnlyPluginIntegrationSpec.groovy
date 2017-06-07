@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.publishing.maven
+package nebula.plugin.publishing.ivy
 
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-compile-only'
-                id 'nebula.maven-nebula-publish'
+                id 'nebula.ivy-nebula-publish'
+                id 'nebula.ivy-compile-only'
             }
 
             version = '0.1.0'
@@ -34,7 +34,7 @@ class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
 
             publishing {
                 repositories {
-                    maven {
+                    ivy {
                         name = 'testLocal'
                         url = 'testrepo'
                     }
@@ -43,22 +43,22 @@ class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         settingsFile << '''\
-            rootProject.name = 'maventest'
+            rootProject.name = 'ivytest'
         '''.stripIndent()
 
-        publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
+        publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
     }
 
-    def 'verify pom contains compileOnly dependencies'() {
+    def 'verify ivy contains compileOnly dependencies'() {
         keepFiles = true
         def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
 
         buildFile << """\
             apply plugin: 'java'
 
             repositories {
-                maven { url '${mavenrepo.toURI().toURL()}' }
+                ivy { url '${ivyrepo.toURI().toURL()}' }
             }
 
             dependencies {
@@ -67,14 +67,14 @@ class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
         """.stripIndent()
 
         when:
-        runTasks('publishNebulaPublicationToTestLocalRepository')
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        def root = new XmlSlurper().parseText(new File(publishDir, 'maventest-0.1.0.pom').text)
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.groupId.text() == 'testjava'
-        dependency.artifactId.text() == 'c'
-        dependency.version.text() == '0.0.1'
-        dependency.scope.text() == 'provided'
+        dependency.@org == 'testjava'
+        dependency.@name == 'c'
+        dependency.@rev == '0.0.1'
+        dependency.@conf == 'provided'
     }
 }
