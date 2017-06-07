@@ -42,9 +42,9 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                             def dependencies = xml.asNode()?.dependencies?.dependency
                             def dependencyMap = [:]
 
-                            dependencyMap['runtime'] = project.configurations.runtime.incoming.resolutionResult.allDependencies
+                            dependencyMap['runtime'] = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
                             dependencyMap['compile'] = project.configurations.compileClasspath.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
+                            dependencyMap['test'] = project.configurations.testRuntimeClasspath.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
                                 def group = dep.@org
                                 def name = dep.@name

@@ -107,6 +107,11 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.ivy.IvyBasePublishPlugin'
         }
 
+        ivyCompileOnly {
+            id = 'nebula.ivy-compile-only'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
+        }
+
         ivyExcludes {
             id = 'nebula.ivy-excludes'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyExcludesPlugin'
@@ -174,6 +179,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+        mavenCompileOnly {
+            id = 'nebula.maven-compile-only'
+            displayName = 'Nebula Maven CompileOnly Plugin'
+            description = 'Deal with compileOnly configuration'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
         mavenExcludes {
             id = 'nebula.maven-excludes'
             displayName = 'Nebula Maven Excludes Plugin'
@@ -213,6 +225,13 @@ pluginBundle {
             id = 'nebula.ivy-base-publish'
             displayName = 'Nebula Ivy Base Publish Plugin'
             description = 'Setup nebulaIvy IvyPublication'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyCompileOnly {
+            id = 'nebula.ivy-compile-only'
+            displayName = 'Nebula Ivy CompileOnly Plugin'
+            description = 'Deal with compileOnly configuration'
             tags = ['nebula', 'publish', 'ivy']
         }
 
