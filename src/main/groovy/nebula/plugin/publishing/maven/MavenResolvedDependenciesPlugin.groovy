@@ -15,18 +15,17 @@
  */
 package nebula.plugin.publishing.maven
 
-import org.gradle.api.Plugin
+import nebula.plugin.publishing.ivy.AbstractResolvedDependenciesPlugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.component.ModuleComponentSelector
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.maven.MavenPublication
 
 /**
  * Replaces first order dependencies with the selected versions when publishing.
  */
-class MavenResolvedDependenciesPlugin implements Plugin<Project> {
+class MavenResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
@@ -37,30 +36,24 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
                     pom.withXml { XmlProvider xml->
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency
-                            def dependencyMap = [:]
-                            dependencyMap['compile'] = project.configurations.compileClasspath.incoming.resolutionResult.allDependencies
-                            dependencyMap['runtime'] = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
-                            dependencyMap['compileOnly'] = project.configurations.compileOnly.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntime.incoming.resolutionResult.allDependencies - dependencyMap['compile'] - dependencyMap['runtime']
-
                             dependencies?.each { Node dep ->
+                                String scope = dep.scope.text()
                                 String group = dep.groupId.text()
                                 String name = dep.artifactId.text()
-                                String scope = dep.scope.text()
 
-                                ResolvedDependencyResult resolved
+                                ModuleVersionIdentifier mvid
                                 if (scope == 'provided') {
                                     scope = 'runtime'
-                                    resolved = resolvedDep(dependencyMap, scope, group, name)
-                                    if (!resolved) {
+                                    mvid = selectedModuleVersion(project, scope, group, name)
+                                    if (!mvid) {
                                         scope = 'compileOnly'
-                                        resolved = resolvedDep(dependencyMap, scope, group, name)
+                                        mvid = selectedModuleVersion(project, scope, group, name)
                                     }
                                 } else {
-                                    resolved = resolvedDep(dependencyMap, scope, group, name)
+                                    mvid = selectedModuleVersion(project, scope, group, name)
                                 }
 
-                                if (!resolved) {
+                                if (!mvid) {
                                     return  // continue loop if a dependency is not found in dependencyMap
                                 }
 
@@ -68,23 +61,14 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
                                 if (!versionNode) {
                                     dep.appendNode('version')
                                 }
-                                def moduleVersion = resolved.selected.moduleVersion
-                                dep.groupId[0].value = moduleVersion.group
-                                dep.artifactId[0].value = moduleVersion.name
-                                dep.version[0].value = moduleVersion.version
+                                dep.groupId[0].value = mvid.group
+                                dep.artifactId[0].value = mvid.name
+                                dep.version[0].value = mvid.version
                             }
                         }
                     }
                 }
             }
-        }
-    }
-
-    ResolvedDependencyResult resolvedDep(Map dependencyMap, String scope, String group, String name) {
-        dependencyMap[scope].find { r ->
-            (r.requested instanceof ModuleComponentSelector) &&
-                    (r.requested.group == group) &&
-                    (r.requested.module == name)
         }
     }
 }

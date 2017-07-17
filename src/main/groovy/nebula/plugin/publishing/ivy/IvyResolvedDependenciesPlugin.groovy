@@ -15,11 +15,8 @@
  */
 package nebula.plugin.publishing.ivy
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.component.ModuleComponentSelector
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionSelectorScheme
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.ExactVersionSelector
@@ -29,7 +26,7 @@ import org.gradle.api.publish.ivy.IvyPublication
 /**
  * Replaces first order dependencies with the selected versions when publishing.
  */
-class IvyResolvedDependenciesPlugin implements Plugin<Project> {
+class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
     @Override
     void apply(Project project) {
         project.plugins.apply IvyBasePublishPlugin
@@ -40,15 +37,10 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                     descriptor.withXml { XmlProvider xml ->
                         project.plugins.withType(JavaBasePlugin) {
                             def dependencies = xml.asNode()?.dependencies?.dependency
-                            def dependencyMap = [:]
-
-                            dependencyMap['runtime'] = project.configurations.runtimeClasspath.incoming.resolutionResult.allDependencies
-                            dependencyMap['compile'] = project.configurations.compileClasspath.incoming.resolutionResult.allDependencies
-                            dependencyMap['test'] = project.configurations.testRuntimeClasspath.incoming.resolutionResult.allDependencies - dependencyMap['runtime']
                             dependencies?.each { Node dep ->
-                                def group = dep.@org
-                                def name = dep.@name
-                                def scope = dep.@conf
+                                String scope = dep.@conf
+                                String group = dep.@org
+                                String name = dep.@name
 
                                 if (scope == 'compile->default') {
                                     scope = 'compile'
@@ -62,13 +54,8 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                                     scope = 'test'
                                 }
 
-                                ResolvedDependencyResult resolved = dependencyMap[scope].find { r ->
-                                    (r.requested instanceof ModuleComponentSelector) &&
-                                            (r.requested.group == group) &&
-                                            (r.requested.module == name)
-                                }
-
-                                if (!resolved) {
+                                def mvid = selectedModuleVersion(project, scope, group, name)
+                                if (!mvid) {
                                     return  // continue loop if a dependency is not found in dependencyMap
                                 }
 
@@ -81,10 +68,9 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                                     }
                                 }
 
-                                def moduleVersion = resolved.selected.moduleVersion
-                                dep.@org = moduleVersion.group
-                                dep.@name = moduleVersion.name
-                                dep.@rev = moduleVersion.version
+                                dep.@org = mvid.group
+                                dep.@name = mvid.name
+                                dep.@rev = mvid.version
                             }
                         }
                     }
