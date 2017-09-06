@@ -19,6 +19,7 @@ import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
+import org.gradle.testkit.runner.UnexpectedBuildFailure
 
 class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
@@ -280,6 +281,35 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         then:
         findDependencyInScope('truth', 'compile').version == '0.28'
         findDependencyInScope('google-collections', 'runtime').version == '1.0'
+    }
+
+    def 'excluded first order dependencies fail the build'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            configurations.all {
+                exclude group: 'test.resolved', module: 'a'
+            }
+
+            dependencies {
+                compile 'test.resolved:b:1.0.0'
+                compile 'test.resolved:a'
+            }
+            """.stripIndent()
+
+        when:
+        def results = runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        UnexpectedBuildFailure ex = thrown()
+        ex.message.contains 'Direct dependency is excluded, delete direct dependency or stop excluding it'
     }
 
     def findDependency(String artifactId) {

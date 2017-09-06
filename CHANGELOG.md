@@ -1,3 +1,13 @@
+5.1.2 / 2017-09-06
+==================
+
+* Fail builds if they have direct dependencies on a library that is excluded
+
+5.1.1 / 2017-07-20
+==================
+
+* Bug fix to prevent exception on unresolved dependencies
+
 5.1.0 / 2017-06-07
 ==================
 
