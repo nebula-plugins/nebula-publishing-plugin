@@ -312,6 +312,29 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         ex.message.contains 'Direct dependency is excluded, delete direct dependency or stop excluding it'
     }
 
+    def 'dependency with no changes copied through'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            dependencies {
+                compile 'test.resolved:a:1.0.0'
+            }
+            """.stripIndent()
+
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def a = findDependency('a')
+        a.version == '1.0.0'
+    }
+
     def findDependency(String artifactId) {
         def root = new XmlSlurper().parseText(new File(publishDir, 'resolvedmaventest-0.1.0.pom').text)
         def d = root.dependencies.dependency.find {

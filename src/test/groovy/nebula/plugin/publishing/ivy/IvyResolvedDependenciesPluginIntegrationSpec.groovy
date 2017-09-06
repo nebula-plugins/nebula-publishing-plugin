@@ -159,6 +159,29 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
         a.@rev == '1.0.0'
     }
 
+    def 'dependency with no changes copied through'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            dependencies {
+                compile 'test.resolved:a:1.0.0'
+            }
+            """.stripIndent()
+
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def a = findDependency('a')
+        a.@rev == '1.0.0'
+    }
+
     def 'excluded first order dependencies fail the build'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
