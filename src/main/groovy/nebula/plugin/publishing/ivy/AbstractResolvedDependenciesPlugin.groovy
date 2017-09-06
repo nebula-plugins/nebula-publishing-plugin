@@ -1,6 +1,7 @@
 package nebula.plugin.publishing.ivy
 
 import groovy.transform.Memoized
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -11,6 +12,10 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 abstract class AbstractResolvedDependenciesPlugin implements Plugin<Project> {
     ModuleVersionIdentifier selectedModuleVersion(Project project, String scope, String group, String name) {
+        def exclude = project.configurations.getByName(scope).excludeRules.find { it.group == group && it.module == name }
+        if (exclude) {
+            throw new GradleException('Direct dependency is excluded, delete direct dependency or stop excluding it')
+        }
         def resolvedDependencies = resolvedDependencyByConfiguration(project)[scope]
         def result = resolvedDependencies.find { r ->
             def requested = r.requested
