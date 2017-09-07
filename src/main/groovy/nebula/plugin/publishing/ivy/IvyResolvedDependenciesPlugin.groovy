@@ -54,6 +54,10 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
                                     scope = 'test'
                                 }
 
+                                if (scope.contains('->')) {
+                                    scope = scope.split('->')[0]
+                                }
+
                                 def mvid = selectedModuleVersion(project, scope, group, name)
                                 if (!mvid) {
                                     return  // continue loop if a dependency is not found in dependencyMap

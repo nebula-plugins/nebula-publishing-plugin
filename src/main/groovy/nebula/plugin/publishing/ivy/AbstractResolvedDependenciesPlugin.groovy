@@ -12,7 +12,14 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 abstract class AbstractResolvedDependenciesPlugin implements Plugin<Project> {
     ModuleVersionIdentifier selectedModuleVersion(Project project, String scope, String group, String name) {
-        def exclude = project.configurations.getByName(scope).excludeRules.find { it.group == group && it.module == name }
+        def exclude
+        try {
+            exclude = project.configurations.getByName(scope).excludeRules.find {
+                it.group == group && it.module == name
+            }
+        } catch (e) {
+            // leave exclude null in case of unknown configuration
+        }
         if (exclude) {
             throw new GradleException('Direct dependency is excluded, delete direct dependency or stop excluding it')
         }
