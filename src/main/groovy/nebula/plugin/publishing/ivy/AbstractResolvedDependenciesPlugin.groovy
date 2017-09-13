@@ -21,7 +21,7 @@ abstract class AbstractResolvedDependenciesPlugin implements Plugin<Project> {
             // leave exclude null in case of unknown configuration
         }
         if (exclude) {
-            throw new GradleException('Direct dependency is excluded, delete direct dependency or stop excluding it')
+            throw new GradleException("Direct dependency \"${group}:${name}\" is excluded, delete direct dependency or stop excluding it")
         }
         def resolvedDependencies = resolvedDependencyByConfiguration(project)[scope]
         def result = resolvedDependencies.find { r ->

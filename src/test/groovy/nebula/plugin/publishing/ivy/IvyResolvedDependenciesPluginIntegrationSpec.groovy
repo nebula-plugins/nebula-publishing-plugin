@@ -208,7 +208,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
 
         then:
         UnexpectedBuildFailure ex = thrown()
-        ex.message.contains 'Direct dependency is excluded, delete direct dependency or stop excluding it'
+        ex.message.contains 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
