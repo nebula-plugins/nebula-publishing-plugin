@@ -23,6 +23,7 @@ import spock.lang.Ignore
 
 class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
+        debug = true
         keepFiles = true
         buildFile << """\
             plugins {
