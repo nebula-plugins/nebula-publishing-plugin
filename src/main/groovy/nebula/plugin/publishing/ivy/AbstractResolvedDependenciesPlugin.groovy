@@ -23,16 +23,16 @@ abstract class AbstractResolvedDependenciesPlugin implements Plugin<Project> {
         if (exclude) {
             throw new GradleException("Direct dependency \"${group}:${name}\" is excluded, delete direct dependency or stop excluding it")
         }
+
         ResolvedDependencyResult result = lookupDependency(project, scope, group, name)
-        if (!result) {
-            if (scope == 'compile') {
-                result = lookupDependency(project, 'runtime', group, name)
-            }
-            if (!result) {
-                return null
-            }
+
+        Map<String, String> scoping = [compile: 'runtime', provided: 'compileOnly']
+
+        if (!result && scoping[scope]) {
+            result = lookupDependency(project, scoping[scope], group, name)
         }
-        result.selected.moduleVersion
+
+        result?.selected?.moduleVersion
     }
 
     private ResolvedDependencyResult lookupDependency(Project project, String scope, String group, String name) {

@@ -3,10 +3,11 @@ package nebula.plugin.publishing.ivy.interaction
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Unroll
 
 class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
-    def 'dependencies in runtime provided by recommender are not put in ivy file'() {
-        keepFiles = true
+    @Unroll
+    def 'dependencies from recommendation plugin in #scope scope should be in ivy file'() {
         def graph = new DependencyGraphBuilder().addModule('test:foo:1.0.0').build()
         def generator = new GradleDependencyGenerator(graph, "$projectDir/repo")
         generator.generateTestMavenRepo()
@@ -32,7 +33,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                runtime 'test:foo'
+                $scope 'test:foo'
             }
 
             publishing {
@@ -50,6 +51,10 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
 
         then:
         def ivy = new XmlSlurper().parse(new File(projectDir, 'build/testlocal/test.nebula/mytest/0.1.0/ivy-0.1.0.xml'))
-        ivy.dependencies.dependency[0].@rev == '1.0.0'
+        ivy.dependencies.dependency.first().@rev == '1.0.0'
+
+        where:
+        scope << ['runtime', 'compile', 'compileOnly', 'runtimeOnly']
+
     }
 }
