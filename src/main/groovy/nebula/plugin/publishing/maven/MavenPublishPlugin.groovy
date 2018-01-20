@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.verification.PublishVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -33,6 +34,7 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
+            apply PublishVerificationPlugin
         }
     }
 }

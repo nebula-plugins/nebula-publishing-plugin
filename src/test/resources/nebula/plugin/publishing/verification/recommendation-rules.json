@@ -1,0 +1,37 @@
+{
+  "replace": [
+    {
+      "module": "replace-original:replace-original",
+      "with": "replace-new:replace-new",
+      "reason": "Replace rule test",
+      "author": "Example Person <person@example.org>",
+      "date": "2015-10-07T20:21:20.368Z"
+    }
+  ],
+  "substitute": [
+    {
+      "module": "substitute-original:substitute-original",
+      "with": "substitute-new:substitute-new:1.0-SNAPSHOT",
+      "reason": "Substitute rute test",
+      "author": "Example Person <person@example.org>",
+      "date": "2015-10-07T20:21:20.368Z"
+    }
+  ],
+  "reject": [
+    {
+      "module": "reject:reject:1.1.0-SNAPSHOT",
+      "reason": "Reject rule test",
+      "author": "Example Person <person@example.org>",
+      "date": "2015-10-07T20:21:20.368Z"
+    }
+  ],
+  "align": [
+    {
+      "name": "alignExample",
+      "group": "align-group",
+      "reason": "Align rule test ",
+      "author": "Example Person <person@example.org>",
+      "date": "2015-10-08T20:15:14.321Z"
+    }
+  ]
+}

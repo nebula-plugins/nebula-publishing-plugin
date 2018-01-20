@@ -47,6 +47,10 @@ dependencies {
     compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
 
     testCompile gradleTestKit()
+    testCompile 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
+    testCompile 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
+    testCompile 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
+    testCompile 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
     testRuntime files(tasks.createClasspathManifest)
 }
 
@@ -135,6 +139,11 @@ gradlePlugin {
         ivyResolvedDependencies {
             id = 'nebula.ivy-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
+        }
+
+        publishVerification {
+            id = 'nebula.publish-verification'
+            implementationClass = 'nebula.plugin.publishing.verification.PublishVerificationPlugin'
         }
 
         compileApi {
