@@ -54,6 +54,12 @@ class PublishVerificationPlugin implements Plugin<Project> {
             if (artifactoryPublishTask) {
                 artifactoryPublishTask.dependsOn(verificationTask)
             }
+            //newer version of artifactory plugin introduced this task to do actual publishing, so we have to
+            //hook even for this one.
+            def artifactoryDeployTask = project.tasks.findByName("artifactoryDeploy")
+            if (artifactoryDeployTask) {
+                artifactoryDeployTask.dependsOn(verificationTask)
+            }
         }
     }
 }
