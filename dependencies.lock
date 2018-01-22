@@ -34,13 +34,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "integTestCompileClasspath": {
@@ -48,13 +64,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "integTestRuntime": {
@@ -62,13 +94,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "integTestRuntimeClasspath": {
@@ -76,23 +124,41 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "jacocoAgent": {
         "org.jacoco:org.jacoco.agent": {
-            "locked": "0.7.8"
+            "locked": "0.7.8",
+            "requested": "0.7.9"
         }
     },
     "jacocoAnt": {
         "org.jacoco:org.jacoco.ant": {
-            "locked": "0.7.8"
+            "locked": "0.7.8",
+            "requested": "0.7.9"
         }
     },
     "runtime": {
@@ -120,13 +186,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "testCompileClasspath": {
@@ -134,13 +216,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "testRuntime": {
@@ -148,13 +246,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     },
     "testRuntimeClasspath": {
@@ -162,13 +276,29 @@
             "locked": "3.0.1",
             "requested": "latest.release"
         },
+        "com.netflix.nebula:gradle-dependency-lock-plugin": {
+            "locked": "5.0.2",
+            "requested": "latest.release"
+        },
         "com.netflix.nebula:gradle-info-plugin": {
             "locked": "3.6.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:gradle-resolution-rules-plugin": {
+            "locked": "5.1.0",
+            "requested": "latest.release"
+        },
+        "com.netflix.nebula:nebula-dependency-recommender": {
+            "locked": "5.1.0",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-test": {
             "locked": "6.1.2",
             "requested": "6.+"
+        },
+        "org.jfrog.buildinfo:build-info-extractor-gradle": {
+            "locked": "4.6.2",
+            "requested": "latest.release"
         }
     }
 }
