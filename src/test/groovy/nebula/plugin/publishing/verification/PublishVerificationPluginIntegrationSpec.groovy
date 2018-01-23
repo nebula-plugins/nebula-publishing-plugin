@@ -295,6 +295,27 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         result.standardOutput.contains(":publishNebulaIvyPublicationToDistIvyRepository")
     }
 
+    def 'ignored dependencies are not verified'() {
+        given:
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule('foo:bar:1.0-SNAPSHOT')
+        builder.addModule('baz:bax:1.0-SNAPSHOT')
+        def dependencies = """
+             compile nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
+             compile nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
+        """
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasksSuccessfully('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        result.standardOutput.contains(":verifyPublication")
+        result.standardOutput.contains(":publishNebulaIvyPublicationToDistIvyRepository")
+    }
+
     def 'should work with java-library plugin'() {
         given:
         def projectStatus = 'release'

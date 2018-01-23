@@ -68,6 +68,7 @@ class VerifyPublicationTaskSpec extends Specification {
         def task = project.task('verify', type: VerifyPublicationTask)
         task.configure {
             details = createCollectedComponentMetadataDetails(libraryStatus)
+            ignore = Collections.emptySet()
         }
     }
 

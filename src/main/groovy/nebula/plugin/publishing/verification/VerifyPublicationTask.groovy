@@ -4,6 +4,7 @@ import org.gradle.api.BuildCancelledException
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.tasks.Input
@@ -13,12 +14,15 @@ class VerifyPublicationTask extends DefaultTask {
 
     @Input
     Map<ModuleVersionIdentifier, ComponentMetadataDetails> details
+    @Input
+    Set<ModuleIdentifier> ignore
 
     @TaskAction
     void verifyDependencies() {
         Configuration runtimeClasspath = project.configurations.runtimeClasspath
         Set<ResolvedDependency> firstLevel = runtimeClasspath.resolvedConfiguration.firstLevelModuleDependencies
-        firstLevel.each {
+        Set<ResolvedDependency> forVerification = firstLevel.findAll { ! ignore.contains(it.module.id.module) }
+        forVerification.each {
             ModuleVersionIdentifier id = it.module.id
             ComponentMetadataDetails metadata = details[id]
             int projectStatus = metadata.statusScheme.indexOf(project.status)
