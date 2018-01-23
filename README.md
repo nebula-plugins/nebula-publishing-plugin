@@ -232,6 +232,30 @@ Eliminates this boilerplate:
       }
     }
     
+### nebula.publish-verification
+
+Creates a task which runs before actual publication into repositories. It verifies that any of your dependencies don't have
+a lower status then your project. E.g. your project has a status `release` but one of your dependencies is `SNAPSHOT`.
+The task will prevent the publication until you will depend only on final releases.
+
+This plugin is automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. The task itself is a dependence of
+tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
+`artifactoryPublish` and `artifactoryDeploy` coming from `com.jfrog.artifactory` plugin. If you need any other integration
+you have to manually configure relationship in your build file.
+
+#### How to ignore selected dependencies.
+
+It might happen that you need to create a release which have to depend on a library which have a lower status. E.g. it
+contains critical bug fix or you are early adopter of release candidates. You can exclude those libraries from the 
+checking process.
+
+    dependencies {
+      compile 'group:this_will_be_checked:1.0'
+      compile nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
+      compile nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
+    }
+ 
+    
 Gradle Compatibility Tested
 ---------------------------
 
