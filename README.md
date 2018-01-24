@@ -245,7 +245,7 @@ you have to manually configure relationship in your build file.
 
 #### How to ignore selected dependencies.
 
-It might happen that you need to create a release which have to depend on a library which have a lower status. E.g. it
+It might happen that you need to create a release which has to depend on a library which has a lower status. E.g. it
 contains critical bug fix or you are early adopter of release candidates. You can exclude those libraries from the 
 checking process.
 
