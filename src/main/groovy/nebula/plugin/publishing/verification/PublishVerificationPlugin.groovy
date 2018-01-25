@@ -27,6 +27,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
         VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
         verificationTask.details = detailsCollector
         verificationTask.ignore = extension.ignore
+        verificationTask.ignoreGroups = extension.ignoreGroups
         configureHooks(project, verificationTask)
     }
 

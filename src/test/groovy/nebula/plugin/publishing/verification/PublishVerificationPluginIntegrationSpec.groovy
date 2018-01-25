@@ -256,6 +256,23 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
+    def 'should work with latest.integration'() {
+        given:
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(expectedFailureDependency)
+        def dependencies = "compile 'foo:bar:latest.integration'"
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+    }
+
     def 'test runtime configuration should not be checked'() {
         given:
         def projectStatus = 'release'
@@ -299,14 +316,26 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         given:
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
-        builder.addModule('foo:bar:1.0-SNAPSHOT')
-        builder.addModule('baz:bax:1.0-SNAPSHOT')
+        builder.addModule('some.group:ignore-as-string:1.0-SNAPSHOT')
+        builder.addModule('some.group:ignore-as-map:1.0-SNAPSHOT')
+        builder.addModule('ignore.as.group:some-artifact:1.0-SNAPSHOT')
+        builder.addModule('ignore.as.group:some-artifact2:1.0-SNAPSHOT')
+        builder.addModule('some.group:ignore-from-extension:1.0-SNAPSHOT')
         def dependencies = """
-             compile nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
-             compile nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
+             compile nebulaPublishVerification.ignore('some.group:ignore-as-string:1.0-SNAPSHOT')
+             compile nebulaPublishVerification.ignore(group: 'some.group', name: 'ignore-as-map', version: '1.0-SNAPSHOT')
+             compile 'ignore.as.group:some-artifact:1.0-SNAPSHOT'
+             compile 'ignore.as.group:some-artifact2:1.0-SNAPSHOT'
+             compile 'some.group:ignore-from-extension:1.0-SNAPSHOT'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+        buildFile << """
+            nebulaPublishVerification {
+                ignoreGroup 'ignore.as.group'
+                ignore 'some.group:ignore-from-extension:1.0-SNAPSHOT'
+            }
+        """
 
         when:
         def result = runTasksSuccessfully('build', 'publishNebulaIvyPublicationToDistIvyRepository')
@@ -365,7 +394,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
         DependencyGraph graph = builder.build()
-        def generator = new GradleDependencyGenerator(graph)
+        def generator = new GradleDependencyGenerator(graph, new File(projectDir, "testrepogen").canonicalPath)
         File mavenRepoDir = generator.generateTestMavenRepo()
 
         File jsonRulesFile = new File(projectDir, 'local-rules.json')
@@ -419,6 +448,10 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
     }
 
     private void assertFailureMessage(ExecutionResult result, String expectedFailureDependency, String projectStatus) {
-        assert result.standardError.contains("Module '$expectedFailureDependency' cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
+        int lastColon = expectedFailureDependency.lastIndexOf(':')
+        String groupAndName = expectedFailureDependency.substring(0, lastColon)
+        String version = expectedFailureDependency.substring(lastColon + 1, expectedFailureDependency.size())
+        assert result.standardError.contains("Module '$groupAndName' resolved to version '${version}'.")
+        assert result.standardError.contains("It cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
     }
 }

@@ -6,6 +6,7 @@ import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 class PublishVerificationExtension {
 
     Set<ModuleIdentifier> ignore = new HashSet<>()
+    Set<String> ignoreGroups = new HashSet<>()
 
     String ignore(String dependency) {
         String[] split = dependency.split(':')
@@ -24,5 +25,9 @@ class PublishVerificationExtension {
         }
         ignore << DefaultModuleIdentifier.newId(dependency.group, dependency.name)
         dependency
+    }
+
+    void ignoreGroup(String groupName) {
+        ignoreGroups << groupName
     }
 }
