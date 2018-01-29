@@ -254,7 +254,13 @@ checking process.
       compile nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
       compile nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
     }
- 
+    
+Or you can use extension for this plugin which allows you exclude not just single artifacts but whole groups.
+
+    nebulaPublishVerification {
+        ignore('foo:bar:1.0-SNAPSHOT')
+        ignoreGroup 'com.company.foo.group'
+    }    
     
 Gradle Compatibility Tested
 ---------------------------

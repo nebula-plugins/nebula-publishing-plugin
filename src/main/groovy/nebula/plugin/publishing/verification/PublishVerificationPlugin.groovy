@@ -15,18 +15,19 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
         project.plugins.withType(JavaPlugin) {
-            setupPlugin(project)
+            setupPlugin(project, extension)
         }
     }
 
-    private void setupPlugin(Project project) {
-        def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
+    private void setupPlugin(Project project, PublishVerificationExtension extension) {
         Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project)
 
         VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
         verificationTask.details = detailsCollector
         verificationTask.ignore = extension.ignore
+        verificationTask.ignoreGroups = extension.ignoreGroups
         configureHooks(project, verificationTask)
     }
 

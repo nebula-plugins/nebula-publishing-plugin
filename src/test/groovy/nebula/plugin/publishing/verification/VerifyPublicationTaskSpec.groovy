@@ -52,9 +52,9 @@ class VerifyPublicationTaskSpec extends Specification {
 
         where:
         libraryStatus | projectStatus | failureMessage
-        'integration' | 'milestone'   | "Module \'${DUMMY_LIBRARY}\' cannot be used because it has status: \'integration\' which is less then your current project status: \'milestone\' in your status scheme: [integration, milestone, release]"
-        'integration' | 'release'     | "Module \'${DUMMY_LIBRARY}\' cannot be used because it has status: \'integration\' which is less then your current project status: \'release\' in your status scheme: [integration, milestone, release]"
-        'milestone'   | 'release'     | "Module \'${DUMMY_LIBRARY}\' cannot be used because it has status: \'milestone\' which is less then your current project status: \'release\' in your status scheme: [integration, milestone, release]"
+        'integration' | 'milestone'   | errorMessageTemplate("integration", "milestone")
+        'integration' | 'release'     | errorMessageTemplate("integration", "release")
+        'milestone'   | 'release'     | errorMessageTemplate("milestone", "release")
     }
 
 
@@ -69,6 +69,7 @@ class VerifyPublicationTaskSpec extends Specification {
         task.configure {
             details = createCollectedComponentMetadataDetails(libraryStatus)
             ignore = Collections.emptySet()
+            ignoreGroups = Collections.emptySet()
         }
     }
 
@@ -108,5 +109,15 @@ class VerifyPublicationTaskSpec extends Specification {
 
         def splitId = DUMMY_LIBRARY.split(":")
         [(new DefaultModuleVersionIdentifier(splitId[0], splitId[1], splitId[2])): detailsMock]
+    }
+
+    private String errorMessageTemplate(String libraryStatus, String projectStatus) {
+        """
+        Module 'foo:bar' resolved to version '1.0'.
+        It cannot be used because it has status: '$libraryStatus' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release].
+        *** OPTIONS ***
+        1) Use specific version with higher status or 'latest.$projectStatus'.
+        2) ignore this check with "runtimeClasspath nebulaPublishVerification.ignore('foo:bar:1.0')".
+        """.stripIndent()
     }
 }
