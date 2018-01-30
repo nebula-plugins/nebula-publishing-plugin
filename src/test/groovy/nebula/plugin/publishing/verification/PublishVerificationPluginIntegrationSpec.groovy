@@ -345,6 +345,56 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         result.standardOutput.contains(":publishNebulaIvyPublicationToDistIvyRepository")
     }
 
+    def 'should work with multi project build'() {
+        given:
+        def projectStatus = 'release'
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(expectedFailureDependency)
+        DependencyGraph graph = builder.build()
+        def generator = new GradleDependencyGenerator(graph)
+        File mavenRepoDir = generator.generateTestMavenRepo()
+
+        buildFile << """   
+            allprojects {        
+                ${applyPlugin(IvyPublishPlugin)}
+                apply plugin: 'java'
+                
+                group = 'test.nebula.netflix'
+                status = '$projectStatus'            
+                version = '1.0'
+                
+                           
+                repositories {
+                    maven {
+                        url "file://$mavenRepoDir.canonicalPath"
+                    }
+                }
+                
+                ${publishingRepos()}
+            }
+        """
+
+        settingsFile.text = '''\
+            rootProject.name='testhello'
+        '''
+
+        addSubproject('common')
+        addSubproject('consumer', """
+        dependencies {
+           compile project(':common')
+           compile '$expectedFailureDependency'
+        }
+        """)
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+
+    }
+
     def 'should work with java-library plugin'() {
         given:
         def projectStatus = 'release'
