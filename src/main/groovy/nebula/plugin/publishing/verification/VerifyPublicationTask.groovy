@@ -32,18 +32,21 @@ class VerifyPublicationTask extends DefaultTask {
         forVerification.each {
             ModuleVersionIdentifier id = it.module.id
             ComponentMetadataDetails metadata = details[id]
-            int projectStatus = metadata.statusScheme.indexOf(project.status)
-            int moduleStatus = metadata.statusScheme.indexOf(metadata.status)
-            if (moduleStatus < projectStatus) {
-                DefinedDependency definedDependency = definedDependencies["${id.group}:${id.name}".toString()]
-                def (String definedDependencyToPrint, String configuration) = getDefinedDependencyWithConfiguration(definedDependency, id)
-                throw new BuildCancelledException("""
+            //we cannot collect metadata for dependencies on another modules in multimodule build
+            if (metadata != null) {
+                int projectStatus = metadata.statusScheme.indexOf(project.status)
+                int moduleStatus = metadata.statusScheme.indexOf(metadata.status)
+                if (moduleStatus < projectStatus) {
+                    DefinedDependency definedDependency = definedDependencies["${id.group}:${id.name}".toString()]
+                    def (String definedDependencyToPrint, String configuration) = getDefinedDependencyWithConfiguration(definedDependency, id)
+                    throw new BuildCancelledException("""
                     Module '${id.group}:${id.name}' resolved to version '${id.version}'.
                     It cannot be used because it has status: '${metadata.status}' which is less then your current project status: '${project.status}' in your status scheme: ${metadata.statusScheme}.
                     *** OPTIONS ***
                     1) Use specific version with higher status or 'latest.${project.status}'.
                     2) ignore this check with "${configuration} nebulaPublishVerification.ignore('$definedDependencyToPrint')".
                     """.stripIndent())
+            }
             }
         }
     }
