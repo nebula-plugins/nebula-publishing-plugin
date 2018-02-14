@@ -19,7 +19,8 @@ class Verification {
 
     void verify(Set<ResolvedDependency> firstLevelDependencies,
                 Map<ModuleVersionIdentifier, ComponentMetadataDetails> details,
-                Map<String, DefinedDependency> definedDependencies = Collections.emptyMap()) {
+                Map<String, DefinedDependency> definedDependencies = Collections.emptyMap(),
+                Closure<String> errorMessageProducer = defaultErrorMessageProducer) {
         Set<ResolvedDependency> forVerification = firstLevelDependencies
                 .findAll { ! ignoreGroups.contains(it.moduleGroup) }
                 .findAll { ! ignore.contains(it.module.id.module) }
@@ -32,13 +33,7 @@ class Verification {
                 int moduleStatus = metadata.statusScheme.indexOf(metadata.status)
                 if (moduleStatus < projectStatus) {
                     def (String definedDependencyToPrint, String configuration) = getDefinedDependencyWithConfiguration(definedDependencies, id)
-                    throw new BuildCancelledException("""
-                    Module '${id.group}:${id.name}' resolved to version '${id.version}'.
-                    It cannot be used because it has status: '${metadata.status}' which is less then your current project status: '${targetStatus}' in your status scheme: ${metadata.statusScheme}.
-                    *** OPTIONS ***
-                    1) Use specific version with higher status or 'latest.${targetStatus}'.
-                    2) ignore this check with "${configuration} nebulaPublishVerification.ignore('$definedDependencyToPrint')".
-                    """.stripIndent())
+                    throw new BuildCancelledException(errorMessageProducer(id, metadata, definedDependencyToPrint, configuration))
                 }
             }
         }
@@ -54,5 +49,16 @@ class Verification {
             //fallback in case we cannot find original definition e.g. when final dependency was provided by a substitution rule
             return ["foo:bar:1.0", 'compile']
         }
+    }
+
+    private Closure<String> defaultErrorMessageProducer = { ModuleVersionIdentifier id, ComponentMetadataDetails metadata,
+                                                            String definedDependencyToPrint, String configuration ->
+        """
+        Module '${id.group}:${id.name}' resolved to version '${id.version}'.
+        It cannot be used because it has status: '${metadata.status}' which is less then your current project status: '${targetStatus}' in your status scheme: ${metadata.statusScheme}.
+        *** OPTIONS ***
+        1) Use specific version with higher status or 'latest.${targetStatus}'.
+        2) ignore this check with "${configuration} nebulaPublishVerification.ignore('$definedDependencyToPrint')".
+        """.stripIndent()
     }
 }
