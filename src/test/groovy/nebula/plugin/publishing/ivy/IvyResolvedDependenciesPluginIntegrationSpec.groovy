@@ -15,23 +15,18 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 
-class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
     File publishDir
 
     def setup() {
-        keepFiles = true
-
         buildFile << """\
-            plugins {
-                id 'nebula.ivy-resolved-dependencies'
-                id 'nebula.ivy-nebula-publish'
-            }
+            ${applyPlugin(IvyResolvedDependenciesPlugin)}
+            ${applyPlugin(IvyNebulaPublishPlugin)}
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -78,6 +73,34 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
         def a = findDependency('a')
         a.@rev == '1.1.0'
         a.@revConstraint == '1.+'
+    }
+
+    def 'incorrect dynamic versions are failing the build'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule('test.resolved:a:1.1.0').build()
+        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
+        generator.generateTestIvyRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                ${generator.ivyRepositoryBlock}
+            }
+
+            dependencies {
+                compile 'test.resolved:a:1+'
+            }
+            """.stripIndent()
+
+        when:
+        def result = runTasksWithFailure('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        result.standardError.contains("Incorrect version definition detected.")
+        result.standardError.contains("Dependency 'test.resolved:a:1+' has version definition which resolves into unexpected version.")
+        result.standardError.contains("E.g. 1.1+ resolves to 1.1, 1.10, 1.11 etc but misses 1.2, 1.3.")
+        result.standardError.contains("We recommend to use definition like 1.+ for the highest from major version 1 or [1.1,] which is anything equal or higher then 1.1.")
     }
 
     def 'latest.* versions are replaced by the resolved version and have a revConstraint'() {
@@ -204,11 +227,10 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
             """.stripIndent()
 
         when:
-        def results = runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+        def result = runTasksWithFailure('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        UnexpectedBuildFailure ex = thrown()
-        ex.message.contains 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
+        result.standardError.contains 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
@@ -221,7 +243,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
         buildFile << """
             allprojects {
                 apply plugin: 'java'
-                apply plugin: 'nebula.ivy-resolved-dependencies'
+                ${applyPlugin(IvyResolvedDependenciesPlugin)}
 
                 repositories {
                     ${generator.ivyRepositoryBlock}
@@ -267,7 +289,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpe
         def r = runTasks('publishNebulaIvyPublicationToTestLocalRepository', 'dependencies')
 
         then:
-        println r.output
         def d = findDependency('guava')
         d.@rev == '18.0'
     }

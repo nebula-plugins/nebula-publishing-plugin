@@ -15,11 +15,15 @@
  */
 package nebula.plugin.publishing.ivy
 
+import org.gradle.api.BuildCancelledException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionSelectorScheme
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.ExactVersionSelector
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.SubVersionSelector
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.VersionSelector
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
@@ -65,11 +69,9 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
 
                                 if (dep.@rev) {
                                     def version = dep.@rev as String
-                                    def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator())
-                                    def selector = scheme.parseSelector(version)
-                                    if (!(selector instanceof ExactVersionSelector)) {
-                                        dep.@revConstraint = version
-                                    }
+                                    VersionSelector selector = parseSelector(version)
+                                    verifySubVersion(selector, mvid)
+                                    setVersionConstraint(selector, version, dep)
                                 }
 
                                 dep.@org = mvid.group
@@ -80,6 +82,32 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
                     }
                 }
             }
+        }
+    }
+
+    private VersionSelector parseSelector(String version) {
+        def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator())
+        def selector = scheme.parseSelector(version)
+        selector
+    }
+
+    private void verifySubVersion(VersionSelector selector, ModuleVersionIdentifier mvid) {
+        if (selector instanceof SubVersionSelector && !selector.selector.endsWith(".+")) {
+            throw new BuildCancelledException(
+                    "Incorrect version definition detected.\n" +
+                            "Dependency '${mvid.group}:${mvid.name}:${selector.selector}' has version definition which" +
+                            " resolves into unexpected version.\n" +
+                            "\n" +
+                            "E.g. 1.1+ resolves to 1.1, 1.10, 1.11 etc but misses 1.2, 1.3.\n" +
+                            "\n" +
+                            "We recommend to use definition like 1.+ for the highest from major version 1 or " +
+                            "[1.1,] which is anything equal or higher then 1.1.\n")
+        }
+    }
+
+    private void setVersionConstraint(VersionSelector selector, String version, Node dep) {
+        if (!(selector instanceof ExactVersionSelector)) {
+            dep.@revConstraint = version
         }
     }
 }
