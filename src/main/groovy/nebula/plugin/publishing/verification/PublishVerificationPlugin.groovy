@@ -22,17 +22,17 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project)
-
         VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
+        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project, verificationTask)
+
         verificationTask.details = detailsCollector
         verificationTask.ignore = extension.ignore
         verificationTask.ignoreGroups = extension.ignoreGroups
         configureHooks(project, verificationTask)
     }
 
-    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> componentMetadataCollector(Project p) {
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = new ConcurrentHashMap()
+    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> componentMetadataCollector(Project p, Task verificationTask) {
+        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = createCollector(p)
         p.dependencies {
             components {
                 all { ComponentMetadataDetails details ->
@@ -41,6 +41,17 @@ class PublishVerificationPlugin implements Plugin<Project> {
             }
         }
         detailsCollector
+    }
+
+    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> createCollector(Project project) {
+        //we need one collector per the whole build. Due caching in gradle metadata rules are invoked only once
+        //which can cause that we will miss some metadata
+        CollectorHolderExtension rootExtension = project.rootProject.extensions.findByType(CollectorHolderExtension)
+        if (rootExtension == null) {
+            return project.rootProject.extensions.create('collectorHolderExtension', CollectorHolderExtension).collector
+        } else {
+            return rootExtension.collector
+        }
     }
 
     private void configureHooks(Project project, Task verificationTask) {
@@ -62,5 +73,9 @@ class PublishVerificationPlugin implements Plugin<Project> {
                 artifactoryDeployTask.dependsOn(verificationTask)
             }
         }
+    }
+
+    private static class CollectorHolderExtension {
+        Map<ModuleVersionIdentifier, ComponentMetadataDetails> collector = new ConcurrentHashMap<>()
     }
 }
