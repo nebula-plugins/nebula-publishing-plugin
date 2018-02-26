@@ -57,8 +57,23 @@ class Verification {
         Module '${id.group}:${id.name}' resolved to version '${id.version}'.
         It cannot be used because it has status: '${metadata.status}' which is less then your current project status: '${targetStatus}' in your status scheme: ${metadata.statusScheme}.
         *** OPTIONS ***
-        1) Use specific version with higher status or 'latest.${targetStatus}'.
-        2) ignore this check with "${configuration} nebulaPublishVerification.ignore('$definedDependencyToPrint')".
-        """.stripIndent()
+        1) Use a specific module version with higher status or 'latest.${targetStatus}'.
+        2) Ignore this check with ONE of the following build.gradle configurations.
+        
+          a) Single module project - place following configuration in your project build.gradle file
+          
+          nebulaPublishVerification {
+              ignore('$definedDependencyToPrint')
+          }
+          
+          b) Multi module project - place following configuration in your root project build.gradle file
+          
+          allprojects {
+              nebulaPublishVerification {
+                  ignore('$definedDependencyToPrint')
+              }
+          }
+
+          """.stripIndent()
     }
 }

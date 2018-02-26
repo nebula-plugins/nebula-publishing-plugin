@@ -116,8 +116,23 @@ class VerifyPublicationTaskSpec extends Specification {
         Module 'foo:bar' resolved to version '1.0'.
         It cannot be used because it has status: '$libraryStatus' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release].
         *** OPTIONS ***
-        1) Use specific version with higher status or 'latest.$projectStatus'.
-        2) ignore this check with "runtimeClasspath nebulaPublishVerification.ignore('foo:bar:1.0')".
+        1) Use a specific module version with higher status or 'latest.$projectStatus'.
+        2) Ignore this check with ONE of the following build.gradle configurations.
+        
+          a) Single module project - place following configuration in your project build.gradle file
+          
+          nebulaPublishVerification {
+              ignore('foo:bar:1.0')
+          }
+          
+          b) Multi module project - place following configuration in your root project build.gradle file
+          
+          allprojects {
+              nebulaPublishVerification {
+                  ignore('foo:bar:1.0')
+              }
+          }
+
         """.stripIndent()
     }
 }
