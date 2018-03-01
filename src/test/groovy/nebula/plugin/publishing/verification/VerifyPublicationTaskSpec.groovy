@@ -119,13 +119,13 @@ class VerifyPublicationTaskSpec extends Specification {
         1) Use a specific module version with higher status or 'latest.$projectStatus'.
         2) Ignore this check with ONE of the following build.gradle configurations.
         
-          a) Single module project - place following configuration in your project build.gradle file
+          a) Single module project - place following configuration after plugins section in your project build.gradle file
           
           nebulaPublishVerification {
               ignore('foo:bar:1.0')
           }
           
-          b) Multi module project - place following configuration in your root project build.gradle file
+          b) Multi module project - place following configuration after plugins section in your root project build.gradle file
           
           allprojects {
               nebulaPublishVerification {
