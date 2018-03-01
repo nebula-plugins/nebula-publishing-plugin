@@ -16,10 +16,16 @@ class VerifyPublicationTask extends DefaultTask {
 
     @TaskAction
     void verifyDependencies() {
-        Configuration runtimeClasspath = project.configurations.runtimeClasspath
+        Configuration runtimeClasspath = getNonProjectDependencies()
         Map<String, DefinedDependency> definedDependencies = collectDefinedDependencies(runtimeClasspath, [:])
         Set<ResolvedDependency> firstLevel = runtimeClasspath.resolvedConfiguration.firstLevelModuleDependencies
         new Verification(ignore, ignoreGroups, project.status).verify(firstLevel, details, definedDependencies)
+    }
+
+    private Configuration getNonProjectDependencies() {
+        project.configurations.runtimeClasspath.copyRecursive {
+            !(it instanceof ProjectDependency)
+        }
     }
 
     Map<String, DefinedDependency> collectDefinedDependencies(Configuration parentConfiguration, Map<String, DefinedDependency> collector) {
