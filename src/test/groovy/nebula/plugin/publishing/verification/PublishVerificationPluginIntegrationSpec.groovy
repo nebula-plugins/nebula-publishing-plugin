@@ -13,6 +13,7 @@ import nebula.test.dependencies.ModuleBuilder
 import nebula.test.functional.ExecutionResult
 import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
 import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
+import spock.lang.Unroll
 
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
@@ -20,6 +21,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         settingsFile.text = '''\
             rootProject.name='testhello'
         '''
+        gradleVersion = null
     }
 
     def 'should successful pass through verification'() {
@@ -375,10 +377,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             }
         """
 
-        settingsFile.text = '''\
-            rootProject.name='testhello'
-        '''
-
         addSubproject('common')
         addSubproject('consumer', """
         dependencies {
@@ -431,15 +429,38 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             ${publishingRepos()}
         """
 
-        settingsFile.text = '''\
-            rootProject.name='testhello'
-        '''
-
         when:
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
+    }
+    
+    def 'plugin should be applied when gradle 4.4 and higher'() {
+        given:
+        gradleVersion = version
+
+        buildFile << """           
+            ${applyPlugin(IvyPublishPlugin)}
+            apply plugin: 'java'
+         
+            group = 'test.nebula.netflix'
+            status = 'integration'            
+            version = '1.0'
+
+            ${publishingRepos()}
+        """
+
+        when:
+        def result = runTasksSuccessfully("publishNebulaIvyPublicationToDistIvyRepository", "--dry-run")
+
+        then:
+        result.standardOutput.contains("verifyPublication") == taskPresent
+
+        where:
+        version | taskPresent
+        "4.3"   | false
+        "4.4"   | true
     }
 
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {

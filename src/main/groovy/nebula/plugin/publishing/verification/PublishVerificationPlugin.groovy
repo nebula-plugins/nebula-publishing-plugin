@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.util.GradleVersion
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,10 +16,17 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
-        project.plugins.withType(JavaPlugin) {
-            setupPlugin(project, extension)
+        if (shouldApplyPlugin()) {
+            def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
+            project.plugins.withType(JavaPlugin) {
+                setupPlugin(project, extension)
+            }
         }
+    }
+
+    private static boolean shouldApplyPlugin() {
+        GradleVersion minVersion = GradleVersion.version("4.4")
+        GradleVersion.current().compareTo(minVersion) >= 0
     }
 
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
