@@ -234,6 +234,8 @@ Eliminates this boilerplate:
     
 ### nebula.publish-verification
 
+Plugin features are enabled only for Gradle 4.4 and higher.
+
 Creates a task which runs before actual publication into repositories. It verifies that any of your direct dependencies don't have
 a lower status then your project. E.g. your project has a status `release` but one of your direct dependencies is `SNAPSHOT`.
 The task will prevent the publication until you will depend only on final releases. Your test dependencies are NOT verified.
