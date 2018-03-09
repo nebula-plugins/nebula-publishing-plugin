@@ -2,6 +2,9 @@ package nebula.plugin.publishing.verification
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.*
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.artifacts.result.DependencyResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
@@ -16,16 +19,16 @@ class VerifyPublicationTask extends DefaultTask {
 
     @TaskAction
     void verifyDependencies() {
-        Configuration runtimeClasspath = getNonProjectDependencies()
+        Configuration runtimeClasspath = project.configurations.runtimeClasspath
         Map<String, DefinedDependency> definedDependencies = collectDefinedDependencies(runtimeClasspath, [:])
-        Set<ResolvedDependency> firstLevel = runtimeClasspath.resolvedConfiguration.firstLevelModuleDependencies
+        Set<DependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
         new Verification(ignore, ignoreGroups, project.status).verify(firstLevel, details, definedDependencies)
     }
 
-    private Configuration getNonProjectDependencies() {
-        project.configurations.runtimeClasspath.copyRecursive {
-            !(it instanceof ProjectDependency)
-        }
+    private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
+        runtimeClasspath.incoming.resolutionResult.root.getDependencies().findAll {
+            ! (it.selected.id instanceof ProjectComponentIdentifier)
+        } as Set<ResolvedDependencyResult>
     }
 
     Map<String, DefinedDependency> collectDefinedDependencies(Configuration parentConfiguration, Map<String, DefinedDependency> collector) {
