@@ -83,7 +83,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
-    private static class CollectorHolderExtension {
+    class CollectorHolderExtension {
         Map<ModuleVersionIdentifier, ComponentMetadataDetails> collector = new ConcurrentHashMap<>()
     }
 }
