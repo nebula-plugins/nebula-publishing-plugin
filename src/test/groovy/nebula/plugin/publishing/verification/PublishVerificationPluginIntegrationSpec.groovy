@@ -451,7 +451,27 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
     }
-    
+
+    def 'should configure with java-base'() {
+        given:
+
+        buildFile << """           
+            ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(MavenPublishPlugin)}
+            apply plugin: 'java-base'
+         
+            group = 'test.nebula.netflix'            
+            version = '1.0'
+            ${publishingRepos()}
+        """
+
+        when:
+        runTasksSuccessfully('build')
+
+        then:
+        noExceptionThrown()
+    }
+
     def 'plugin should be applied when gradle 4.4 and higher'() {
         given:
         gradleVersion = version

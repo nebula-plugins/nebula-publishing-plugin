@@ -33,7 +33,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
         Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project)
         project.afterEvaluate {
-            SourceSet sourceSet = project.sourceSets.main
+            SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
             if (!sourceSet) return
             VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
 
