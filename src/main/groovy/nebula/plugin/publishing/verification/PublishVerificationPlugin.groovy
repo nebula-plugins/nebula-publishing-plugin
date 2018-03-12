@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -18,7 +19,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     void apply(Project project) {
         if (shouldApplyPlugin()) {
             def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
-            project.plugins.withType(JavaPlugin) {
+            project.plugins.withType(JavaBasePlugin) {
                 setupPlugin(project, extension)
             }
         }
