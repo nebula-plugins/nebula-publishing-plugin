@@ -13,7 +13,6 @@ import nebula.test.dependencies.ModuleBuilder
 import nebula.test.functional.ExecutionResult
 import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
 import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
-import spock.lang.Unroll
 
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
@@ -54,6 +53,23 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         when:
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+    }
+
+    def 'should fail when any library status is less then published project status and verification task is directly called'() {
+        given:
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(expectedFailureDependency)
+        def dependencies = "compile '$expectedFailureDependency'"
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasksWithFailure('build', 'verifyPublication')
 
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)

@@ -4,7 +4,7 @@ import org.gradle.api.BuildCancelledException
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.artifacts.ResolvedDependency
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 class Verification {
     Set<ModuleIdentifier> ignore
@@ -17,15 +17,15 @@ class Verification {
         this.targetStatus = targetStatus
     }
 
-    void verify(Set<ResolvedDependency> firstLevelDependencies,
+    void verify(Set<ResolvedDependencyResult> firstLevelDependencies,
                 Map<ModuleVersionIdentifier, ComponentMetadataDetails> details,
                 Map<String, DefinedDependency> definedDependencies = Collections.emptyMap(),
                 Closure<String> errorMessageProducer = defaultErrorMessageProducer) {
-        Set<ResolvedDependency> forVerification = firstLevelDependencies
-                .findAll { ! ignoreGroups.contains(it.moduleGroup) }
-                .findAll { ! ignore.contains(it.module.id.module) }
+        Set<ResolvedDependencyResult> forVerification = firstLevelDependencies
+                .findAll { ! ignoreGroups.contains(it.selected.moduleVersion.group) }
+                .findAll { ! ignore.contains(it.selected.moduleVersion.module) }
         forVerification.each {
-            ModuleVersionIdentifier id = it.module.id
+            ModuleVersionIdentifier id = it.selected.moduleVersion
             ComponentMetadataDetails metadata = details[id]
             //we cannot collect metadata for dependencies on another modules in multimodule build
             if (metadata != null) {
