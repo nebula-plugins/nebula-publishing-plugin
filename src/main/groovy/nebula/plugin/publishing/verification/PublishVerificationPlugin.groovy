@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.api.tasks.SourceSet
 import org.gradle.util.GradleVersion
 
 import java.util.concurrent.ConcurrentHashMap
@@ -30,16 +31,21 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
-        VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project, verificationTask)
+        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project)
+        project.afterEvaluate {
+            SourceSet sourceSet = project.sourceSets.main
+            if (!sourceSet) return
+            VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
 
-        verificationTask.details = detailsCollector
-        verificationTask.ignore = extension.ignore
-        verificationTask.ignoreGroups = extension.ignoreGroups
-        configureHooks(project, verificationTask)
+            verificationTask.details = detailsCollector
+            verificationTask.ignore = extension.ignore
+            verificationTask.ignoreGroups = extension.ignoreGroups
+            verificationTask.sourceSet = sourceSet
+            configureHooks(project, verificationTask)
+        }
     }
 
-    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> componentMetadataCollector(Project p, Task verificationTask) {
+    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> componentMetadataCollector(Project p) {
         Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = createCollector(p)
         p.dependencies {
             components {
@@ -62,7 +68,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
-    private void configureHooks(Project project, Task verificationTask) {
+    private void configureHooks(Project project, VerifyPublicationTask verificationTask) {
         project.tasks.withType(PublishToIvyRepository) { task ->
             task.dependsOn(verificationTask)
         }

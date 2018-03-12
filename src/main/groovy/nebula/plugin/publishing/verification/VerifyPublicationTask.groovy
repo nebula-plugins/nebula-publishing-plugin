@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 
 class VerifyPublicationTask extends DefaultTask {
@@ -16,10 +17,13 @@ class VerifyPublicationTask extends DefaultTask {
     Set<ModuleIdentifier> ignore
     @Input
     Set<String> ignoreGroups
+    @Input
+    SourceSet sourceSet
 
     @TaskAction
     void verifyDependencies() {
-        Configuration runtimeClasspath = project.configurations.runtimeClasspath
+        if (sourceSet == null) throw new IllegalStateException('sourceSet must be configured')
+        Configuration runtimeClasspath = project.configurations.getByName(sourceSet.getRuntimeClasspathConfigurationName())
         Map<String, DefinedDependency> definedDependencies = collectDefinedDependencies(runtimeClasspath, [:])
         Set<DependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
         new Verification(ignore, ignoreGroups, project.status).verify(firstLevel, details, definedDependencies)

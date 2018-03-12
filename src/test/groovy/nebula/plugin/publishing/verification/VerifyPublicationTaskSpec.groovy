@@ -8,6 +8,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -60,6 +61,7 @@ class VerifyPublicationTaskSpec extends Specification {
 
     Task setupProjectAndTask(String libraryStatus, String projectStatus) {
         Project project = ProjectBuilder.builder().build()
+        project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
         populateAndSetRepository(project)
@@ -70,6 +72,7 @@ class VerifyPublicationTaskSpec extends Specification {
             details = createCollectedComponentMetadataDetails(libraryStatus)
             ignore = Collections.emptySet()
             ignoreGroups = Collections.emptySet()
+            sourceSet = project.sourceSets.main
         }
     }
 
@@ -93,9 +96,6 @@ class VerifyPublicationTaskSpec extends Specification {
     }
 
     private void createConfigurations(Project project) {
-        project.configurations {
-            runtimeClasspath
-        }
         project.dependencies {
             runtimeClasspath DUMMY_LIBRARY
         }
