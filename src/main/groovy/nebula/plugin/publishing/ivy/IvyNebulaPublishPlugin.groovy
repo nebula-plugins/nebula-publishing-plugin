@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.ivy.IvyPublication
+import org.gradle.util.GradleVersion
 
 class IvyNebulaPublishPlugin implements Plugin<Project> {
     static final String IVY_WAR = 'nebulaPublish.ivy.war'
@@ -24,17 +25,27 @@ class IvyNebulaPublishPlugin implements Plugin<Project> {
             project.ext.set(IVY_JAR, true)
         }
 
-        project.publishing {
+        if (GradleVersion.current().baseVersion >= GradleVersion.version("4.8")) {
+            project.afterEvaluate { p ->
+                configurePublications(p)
+            }
+        } else {
+            configurePublications(project)
+        }
+
+    }
+
+    private void configurePublications(Project p) {
+        p.publishing {
             publications {
                 nebulaIvy(IvyPublication) {
-                    if (project.ext.get(IVY_WAR)) {
-                        from project.components.web
-                    } else if (project.ext.get(IVY_JAR)) {
-                        from project.components.java
+                    if (p.ext.get(IVY_WAR)) {
+                        from p.components.web
+                    } else if (p.ext.get(IVY_JAR)) {
+                        from p.components.java
                     }
                 }
             }
         }
-
     }
 }
