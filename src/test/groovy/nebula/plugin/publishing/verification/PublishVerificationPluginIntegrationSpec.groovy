@@ -44,10 +44,15 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
     def 'should fail when any library status is less then published project status'() {
         given:
         def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        builder.addModule(expectedFailureDependency2)
+        def dependencies = """
+             compile '$expectedFailureDependency'
+             compile '$expectedFailureDependency2'
+        """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -56,6 +61,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertFailureMessage(result, expectedFailureDependency2, projectStatus)
     }
 
     def 'should fail when any library status is less then published project status and verification task is directly called'() {
@@ -69,7 +75,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
         when:
-        def result = runTasksWithFailure('build', 'verifyPublication')
+        def result = runTasksWithFailure('build', 'verifyPublicationReport')
 
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
@@ -367,8 +373,10 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         given:
         def projectStatus = 'release'
         def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
+        builder.addModule(expectedFailureDependency2)
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph)
         File mavenRepoDir = generator.generateTestMavenRepo()
@@ -376,6 +384,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """   
             allprojects {        
                 ${applyPlugin(IvyPublishPlugin)}
+                ${applyPlugin(PublishVerificationPlugin)}
                 apply plugin: 'java'
                 
                 group = 'test.nebula.netflix'
@@ -393,11 +402,15 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             }
         """
 
-        addSubproject('common')
+        addSubproject('common', """
+            dependencies {
+                compile '$expectedFailureDependency'
+            }
+        """)
         addSubproject('consumer', """
         dependencies {
            compile project(':common')
-           compile '$expectedFailureDependency'
+           compile '$expectedFailureDependency2'
         }
         """)
 
@@ -406,6 +419,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertFailureMessage(result, expectedFailureDependency2, projectStatus)
 
     }
 
@@ -422,6 +436,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)} 
             ${applyPlugin(ResolutionRulesPlugin)}
             ${applyPlugin(DependencyLockPlugin)}
             ${applyPlugin(DependencyRecommendationsPlugin)}
@@ -458,6 +473,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java-base'
          
             group = 'test.nebula.netflix'            
@@ -478,6 +494,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java'
          
             group = 'test.nebula.netflix'
@@ -536,6 +553,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             ${applyPlugin(ResolutionRulesPlugin)}
             ${applyPlugin(DependencyLockPlugin)}
             ${applyPlugin(DependencyRecommendationsPlugin)}
@@ -583,8 +601,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         int lastColon = expectedFailureDependency.lastIndexOf(':')
         String groupAndName = expectedFailureDependency.substring(0, lastColon)
         String version = expectedFailureDependency.substring(lastColon + 1, expectedFailureDependency.size())
-        assertStandardOutputOrError(result, "Module '$groupAndName' resolved to version '${version}'.")
-        assertStandardOutputOrError(result, "It cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
+        assertStandardOutputOrError(result, "Following dependencies have incorrect status lower then your current project status '$projectStatus':")
+        assertStandardOutputOrError(result, "'$groupAndName' resolved to version '${version}', status: 'integration' in status scheme: [integration, milestone, release]")
     }
 
     private void assertStandardOutputOrError(ExecutionResult result, String message) {

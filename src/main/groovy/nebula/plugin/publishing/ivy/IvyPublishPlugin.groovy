@@ -15,7 +15,6 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.plugin.publishing.verification.PublishVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -29,6 +28,5 @@ class IvyPublishPlugin implements Plugin<Project> {
         project.plugins.apply IvyResolvedDependenciesPlugin
         project.plugins.apply IvyManifestPlugin
         project.plugins.apply IvyExcludesPlugin
-        project.plugins.apply PublishVerificationPlugin
     }
 }

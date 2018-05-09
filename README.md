@@ -240,8 +240,13 @@ Creates a task which runs before actual publication into repositories. It verifi
 a lower status then your project. E.g. your project has a status `release` but one of your direct dependencies is `SNAPSHOT`.
 The task will prevent the publication until you will depend only on final releases. Your test dependencies are NOT verified.
 
-This plugin is automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. The task itself is a dependence of
-tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
+This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. You have to apply the plugin to all modules within the project.
+
+    allprojects {
+        apply plugin: 'nebula.publish-verification'
+    }
+
+The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
 `artifactoryPublish` and `artifactoryDeploy` coming from `com.jfrog.artifactory` plugin. If you need any other integration
 you have to manually configure relationship in your build file.
 

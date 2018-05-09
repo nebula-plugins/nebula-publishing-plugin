@@ -15,12 +15,8 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.publishing.verification.PublishVerificationPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.WarPlugin
-import org.gradle.api.publish.maven.MavenPublication
 
 class MavenPublishPlugin implements Plugin<Project> {
     @Override
@@ -34,7 +30,6 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
-            apply PublishVerificationPlugin
         }
     }
 }
