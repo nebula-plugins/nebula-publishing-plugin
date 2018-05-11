@@ -1,25 +1,41 @@
 package nebula.plugin.publishing.verification
 
 import org.gradle.api.artifacts.ComponentMetadataDetails
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import spock.lang.Specification
 
 class VerificationReportGeneratorSpec extends Specification {
 
-    def 'simple one project with one violation error'() {
+    def 'simple one project with one status violation error'() {
         given:
         def projectStatus = 'release'
         def violations = [
-                root: [create('foo', 'bar', '1.0-SNAPSHOT')]
+                root: new ViolationsContainer(statusViolations: [createStatusViolation('foo', 'bar', '1.0-SNAPSHOT')])
         ]
 
         when:
         def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
 
         then:
-        assertHeader(result, projectStatus)
-        assertProjects(result, violations)
-        assertOptions(result, projectStatus)
+        assertStatusViolationsForProjects(result, violations, projectStatus)
+        assertIgnoreHeader(result)
+        assertSingleProjectIgnore(result, violations)
+    }
+
+    def 'simple one project with one version violation error'() {
+        given:
+        def projectStatus = 'release'
+        def violations = [
+                root: new ViolationsContainer(versionSelectorViolations: [createVersionViolation('foo', 'bar', '1.0+')])
+        ]
+
+        when:
+        def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
+
+        then:
+        assertVersionViolationsForProjects(result, violations)
+        assertIgnoreHeader(result)
         assertSingleProjectIgnore(result, violations)
     }
 
@@ -27,16 +43,19 @@ class VerificationReportGeneratorSpec extends Specification {
         given:
         def projectStatus = 'release'
         def violations = [
-                root: [create('foo', 'bar', '1.0-SNAPSHOT'), create('baz', 'giz', '2.0-rc.1', 'candidate')]
+                root: new ViolationsContainer(
+                        statusViolations:
+                                [createStatusViolation('foo', 'bar', '1.0-SNAPSHOT'), createStatusViolation('baz', 'giz', '2.0-rc.1', 'candidate')],
+                        versionSelectorViolations: [createVersionViolation('foo', 'bar', '1.0+')])
         ]
 
         when:
         def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
 
         then:
-        assertHeader(result, projectStatus)
-        assertProjects(result, violations)
-        assertOptions(result, projectStatus)
+        assertStatusViolationsForProjects(result, violations, projectStatus)
+        assertVersionViolationsForProjects(result, violations)
+        assertIgnoreHeader(result)
         assertSingleProjectIgnore(result, violations)
     }
 
@@ -44,18 +63,17 @@ class VerificationReportGeneratorSpec extends Specification {
         given:
         def projectStatus = 'release'
         def violations = [
-                root: [create('foo', 'bar', '1.0-SNAPSHOT')],
-                module1: [create('baz', 'giz', '2.0-rc.1', 'candidate')],
-                module2: []
+                root: new ViolationsContainer(statusViolations:[createStatusViolation('foo', 'bar', '1.0-SNAPSHOT')]),
+                module1: new ViolationsContainer(statusViolations:[createStatusViolation('baz', 'giz', '2.0-rc.1', 'candidate')]),
+                module2: new ViolationsContainer(statusViolations:[])
         ]
 
         when:
         def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
 
         then:
-        assertHeader(result, projectStatus)
-        assertProjects(result, violations)
-        assertOptions(result, projectStatus)
+        assertStatusViolationsForProjects(result, violations, projectStatus)
+        assertIgnoreHeader(result)
         assertMultiModuleProjectIgnore(result, violations)
     }
 
@@ -63,17 +81,20 @@ class VerificationReportGeneratorSpec extends Specification {
         given:
         def projectStatus = 'release'
         def violations = [
-                root: [create('foo', 'bar', '1.0-SNAPSHOT'), create('baz', 'fiz', '2.0-rc.1', 'candidate')],
-                module1: [create('baz', 'giz', '2.0-rc.1', 'candidate'), create('foo', 'zig', '1.2-SNAPSHOT')]
+                root: new ViolationsContainer(statusViolations:[createStatusViolation('foo', 'bar', '1.0-SNAPSHOT'), createStatusViolation('baz', 'fiz', '2.0-rc.1', 'candidate')]),
+                module1: new ViolationsContainer(
+                        statusViolations:[createStatusViolation('baz', 'giz', '2.0-rc.1', 'candidate'), createStatusViolation('foo', 'zig', '1.2-SNAPSHOT')],
+                        versionSelectorViolations: [createVersionViolation('foo', 'bar', '1.0+')]
+                )
         ]
 
         when:
         def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
 
         then:
-        assertHeader(result, projectStatus)
-        assertProjects(result, violations)
-        assertOptions(result, projectStatus)
+        assertStatusViolationsForProjects(result, violations, projectStatus)
+        assertVersionViolationsForProjects(result, violations)
+        assertIgnoreHeader(result)
         assertMultiModuleProjectIgnore(result, violations)
     }
 
@@ -81,22 +102,23 @@ class VerificationReportGeneratorSpec extends Specification {
         given:
         def projectStatus = 'release'
         def violations = [
-                root: [create('foo', 'bar', '1.0-SNAPSHOT'), create('baz', 'fiz', '2.0-rc.1', 'candidate'), create('foo', 'zig', '1.2-SNAPSHOT')],
-                module1: [create('baz', 'giz', '2.0-rc.1', 'candidate'), create('foo', 'zig', '1.2-SNAPSHOT')]
+                root: new ViolationsContainer(statusViolations:
+                        [createStatusViolation('foo', 'bar', '1.0-SNAPSHOT'), createStatusViolation('baz', 'fiz', '2.0-rc.1', 'candidate'), createStatusViolation('foo', 'zig', '1.2-SNAPSHOT')]),
+                module1: new ViolationsContainer(statusViolations:
+                        [createStatusViolation('baz', 'giz', '2.0-rc.1', 'candidate'), createStatusViolation('foo', 'zig', '1.2-SNAPSHOT')])
         ]
 
         when:
         def result = new VerificationReportGenerator().generateReport(violations, projectStatus)
 
         then:
-        assertHeader(result, projectStatus)
-        assertProjects(result, violations)
-        assertOptions(result, projectStatus)
+        assertStatusViolationsForProjects(result, violations, projectStatus)
+        assertIgnoreHeader(result)
         assertMultiModuleProjectIgnore(result, violations)
     }
 
-    StatusVerificationViolation create(String group, String name, String version,
-                                       String status = "integration", List<String> statusScheme = ['integration', 'candidate', 'release']) {
+    StatusVerificationViolation createStatusViolation(String group, String name, String version,
+                                                      String status = "integration", List<String> statusScheme = ['integration', 'candidate', 'release']) {
         new StatusVerificationViolation(id: DefaultModuleVersionIdentifier.newId(group, name, version),metadata: Mock(ComponentMetadataDetails) {
             getStatus() >> {
                 status
@@ -107,46 +129,60 @@ class VerificationReportGeneratorSpec extends Specification {
         })
     }
 
-    void assertHeader(String report, String targetStatus) {
-        assert report.contains("Following dependencies have incorrect status lower then your current project status '$targetStatus':")
+    VersionSelectorVerificationViolation createVersionViolation(String group, String name, String version) {
+        new VersionSelectorVerificationViolation(dependency: Mock(Dependency) {
+            getName() >> name
+            getGroup() >> group
+            getVersion() >> version
+        })
     }
 
-    void assertProjects(String report, Map<String, List<StatusVerificationViolation>> violationsPerProject) {
+    void assertStatusViolationsForProjects(String report, Map<String, ViolationsContainer> violationsPerProject, String targetStatus) {
+        assert report.contains("Following dependencies have incorrect status lower then your current project status '$targetStatus':")
         violationsPerProject.each { project, violations ->
-            if (!violations.isEmpty()) {
+            if (violations.statusViolations.size() > 0) {
                 assert report.contains("Dependencies for $project:")
-                violations.each { violation ->
+                violations.statusViolations.each { violation ->
                     assert report.contains("    '$violation.id.module' resolved to version '$violation.id.version', status: '$violation.metadata.status' in status scheme: $violation.metadata.statusScheme")
                 }
             }
         }
     }
 
-    void assertOptions(String report, String targetStatus) {
-        assert report.contains("*** OPTIONS ***\n" +
-                "1) Use a specific module version with higher status or 'latest.$targetStatus'.\n" +
-                "2) Ignore this check with the following build.gradle configurations.")
+    void assertVersionViolationsForProjects(String report, Map<String, ViolationsContainer> violationsPerProject) {
+        assert report.contains("Following dependencies have version definition with patterns which resolves into unexpected version")
+        violationsPerProject.each { project, violations ->
+            if (violations.versionSelectorViolations.size() > 0) {
+                assert report.contains("Dependencies for $project:")
+                violations.versionSelectorViolations.each { violation ->
+                    assert report.contains("    '$violation.dependency.group:$violation.dependency.name' with requested version '$violation.dependency.version'")
+                }
+            }
+        }
     }
 
-    void assertSingleProjectIgnore(String report, Map<String, List<StatusVerificationViolation>> violationsPerProject) {
-        assert report.contains("You have a single module project - place following configuration after plugins section" +
-                " in your project build.gradle file\n\n" +
-                "nebulaPublishVerification {")
+    void assertIgnoreHeader(String report) {
+        assert report.contains("ATTENTION: If suggested steps for violations cannot be resolved you can ignore them using the following configurations.")
+    }
+
+    void assertSingleProjectIgnore(String report, Map<String, ViolationsContainer> violationsPerProject) {
+        assert report.contains("Place following configuration at the end of your project build.gradle file")
+        assert report.contains("nebulaPublishVerification {")
         assertIgnores(report, violationsPerProject)
     }
 
-    void assertMultiModuleProjectIgnore(String report, Map<String, List<StatusVerificationViolation>> violationsPerProject) {
-        assert report.contains("You have a multi module project - place following configuration after plugins section in your root project build.gradle file\n\n" +
-                "allprojects {\n" +
-                "    nebulaPublishVerification {")
+    void assertMultiModuleProjectIgnore(String report, Map<String, ViolationsContainer> violationsPerProject) {
+        assert report.contains("Place following configuration at the end of your root project build.gradle file")
+        assert report.contains("allprojects {\n" +
+                "        nebulaPublishVerification {")
         assertIgnores(report, violationsPerProject)
     }
 
-    void assertIgnores(String report, Map<String, List<StatusVerificationViolation>> violationsPerProject) {
+    void assertIgnores(String report, Map<String, ViolationsContainer> violationsPerProject) {
         def ignores = report.readLines().findAll { it.contains('ignore(') }
         //ignores must be unique
         assert ignores.size() == ignores.toSet().size()
-        violationsPerProject.values().flatten().each { violation ->
+        violationsPerProject.values().collect { it.statusViolations } .flatten().each { violation ->
             assert ignores.any { ignore -> ignore.contains(violation.id.module.toString()) }
         }
     }

@@ -8,6 +8,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.util.GradleVersion
 
 import java.util.concurrent.ConcurrentHashMap
@@ -47,8 +48,10 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     void createVerificationViolationsCollector(Project project) {
-        if (project.rootProject == project) {
-            project.extensions.create('verificationViolationsCollectorHolderExtension', VerificationViolationsCollectorHolderExtension)
+        //root project doesn't have to fulfil condition for plugin setup so first submodule will create extension if it not created
+        VerificationViolationsCollectorHolderExtension violationCollector = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
+        if (violationCollector == null) {
+            project.rootProject.extensions.create('verificationViolationsCollectorHolderExtension', VerificationViolationsCollectorHolderExtension)
         }
     }
 
@@ -65,11 +68,13 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private VerificationReportTask getOrCreateReportTask(Project project, VerifyPublicationTask verificationTask) {
+        //root project doesn't have to fulfil condition for plugin setup so first submodule will create report task if it not created
+        TaskCollection verificationReports = project.rootProject.tasks.withType(VerificationReportTask)
         VerificationReportTask verificationReportTask
-        if (project.rootProject == project) {
+        if (verificationReports.isEmpty()) {
             verificationReportTask = project.rootProject.tasks.create('verifyPublicationReport', VerificationReportTask)
         } else {
-            verificationReportTask = project.rootProject.tasks.withType(VerificationReportTask).first()
+            verificationReportTask = verificationReports.first()
         }
         verificationReportTask.dependsOn(verificationTask)
         return verificationReportTask
@@ -78,10 +83,12 @@ class PublishVerificationPlugin implements Plugin<Project> {
     private Map<ModuleVersionIdentifier, ComponentMetadataDetails> createCollector(Project project) {
         //we need one collector per the whole build. Due caching in gradle metadata rules are invoked only once
         //which can cause that we will miss some metadata
-        if (project.rootProject == project) {
+        //root project doesn't have to fulfil condition for plugin setup so first submodule will create extension if it not created
+        MetadataCollectorHolderExtension rootExtension = project.rootProject.extensions.findByType(MetadataCollectorHolderExtension)
+        if (rootExtension == null) {
             return project.rootProject.extensions.create('metadataCollectorHolderExtension', MetadataCollectorHolderExtension).collector
         } else {
-            return project.rootProject.extensions.findByType(MetadataCollectorHolderExtension).collector
+            return rootExtension.collector
         }
     }
 
@@ -111,6 +118,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     static class VerificationViolationsCollectorHolderExtension {
-        Map<Project, List<StatusVerificationViolation>> collector = new ConcurrentHashMap<>()
+        Map<Project, ViolationsContainer> collector = new ConcurrentHashMap<>()
     }
 }

@@ -28,7 +28,12 @@ class VerifyPublicationTask extends DefaultTask {
         Configuration runtimeClasspath = project.configurations.getByName(sourceSet.getRuntimeClasspathConfigurationName())
         Set<DependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
         List<StatusVerificationViolation> violations = new StatusVerification(ignore, ignoreGroups, project.status).verify(firstLevel, details)
-        getViolations().put(project, violations)
+
+        List<Dependency> definedDependencies = getDefinedDependencies()
+        List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore, ignoreGroups).verify(definedDependencies)
+
+        getViolations().put(project,
+                new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
     }
 
     private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
@@ -43,9 +48,15 @@ class VerifyPublicationTask extends DefaultTask {
         } as Set<ResolvedDependencyResult>
     }
 
-    private Map<Project, List<StatusVerificationViolation>> getViolations() {
+    private Map<Project, ViolationsContainer> getViolations() {
         PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension extension = project.rootProject.extensions
                 .findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         extension.collector
+    }
+
+    private List<Object> getDefinedDependencies() {
+        project.configurations.collect { configuration ->
+            configuration.dependencies
+        }.flatten()
     }
 }

@@ -235,10 +235,9 @@ Eliminates this boilerplate:
 ### nebula.publish-verification
 
 Plugin features are enabled only for Gradle 4.4 and higher.
+Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
-Creates a task which runs before actual publication into repositories. It verifies that any of your direct dependencies don't have
-a lower status then your project. E.g. your project has a status `release` but one of your direct dependencies is `SNAPSHOT`.
-The task will prevent the publication until you will depend only on final releases. Your test dependencies are NOT verified.
+#### Usage
 
 This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. You have to apply the plugin to all modules within the project.
 
@@ -246,9 +245,34 @@ This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.ma
         apply plugin: 'nebula.publish-verification'
     }
 
-The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
+Plugin is integrated with Gradle publishing and with Artifactory plugin. The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
 `artifactoryPublish` and `artifactoryDeploy` coming from `com.jfrog.artifactory` plugin. If you need any other integration
 you have to manually configure relationship in your build file.
+
+##### Your dependency has a lower status then your project violation
+
+###### Explanation
+
+When you are publishing a release build and your first level dependency (directly specified in your build file) is with lower status like `candidate` (e.g. `1.2.0-rc.2` or `latest.candidate`) or `snapshot` (e.g. `1.2.0-SNAPSHOT` or `latest.snapshot`) your build will fail. The reason for this check is a protection of your consumers. As a library producer, you could easily introduce lower status of dependencies in your consumer dependency graph. We consider that dependency with lower status means also lower or not completely guaranteed quality. This verification will explicitly highlight such dependencies and you can make an appropriate decision how to handle them instead of silently publishing.
+
+###### How to resolve
+
+The solution could be slightly different depending on your situation:
+* Concrete violating version `1.2.0-rc.2` could be replaced with stable version `1.2.0`
+* `latest.candidate` can be replaced with `latest.release`
+* Open range version `1.+` can currently also resolve to `1.5-SNAPSHOT`, then you can switch to a preferred fixed version.
+* You might be having the right version in your file but some of your dependencies are depending on a lower status version which will win conflict resolution. The best is to fix your downstream library not depend on the lower status library.
+* It can be a completely valid situation, that you depend on a candidate. Then you can ignore given library from this verification.
+
+##### Your dependency has incorrect subversion definition
+
+###### Explanation
+
+An incorrect version definition is e.g. 1.1+. It would resolve to 1.1, 1.10, 1.11 etc. but it would miss versions like 1.2, 1.3 etc. This is not what most people would want. We are detecting this situation because it is hard to spot and it leads to unexpected dependency resolutions which are confusing build owners.
+
+###### How to resolve
+
+The right definition is 1.+ to use the highest version with major version 1 or you can use [1.1,] to use version 1.1 or higher.
 
 #### How to ignore selected dependencies.
 

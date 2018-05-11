@@ -3,6 +3,7 @@ package nebula.plugin.publishing.verification
 import org.gradle.api.BuildCancelledException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentMetadataDetails
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -33,7 +34,7 @@ class VerificationReportTaskSpec extends Specification {
         Project project = ProjectBuilder.builder().build()
         project.status = 'release'
         def extension = project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
-        extension.collector.put(project, [new StatusVerificationViolation(id: Mock(ModuleVersionIdentifier), metadata: Mock(ComponentMetadataDetails))])
+        extension.collector.put(project, container)
         VerificationReportTask task = project.tasks.create('report', VerificationReportTask)
         def generator = Mock(VerificationReportGenerator)
         task.verificationReportGenerator = generator
@@ -47,8 +48,20 @@ class VerificationReportTaskSpec extends Specification {
         interaction {
             1 * generator.generateReport(_, project.status) >> { violations, status ->
                 assert violations.size() == 1
-                assert violations.values().first().size() == 1
+                assert violations.values().first() == container
             }
         }
+
+        where:
+        container << [
+                new ViolationsContainer(
+                        statusViolations: [
+                                new StatusVerificationViolation(id: Mock(ModuleVersionIdentifier), metadata: Mock(ComponentMetadataDetails))
+                        ]),
+                new ViolationsContainer(
+                        versionSelectorViolations: [
+                                new VersionSelectorVerificationViolation(dependency: Mock(Dependency))
+                        ])
+        ]
     }
 }

@@ -70,7 +70,6 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
                                 if (dep.@rev) {
                                     def version = dep.@rev as String
                                     VersionSelector selector = parseSelector(version)
-                                    verifySubVersion(selector, mvid)
                                     setVersionConstraint(selector, version, dep)
                                 }
 
@@ -89,20 +88,6 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
         def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator())
         def selector = scheme.parseSelector(version)
         selector
-    }
-
-    private void verifySubVersion(VersionSelector selector, ModuleVersionIdentifier mvid) {
-        if (selector instanceof SubVersionSelector && !selector.selector.endsWith(".+")) {
-            throw new BuildCancelledException(
-                    "Incorrect version definition detected.\n" +
-                            "Dependency '${mvid.group}:${mvid.name}:${selector.selector}' has version definition which" +
-                            " resolves into unexpected version.\n" +
-                            "\n" +
-                            "E.g. 1.1+ resolves to 1.1, 1.10, 1.11 etc but misses 1.2, 1.3.\n" +
-                            "\n" +
-                            "We recommend to use definition like 1.+ for the highest from major version 1 or " +
-                            "[1.1,] which is anything equal or higher then 1.1.\n")
-        }
     }
 
     private void setVersionConstraint(VersionSelector selector, String version, Node dep) {
