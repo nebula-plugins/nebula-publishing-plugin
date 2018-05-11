@@ -499,6 +499,31 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         "4.4"   | true
     }
 
+    def 'unresolved dependencies should fail fast with clear message'() {
+        given:
+        def unresolvableDependency = 'unknown:unknown:1.0-SNAPSHOT'
+        buildFile << """           
+            ${applyPlugin(IvyPublishPlugin)}
+            apply plugin: 'java'
+         
+            group = 'test.nebula.netflix'
+            status = 'integration'            
+            version = '1.0'
+
+            dependencies {
+                compile '$unresolvableDependency'
+            }
+            
+            ${publishingRepos()}
+        """
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        result.standardError.contains("Cannot resolve external dependency $unresolvableDependency")
+    }
+
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph, new File(projectDir, "testrepogen").canonicalPath)

@@ -5,6 +5,7 @@ import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.artifacts.result.UnresolvedDependencyResult
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
@@ -30,7 +31,13 @@ class VerifyPublicationTask extends DefaultTask {
     }
 
     private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
-        runtimeClasspath.incoming.resolutionResult.root.getDependencies().findAll {
+        def firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
+        def unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult }
+        if (! unresolvedDependencies.isEmpty()) {
+            UnresolvedDependencyResult unresolvedDependencyResult = (UnresolvedDependencyResult) unresolvedDependencies.first()
+            throw unresolvedDependencyResult.failure
+        }
+        firstLevelDependencies.findAll {
             ! (it.selected.id instanceof ProjectComponentIdentifier)
         } as Set<ResolvedDependencyResult>
     }
