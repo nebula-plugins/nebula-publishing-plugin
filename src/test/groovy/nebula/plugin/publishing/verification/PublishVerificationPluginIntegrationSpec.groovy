@@ -521,7 +521,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        result.standardError.contains("Cannot resolve external dependency $unresolvableDependency")
+        assertStandardOutputOrError(result, "Cannot resolve external dependency $unresolvableDependency")
     }
 
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
@@ -583,7 +583,12 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         int lastColon = expectedFailureDependency.lastIndexOf(':')
         String groupAndName = expectedFailureDependency.substring(0, lastColon)
         String version = expectedFailureDependency.substring(lastColon + 1, expectedFailureDependency.size())
-        assert result.standardError.contains("Module '$groupAndName' resolved to version '${version}'.")
-        assert result.standardError.contains("It cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
+        assertStandardOutputOrError(result, "Module '$groupAndName' resolved to version '${version}'.")
+        assertStandardOutputOrError(result, "It cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
+    }
+
+    private void assertStandardOutputOrError(ExecutionResult result, String message) {
+        //output where message is printed is different between Gradle 4.7 and 4.8 while we are testing Gradle 4.8 we need to check both
+        assert result.standardError.contains(message) || result.standardOutput.contains(message)
     }
 }

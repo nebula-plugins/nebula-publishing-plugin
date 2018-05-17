@@ -75,34 +75,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         a.@revConstraint == '1.+'
     }
 
-    def 'incorrect dynamic versions are failing the build'() {
-        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
-                .addModule('test.resolved:a:1.1.0').build()
-        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
-        generator.generateTestIvyRepo()
-
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                ${generator.ivyRepositoryBlock}
-            }
-
-            dependencies {
-                compile 'test.resolved:a:1+'
-            }
-            """.stripIndent()
-
-        when:
-        def result = runTasksWithFailure('publishNebulaIvyPublicationToTestLocalRepository')
-
-        then:
-        result.standardError.contains("Incorrect version definition detected.")
-        result.standardError.contains("Dependency 'test.resolved:a:1+' has version definition which resolves into unexpected version.")
-        result.standardError.contains("E.g. 1.1+ resolves to 1.1, 1.10, 1.11 etc but misses 1.2, 1.3.")
-        result.standardError.contains("We recommend to use definition like 1.+ for the highest from major version 1 or [1.1,] which is anything equal or higher then 1.1.")
-    }
-
     def 'latest.* versions are replaced by the resolved version and have a revConstraint'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()
@@ -230,7 +202,8 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        result.standardError.contains 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
+        def expectedMessage = 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
+        result.standardError.contains(expectedMessage) || result.standardOutput.contains(expectedMessage)
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
