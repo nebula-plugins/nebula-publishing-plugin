@@ -22,6 +22,14 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyCompileOnlyPlugin implements Plugin<Project> {
+
+    static enum DependenciesContent {
+        dependency,
+        exclude,
+        override,
+        conflict
+    }
+
     void apply(Project project) {
         project.plugins.apply IvyBasePublishPlugin
 
@@ -43,6 +51,9 @@ class IvyCompileOnlyPlugin implements Plugin<Project> {
                                     newDep.@rev = dep.version
                                     newDep.@conf = 'provided'
                                 }
+                                deps.children().sort(true, {
+                                    DependenciesContent.valueOf(it.name()).ordinal()
+                                })
                             }
                         }
                     }
