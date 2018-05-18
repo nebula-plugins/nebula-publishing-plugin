@@ -77,4 +77,37 @@ class IvyCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
         dependency.@rev == '0.0.1'
         dependency.@conf == 'provided'
     }
+
+    def 'verify ivy contains compileOnly dependencies together with global excludes'() {
+        keepFiles = true
+        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
+        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                ivy { url '${ivyrepo.toURI().toURL()}' }
+            }
+            
+            configurations.all {
+                exclude group: 'org.slf4j', module: 'slf4j-api'
+            }
+
+            dependencies {
+                compileOnly 'testjava:c:0.0.1'
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
+        def dependency = root.dependencies.dependency[0]
+        dependency.@org == 'testjava'
+        dependency.@name == 'c'
+        dependency.@rev == '0.0.1'
+        dependency.@conf == 'provided'
+    }
 }
