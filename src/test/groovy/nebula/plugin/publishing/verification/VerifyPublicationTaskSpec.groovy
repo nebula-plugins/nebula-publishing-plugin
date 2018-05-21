@@ -3,10 +3,10 @@ package nebula.plugin.publishing.verification
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.gradle.api.BuildCancelledException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentMetadataDetails
+import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
@@ -20,13 +20,18 @@ class VerifyPublicationTaskSpec extends Specification {
     @Unroll
     def 'test releasable combinations of statuses library=#libraryStatus project=#projectStatus'() {
         given:
-        def task = setupProjectAndTask(libraryStatus, projectStatus)
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, libraryStatus, projectStatus)
 
         when:
         task.verifyDependencies()
 
         then:
         noExceptionThrown()
+        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        holderExtension.collector.size() == 1
+        def violations = holderExtension.collector[project]
+        violations.statusViolations.size() == 0
 
         where:
         libraryStatus | projectStatus
@@ -40,27 +45,103 @@ class VerifyPublicationTaskSpec extends Specification {
     }
 
     @Unroll
-    def 'test failing combinations of statuses library=#libraryStatus project=#projectStatus'() {
+    def 'test error collection when combinations of statuses library=#libraryStatus project=#projectStatus'() {
         given:
-        def task = setupProjectAndTask(libraryStatus, projectStatus)
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, libraryStatus, projectStatus)
 
         when:
         task.verifyDependencies()
 
         then:
-        Throwable e = thrown(BuildCancelledException)
-        e.message == failureMessage
+        noExceptionThrown()
+        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        holderExtension.collector.size() == 1
+        def violations = holderExtension.collector[project]
+        violations.statusViolations.size() == 1
+        def violation = violations.statusViolations.first()
+        violation.id.group == 'foo'
+        violation.id.name == 'bar'
+        violation.metadata.status == libraryStatus
 
         where:
-        libraryStatus | projectStatus | failureMessage
-        'integration' | 'milestone'   | errorMessageTemplate("integration", "milestone")
-        'integration' | 'release'     | errorMessageTemplate("integration", "release")
-        'milestone'   | 'release'     | errorMessageTemplate("milestone", "release")
+        libraryStatus | projectStatus
+        'integration' | 'milestone'
+        'integration' | 'release'
+        'milestone'   | 'release'
+    }
+
+    def 'test ignore through specific name and group'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, 'integration', 'release')
+        project.dependencies {
+            runtimeClasspath 'foo:bar:1.0+'
+        }
+        task.configure {
+            ignore = [DefaultModuleIdentifier.newId('foo', 'bar')] as Set
+        }
+
+        when:
+        task.verifyDependencies()
+
+        then:
+        noExceptionThrown()
+        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        holderExtension.collector.size() == 1
+        def violations = holderExtension.collector[project]
+        violations.statusViolations.size() == 0
+        violations.versionSelectorViolations.size() == 0
+    }
+
+    def 'test ignore through group'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, 'integration', 'release')
+        project.dependencies {
+            runtimeClasspath 'foo:bar:1.0+'
+        }
+        task.configure {
+            ignoreGroups = ['foo'] as Set
+        }
+
+        when:
+        task.verifyDependencies()
+
+        then:
+        noExceptionThrown()
+        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        holderExtension.collector.size() == 1
+        def violations = holderExtension.collector[project]
+        violations.statusViolations.size() == 0
+        violations.versionSelectorViolations.size() == 0
+    }
+
+    def 'test error collection when incorrect version is used'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, 'release', 'release')
+        project.dependencies {
+            runtimeClasspath 'foo:bar:1.0+'
+        }
+
+        when:
+        task.verifyDependencies()
+
+        then:
+        noExceptionThrown()
+        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        holderExtension.collector.size() == 1
+        def violations = holderExtension.collector[project]
+        violations.versionSelectorViolations.size() == 1
+        def violation = violations.versionSelectorViolations.first()
+        violation.dependency.group == 'foo'
+        violation.dependency.name == 'bar'
     }
 
 
-    Task setupProjectAndTask(String libraryStatus, String projectStatus) {
-        Project project = ProjectBuilder.builder().build()
+    Task setupProjectAndTask(Project project, String libraryStatus, String projectStatus) {
+        project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
@@ -109,30 +190,5 @@ class VerifyPublicationTaskSpec extends Specification {
 
         def splitId = DUMMY_LIBRARY.split(":")
         [(new DefaultModuleVersionIdentifier(splitId[0], splitId[1], splitId[2])): detailsMock]
-    }
-
-    private String errorMessageTemplate(String libraryStatus, String projectStatus) {
-        """
-        Module 'foo:bar' resolved to version '1.0'.
-        It cannot be used because it has status: '$libraryStatus' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release].
-        *** OPTIONS ***
-        1) Use a specific module version with higher status or 'latest.$projectStatus'.
-        2) Ignore this check with ONE of the following build.gradle configurations.
-        
-          a) Single module project - place following configuration after plugins section in your project build.gradle file
-          
-          nebulaPublishVerification {
-              ignore('foo:bar:1.0')
-          }
-          
-          b) Multi module project - place following configuration after plugins section in your root project build.gradle file
-          
-          allprojects {
-              nebulaPublishVerification {
-                  ignore('foo:bar:1.0')
-              }
-          }
-
-        """.stripIndent()
     }
 }

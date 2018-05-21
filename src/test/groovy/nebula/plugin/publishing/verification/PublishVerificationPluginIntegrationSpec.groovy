@@ -44,10 +44,15 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
     def 'should fail when any library status is less then published project status'() {
         given:
         def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        builder.addModule(expectedFailureDependency2)
+        def dependencies = """
+             compile '$expectedFailureDependency'
+             compile '$expectedFailureDependency2'
+        """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -55,7 +60,50 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency2, projectStatus)
+    }
+
+    def 'should fail when any library has incorrect version pattern'() {
+        given:
+        def expectedFailureDependency = 'foo:bar:1.1+'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule('foo:bar:1.1')
+        def dependencies = """
+             compile '$expectedFailureDependency'
+        """
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertVersionFailureMessage(result, expectedFailureDependency)
+    }
+
+    def 'should fail when any library has incorrect version pattern and dependencies with lower status'() {
+        given:
+        def expectedFailureDependency = 'foo:bar:1.1+'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule('foo:bar:1.1')
+        builder.addModule(expectedFailureDependency2)
+        def dependencies = """
+             compile '$expectedFailureDependency'
+             compile '$expectedFailureDependency2'
+        """
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertVersionFailureMessage(result, expectedFailureDependency)
+        assertStatusFailureMessage(result, expectedFailureDependency2, projectStatus)
     }
 
     def 'should fail when any library status is less then published project status and verification task is directly called'() {
@@ -69,10 +117,10 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
         when:
-        def result = runTasksWithFailure('build', 'verifyPublication')
+        def result = runTasksWithFailure('build', 'verifyPublicationReport')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with dependency lock'() {
@@ -90,7 +138,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with dependency recommendation plugin'() {
@@ -112,7 +160,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with resolution rules plugin using replace rule'() {
@@ -136,7 +184,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with resolution rules plugin using alignment rule'() {
@@ -158,7 +206,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with resolution rules plugin using substitution rule'() {
@@ -177,7 +225,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with resolution rules plugin using reject rule'() {
@@ -195,7 +243,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with maven publish'() {
@@ -212,7 +260,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaPublicationToDistMavenRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with artifactoryPublish'() {
@@ -229,7 +277,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'artifactoryPublish')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with artifactoryDeploy'() {
@@ -246,7 +294,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'artifactoryDeploy')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with forced dependency'() {
@@ -271,7 +319,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should work with latest.integration'() {
@@ -288,7 +336,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'test runtime configuration should not be checked'() {
@@ -367,8 +415,10 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         given:
         def projectStatus = 'release'
         def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
+        builder.addModule(expectedFailureDependency2)
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph)
         File mavenRepoDir = generator.generateTestMavenRepo()
@@ -376,6 +426,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """   
             allprojects {        
                 ${applyPlugin(IvyPublishPlugin)}
+                ${applyPlugin(PublishVerificationPlugin)}
                 apply plugin: 'java'
                 
                 group = 'test.nebula.netflix'
@@ -393,11 +444,15 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             }
         """
 
-        addSubproject('common')
+        addSubproject('common', """
+            dependencies {
+                compile '$expectedFailureDependency'
+            }
+        """)
         addSubproject('consumer', """
         dependencies {
            compile project(':common')
-           compile '$expectedFailureDependency'
+           compile '$expectedFailureDependency2'
         }
         """)
 
@@ -405,7 +460,66 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency2, projectStatus)
+
+    }
+
+    def 'should work with multi project build using parallel build'() {
+        given:
+        def projectStatus = 'release'
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(expectedFailureDependency)
+        builder.addModule(expectedFailureDependency2)
+        DependencyGraph graph = builder.build()
+        def generator = new GradleDependencyGenerator(graph)
+        File mavenRepoDir = generator.generateTestMavenRepo()
+
+        buildFile << """   
+            allprojects {        
+                ${applyPlugin(IvyPublishPlugin)}
+                ${applyPlugin(PublishVerificationPlugin)}
+                apply plugin: 'java'
+                
+                group = 'test.nebula.netflix'
+                status = '$projectStatus'            
+                version = '1.0'
+                
+                           
+                repositories {
+                    maven {
+                        url "file://$mavenRepoDir.canonicalPath"
+                    }
+                }
+                
+                ${publishingRepos()}
+            }
+        """
+
+        addSubproject('common', """
+            dependencies {
+                compile '$expectedFailureDependency'
+            }
+        """)
+        addSubproject('consumer', """
+        dependencies {
+           compile project(':common')
+           compile '$expectedFailureDependency2'
+        }
+        """)
+
+        settingsFile.text << """
+            org.gradle.parallel=true
+        """
+
+        when:
+        def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency2, projectStatus)
 
     }
 
@@ -422,6 +536,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)} 
             ${applyPlugin(ResolutionRulesPlugin)}
             ${applyPlugin(DependencyLockPlugin)}
             ${applyPlugin(DependencyRecommendationsPlugin)}
@@ -439,7 +554,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             }
            
             dependencies {
-                compile '$expectedFailureDependency'
+                implementation '$expectedFailureDependency'
             } 
             
             ${publishingRepos()}
@@ -449,7 +564,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksWithFailure('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        assertFailureMessage(result, expectedFailureDependency, projectStatus)
+        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
     def 'should configure with java-base'() {
@@ -458,6 +573,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java-base'
          
             group = 'test.nebula.netflix'            
@@ -478,6 +594,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java'
          
             group = 'test.nebula.netflix'
@@ -504,6 +621,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def unresolvableDependency = 'unknown:unknown:1.0-SNAPSHOT'
         buildFile << """           
             ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java'
          
             group = 'test.nebula.netflix'
@@ -524,6 +642,53 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         assertStandardOutputOrError(result, "Cannot resolve external dependency $unresolvableDependency")
     }
 
+    def 'composite build should not break the plugin'() {
+        given:
+        def projectName = projectDir.name
+
+        def includedProjectRootDir = new File(projectDir.parentFile, projectName + "-composite")
+        includedProjectRootDir.mkdir()
+        def includedProjectBuildFile = new File(includedProjectRootDir, 'build.gradle')
+
+        includedProjectBuildFile << """
+            apply plugin: 'java'
+            
+            group = 'test.nebula.netflix'           
+            version = '1.0'
+        """
+
+        def includedProjectSettingsFile = new File(includedProjectRootDir, 'settings.gradle')
+        includedProjectSettingsFile.text = """\
+            rootProject.name='included-project'          
+        """
+
+        buildFile << """
+            ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
+            apply plugin: 'java'
+            
+            group = 'test.nebula.netflix'           
+            version = '1.0'
+            
+            dependencies {
+                compile 'test.nebula.netflix:included-project:1.0'
+            }
+
+            ${publishingRepos()}
+        """
+
+        settingsFile.text = """\
+            rootProject.name='consuming-project'
+            includeBuild('$includedProjectRootDir')
+        """
+
+        when:
+        runTasksSuccessfully('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        noExceptionThrown()
+    }
+
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph, new File(projectDir, "testrepogen").canonicalPath)
@@ -536,6 +701,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         """           
             ${applyPlugin(IvyPublishPlugin)}
             ${applyPlugin(MavenPublishPlugin)}
+            ${applyPlugin(PublishVerificationPlugin)}
             ${applyPlugin(ResolutionRulesPlugin)}
             ${applyPlugin(DependencyLockPlugin)}
             ${applyPlugin(DependencyRecommendationsPlugin)}
@@ -579,12 +745,20 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         """
     }
 
-    private void assertFailureMessage(ExecutionResult result, String expectedFailureDependency, String projectStatus) {
+    private void assertStatusFailureMessage(ExecutionResult result, String expectedFailureDependency, String projectStatus) {
         int lastColon = expectedFailureDependency.lastIndexOf(':')
         String groupAndName = expectedFailureDependency.substring(0, lastColon)
         String version = expectedFailureDependency.substring(lastColon + 1, expectedFailureDependency.size())
-        assertStandardOutputOrError(result, "Module '$groupAndName' resolved to version '${version}'.")
-        assertStandardOutputOrError(result, "It cannot be used because it has status: 'integration' which is less then your current project status: '$projectStatus' in your status scheme: [integration, milestone, release]")
+        assertStandardOutputOrError(result, "Following dependencies have incorrect status lower then your current project status '$projectStatus':")
+        assertStandardOutputOrError(result, "'$groupAndName' resolved to version '${version}', status: 'integration' in status scheme: [integration, milestone, release]")
+    }
+
+    private void assertVersionFailureMessage(ExecutionResult result, String expectedFailureDependency) {
+        int lastColon = expectedFailureDependency.lastIndexOf(':')
+        String groupAndName = expectedFailureDependency.substring(0, lastColon)
+        String version = expectedFailureDependency.substring(lastColon + 1, expectedFailureDependency.size())
+        assertStandardOutputOrError(result, "Following dependencies have version definition with patterns which resolves into unexpected version.")
+        assertStandardOutputOrError(result, "'$groupAndName' with requested version '${version}'")
     }
 
     private void assertStandardOutputOrError(ExecutionResult result, String message) {
