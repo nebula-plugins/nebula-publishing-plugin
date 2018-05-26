@@ -245,7 +245,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         b.@rev == '1.0'
     }
 
-    def 'conflict resolution reflected in published metadata'() {
+    def 'conflict resolution with exactly requested version will keep requested version'() {
         buildFile << """\
             apply plugin: 'java'
 
@@ -263,7 +263,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
 
         then:
         def d = findDependency('guava')
-        d.@rev == '18.0'
+        d.@rev == '16.0'
     }
 
     def 'module replacements reflected in published metadata'() {

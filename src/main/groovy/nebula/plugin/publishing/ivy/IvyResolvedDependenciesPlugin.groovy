@@ -15,14 +15,12 @@
  */
 package nebula.plugin.publishing.ivy
 
-import org.gradle.api.BuildCancelledException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionSelectorScheme
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.ExactVersionSelector
-import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.SubVersionSelector
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.VersionSelector
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.IvyPublication
@@ -70,12 +68,12 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
                                 if (dep.@rev) {
                                     def version = dep.@rev as String
                                     VersionSelector selector = parseSelector(version)
-                                    setVersionConstraint(selector, version, dep)
+                                    setVersionConstraint(selector, version, dep, mvid)
+                                } else {
+                                    //no requested version we use selected
+                                    dep.@rev = mvid.version
                                 }
-
-                                dep.@org = mvid.group
-                                dep.@name = mvid.name
-                                dep.@rev = mvid.version
+                                updateReplacedModules(mvid, group, name, dep)
                             }
                         }
                     }
@@ -90,9 +88,19 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
         selector
     }
 
-    private void setVersionConstraint(VersionSelector selector, String version, Node dep) {
+    private void setVersionConstraint(VersionSelector selector, String version, Node dep, ModuleVersionIdentifier selected) {
         if (!(selector instanceof ExactVersionSelector)) {
+            //requested dynamic version will be replaced by specific selected
             dep.@revConstraint = version
+            dep.@rev = selected.version
+        }
+    }
+
+    private void updateReplacedModules(ModuleVersionIdentifier mvid, String group, String name, Node dep) {
+        if (mvid.group != group || mvid.name != name) {
+            dep.@org = mvid.group
+            dep.@name = mvid.name
+            dep.@rev = mvid.version
         }
     }
 }
