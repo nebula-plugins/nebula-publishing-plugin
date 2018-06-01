@@ -5,7 +5,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.util.GradleVersion
 
 class MavenNebulaPublishPlugin implements Plugin<Project> {
     static final String MAVEN_WAR = 'nebulaPublish.maven.war'
@@ -25,26 +24,27 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
             project.ext.set(MAVEN_JAR, true)
         }
 
-        if (GradleVersion.current().baseVersion >= GradleVersion.version("4.8")) {
-            project.afterEvaluate { p ->
-                configurePublications(p)
-            }
-        } else {
-            configurePublications(project)
-        }
-    }
-
-    private void configurePublications(Project p) {
-        p.publishing {
+        project.publishing {
             publications {
                 nebula(MavenPublication) {
-                    if (p.ext.get(MAVEN_WAR)) {
-                        from p.components.web
-                    } else if (p.ext.get(MAVEN_JAR)) {
-                        from p.components.java
+                    if (! project.state.executed) {
+                        //configuration when STABLE_PUBLISHING is enabled
+                        project.afterEvaluate { p ->
+                            configurePublication(it, p)
+                        }
+                    } else {
+                        configurePublication(it, project)
                     }
                 }
             }
+        }
+    }
+
+    private void configurePublication(MavenPublication publication, Project p) {
+        if (p.ext.get(MAVEN_WAR)) {
+            publication.from p.components.web
+        } else if (p.ext.get(MAVEN_JAR)) {
+            publication.from p.components.java
         }
     }
 }
