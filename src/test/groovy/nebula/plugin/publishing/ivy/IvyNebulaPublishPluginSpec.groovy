@@ -1,9 +1,11 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.test.IntegrationSpec
+import spock.lang.Ignore
 
 class IvyNebulaPublishPluginSpec extends IntegrationSpec {
 
+    @Ignore //TODO ignored because we needed rollback to gradle 4.7 so we can publish, enable when we move to 4.8
     def 'should successful publish with stable publishing feature flag'() {
         given:
         buildFile << """           

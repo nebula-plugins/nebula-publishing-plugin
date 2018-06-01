@@ -1,9 +1,11 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationSpec
+import spock.lang.Ignore
 
 class MavenPublishPluginSpec extends IntegrationSpec {
 
+    @Ignore //TODO ignored because we needed rollback to gradle 4.7 so we can publish, enable when we move to 4.8
     def 'should successful publish with stable publishing feature flag'() {
         buildFile << """           
             ${applyPlugin(MavenPublishPlugin)}          
