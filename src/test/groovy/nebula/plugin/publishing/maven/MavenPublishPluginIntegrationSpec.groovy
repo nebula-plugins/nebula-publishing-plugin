@@ -18,8 +18,6 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.gradle.testkit.runner.GradleRunner
-import spock.lang.Ignore
 
 class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
