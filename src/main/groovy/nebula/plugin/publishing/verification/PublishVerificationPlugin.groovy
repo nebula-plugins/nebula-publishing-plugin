@@ -3,7 +3,7 @@ package nebula.plugin.publishing.verification
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentMetadataDetails
-import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -14,6 +14,8 @@ import org.gradle.util.GradleVersion
 import java.util.concurrent.ConcurrentHashMap
 
 class PublishVerificationPlugin implements Plugin<Project> {
+
+    public static final Attribute<String> STATUS_SCHEME = Attribute.of('org.netflix.internal.statusScheme', String)
 
     @Override
     void apply(Project project) {
@@ -32,14 +34,13 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
         createVerificationViolationsCollector(project)
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = componentMetadataCollector(project)
+        generateStatusSchemeAttribute(project)
         project.afterEvaluate {
             SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
             if (!sourceSet) return
             VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
             VerificationReportTask reportTask = getOrCreateReportTask(project, verificationTask)
 
-            verificationTask.details = detailsCollector
             verificationTask.ignore = extension.ignore
             verificationTask.ignoreGroups = extension.ignoreGroups
             verificationTask.sourceSet = sourceSet
@@ -55,16 +56,16 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
-    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> componentMetadataCollector(Project p) {
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> detailsCollector = createCollector(p)
+    private void generateStatusSchemeAttribute(Project p) {
         p.dependencies {
             components {
                 all { ComponentMetadataDetails details ->
-                    detailsCollector.put(details.id, details)
+                    attributes {
+                        attribute STATUS_SCHEME, details.statusScheme.join(',')
+                    }
                 }
             }
         }
-        detailsCollector
     }
 
     private VerificationReportTask getOrCreateReportTask(Project project, VerifyPublicationTask verificationTask) {
@@ -78,18 +79,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
         verificationReportTask.dependsOn(verificationTask)
         return verificationReportTask
-    }
-
-    private Map<ModuleVersionIdentifier, ComponentMetadataDetails> createCollector(Project project) {
-        //we need one collector per the whole build. Due caching in gradle metadata rules are invoked only once
-        //which can cause that we will miss some metadata
-        //root project doesn't have to fulfil condition for plugin setup so first submodule will create extension if it not created
-        MetadataCollectorHolderExtension rootExtension = project.rootProject.extensions.findByType(MetadataCollectorHolderExtension)
-        if (rootExtension == null) {
-            return project.rootProject.extensions.create('metadataCollectorHolderExtension', MetadataCollectorHolderExtension).collector
-        } else {
-            return rootExtension.collector
-        }
     }
 
     private void configureHooks(Project project, VerificationReportTask reportTask) {
@@ -111,10 +100,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
                 artifactoryDeployTask.dependsOn(reportTask)
             }
         }
-    }
-
-    static class MetadataCollectorHolderExtension {
-        Map<ModuleVersionIdentifier, ComponentMetadataDetails> collector = new ConcurrentHashMap<>()
     }
 
     static class VerificationViolationsCollectorHolderExtension {

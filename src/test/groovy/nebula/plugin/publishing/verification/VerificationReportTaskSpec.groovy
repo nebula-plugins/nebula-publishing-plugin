@@ -56,7 +56,7 @@ class VerificationReportTaskSpec extends Specification {
         container << [
                 new ViolationsContainer(
                         statusViolations: [
-                                new StatusVerificationViolation(id: Mock(ModuleVersionIdentifier), metadata: Mock(ComponentMetadataDetails))
+                                new StatusVerificationViolation(id: Mock(ModuleVersionIdentifier))
                         ]),
                 new ViolationsContainer(
                         versionSelectorViolations: [
