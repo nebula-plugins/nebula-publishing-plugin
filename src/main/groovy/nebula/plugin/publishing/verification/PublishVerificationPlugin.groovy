@@ -28,7 +28,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private static boolean shouldApplyPlugin() {
-        GradleVersion minVersion = GradleVersion.version("4.4")
+        GradleVersion minVersion = GradleVersion.version("4.8")
         GradleVersion.current() >= minVersion
     }
 
