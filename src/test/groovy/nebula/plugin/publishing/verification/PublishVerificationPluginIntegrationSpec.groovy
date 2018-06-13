@@ -588,7 +588,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         noExceptionThrown()
     }
 
-    def 'plugin should be applied when gradle 4.8 and higher'() {
+    def 'plugin should be applied when gradle 4.4 and higher'() {
         given:
         gradleVersion = version
 
@@ -612,8 +612,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         where:
         version | taskPresent
-        "4.7"   | false
-        "4.8"   | true
+        "4.3"   | false
+        "4.4"   | true
     }
 
     def 'unresolved dependencies should fail fast with clear message'() {

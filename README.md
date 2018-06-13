@@ -234,7 +234,7 @@ Eliminates this boilerplate:
     
 ### nebula.publish-verification
 
-Plugin features are enabled only for Gradle 4.8 and higher.
+Plugin features are enabled only for Gradle 4.4 and higher.
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
 #### Usage
