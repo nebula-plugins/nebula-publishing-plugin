@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '7.1.6'
+    id 'nebula.plugin-plugin' version '7.1.7'
     id 'org.ysb33r.gradletest' version '0.5.4'
     id 'java-gradle-plugin'
 }
