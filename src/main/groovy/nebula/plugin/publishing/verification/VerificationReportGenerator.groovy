@@ -39,7 +39,7 @@ class VerificationReportGenerator {
                 builder.append("\n${INDENTATION}Dependencies for ${key}:\n")
                 value.statusViolations.each {
                     builder.append(INDENTATION + "    '${it.id.group}:${it.id.name}' resolved to version '${it.id.version}'," +
-                            " status: '${it.status}' in status scheme: ${it.statusScheme}\n")
+                            " status: '${it.metadata.status}' in status scheme: ${it.metadata.statusScheme}\n")
                 }
             }
         }

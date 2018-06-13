@@ -6,8 +6,6 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 class StatusVerificationViolation {
     /*Identification of module which has a lower status then project status*/
     ModuleVersionIdentifier id
-    /*Violating status*/
-    String status
-    /*statusScheme of violating module*/
-    List<String> statusScheme
+    /*Metadata which contains actual status of resolved module and its statusScheme*/
+    ComponentMetadataDetails metadata
 }

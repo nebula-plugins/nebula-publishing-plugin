@@ -1,5 +1,6 @@
 package nebula.plugin.publishing.verification
 
+import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import spock.lang.Specification
@@ -118,7 +119,14 @@ class VerificationReportGeneratorSpec extends Specification {
 
     StatusVerificationViolation createStatusViolation(String group, String name, String version,
                                                       String status = "integration", List<String> statusScheme = ['integration', 'candidate', 'release']) {
-        new StatusVerificationViolation(id: DefaultModuleVersionIdentifier.newId(group, name, version), status: status, statusScheme: statusScheme)
+        new StatusVerificationViolation(id: DefaultModuleVersionIdentifier.newId(group, name, version),metadata: Mock(ComponentMetadataDetails) {
+            getStatus() >> {
+                status
+            }
+            getStatusScheme() >> {
+                statusScheme
+            }
+        })
     }
 
     VersionSelectorVerificationViolation createVersionViolation(String group, String name, String version) {
@@ -135,7 +143,7 @@ class VerificationReportGeneratorSpec extends Specification {
             if (violations.statusViolations.size() > 0) {
                 assert report.contains("Dependencies for $project:")
                 violations.statusViolations.each { violation ->
-                    assert report.contains("    '$violation.id.module' resolved to version '$violation.id.version', status: '$violation.status' in status scheme: $violation.statusScheme")
+                    assert report.contains("    '$violation.id.module' resolved to version '$violation.id.version', status: '$violation.metadata.status' in status scheme: $violation.metadata.statusScheme")
                 }
             }
         }
