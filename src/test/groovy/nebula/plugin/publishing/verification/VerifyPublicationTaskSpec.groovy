@@ -3,11 +3,11 @@ package nebula.plugin.publishing.verification
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import nebula.test.dependencies.ModuleBuilder
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
-import org.gradle.api.internal.artifacts.DefaultModuleVersionIdentifier
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -62,7 +62,7 @@ class VerifyPublicationTaskSpec extends Specification {
         def violation = violations.statusViolations.first()
         violation.id.group == 'foo'
         violation.id.name == 'bar'
-        violation.metadata.status == libraryStatus
+        violation.status == libraryStatus
 
         where:
         libraryStatus | projectStatus
@@ -145,21 +145,20 @@ class VerifyPublicationTaskSpec extends Specification {
         project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
-        populateAndSetRepository(project)
+        populateAndSetRepository(project, libraryStatus)
         createConfigurations(project)
 
         def task = project.task('verify', type: VerifyPublicationTask)
         task.configure {
-            details = createCollectedComponentMetadataDetails(libraryStatus)
             ignore = Collections.emptySet()
             ignoreGroups = Collections.emptySet()
             sourceSet = project.sourceSets.main
         }
     }
 
-    private void populateAndSetRepository(Project project) {
+    private void populateAndSetRepository(Project project, String libraryStatus) {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
-        builder.addModule(DUMMY_LIBRARY)
+        builder.addModule(new ModuleBuilder(DUMMY_LIBRARY).setStatus(libraryStatus).build())
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph)
         generator.generateTestIvyRepo()
@@ -180,15 +179,14 @@ class VerifyPublicationTaskSpec extends Specification {
         project.dependencies {
             runtimeClasspath DUMMY_LIBRARY
         }
-    }
-
-    private Map<DefaultModuleVersionIdentifier, ComponentMetadataDetails> createCollectedComponentMetadataDetails(String libraryStatus) {
-        def detailsMock = Mock(ComponentMetadataDetails) {
-            getStatus() >> libraryStatus
-            getStatusScheme() >> ['integration', 'milestone', 'release']
+        project.dependencies {
+            components {
+                all { ComponentMetadataDetails details ->
+                    attributes {
+                        attribute PublishVerificationPlugin.STATUS_SCHEME, details.statusScheme.join(',')
+                    }
+                }
+            }
         }
-
-        def splitId = DUMMY_LIBRARY.split(":")
-        [(new DefaultModuleVersionIdentifier(splitId[0], splitId[1], splitId[2])): detailsMock]
     }
 }

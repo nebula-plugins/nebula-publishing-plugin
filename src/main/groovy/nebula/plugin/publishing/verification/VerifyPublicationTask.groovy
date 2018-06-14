@@ -14,8 +14,6 @@ import org.gradle.api.tasks.TaskAction
 class VerifyPublicationTask extends DefaultTask {
 
     @Input
-    Map<ModuleVersionIdentifier, ComponentMetadataDetails> details
-    @Input
     Set<ModuleIdentifier> ignore
     @Input
     Set<String> ignoreGroups
@@ -27,7 +25,7 @@ class VerifyPublicationTask extends DefaultTask {
         if (sourceSet == null) throw new IllegalStateException('sourceSet must be configured')
         Configuration runtimeClasspath = project.configurations.getByName(sourceSet.getRuntimeClasspathConfigurationName())
         Set<DependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
-        List<StatusVerificationViolation> violations = new StatusVerification(ignore, ignoreGroups, project.status).verify(firstLevel, details)
+        List<StatusVerificationViolation> violations = new StatusVerification(ignore, ignoreGroups, project.status).verify(firstLevel)
 
         List<Dependency> definedDependencies = getDefinedDependencies()
         List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore, ignoreGroups).verify(definedDependencies)
