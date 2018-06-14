@@ -1,11 +1,15 @@
 package nebula.plugin.publishing.verification
 
-import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.attributes.Attribute
 
 class StatusVerification {
+
+    private static final STATUS = Attribute.of("org.gradle.status", String.class)
+
     Set<ModuleIdentifier> ignore
     Set<String> ignoreGroups
     def targetStatus
@@ -16,24 +20,38 @@ class StatusVerification {
         this.targetStatus = targetStatus
     }
 
-    List<StatusVerificationViolation> verify(Set<ResolvedDependencyResult> firstLevelDependencies,
-                                             Map<ModuleVersionIdentifier, ComponentMetadataDetails> details) {
+    List<StatusVerificationViolation> verify(Set<ResolvedDependencyResult> firstLevelDependencies) {
         Set<ResolvedDependencyResult> forVerification = firstLevelDependencies
                 .findAll { ! ignoreGroups.contains(it.selected.moduleVersion.group) }
                 .findAll { ! ignore.contains(it.selected.moduleVersion.module) }
         forVerification.collect {
             ModuleVersionIdentifier id = it.selected.moduleVersion
-            ComponentMetadataDetails metadata = details[id]
             //we cannot collect metadata for dependencies on another modules in multimodule build
-            if (metadata != null) {
-                int projectStatus = metadata.statusScheme.indexOf(targetStatus)
-                int moduleStatus = metadata.statusScheme.indexOf(metadata.status)
+            if (!(it.selected.id instanceof ProjectComponentIdentifier) && hasStatusScheme(it)) {
+                def statusScheme = getStatusScheme(it)
+                int projectStatus = statusScheme.indexOf(targetStatus)
+                def status = getStatus(it)
+                int moduleStatus = statusScheme.indexOf(status)
                 if (moduleStatus < projectStatus) {
-                    new StatusVerificationViolation(id: id, metadata: metadata)
+                    new StatusVerificationViolation(id: id, status: status, statusScheme: statusScheme)
                 } else
                     null
             } else
                 null
         }.findAll { it != null }
+    }
+
+    private String getStatus(ResolvedDependencyResult resolvedDependencyResult) {
+        resolvedDependencyResult.selected.variant.attributes.getAttribute(STATUS)
+    }
+
+    private boolean hasStatusScheme(ResolvedDependencyResult resolvedDependencyResult) {
+        //some dependencies can miss setting status scheme because gradle dont invoke metadata rules for
+        //dependencies which are also defined in buildscript classpath
+        resolvedDependencyResult.selected.variant.attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME) != null
+    }
+
+    private List<String> getStatusScheme(ResolvedDependencyResult resolvedDependencyResult) {
+        resolvedDependencyResult.selected.variant.attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME).split(',').toList()
     }
 }
