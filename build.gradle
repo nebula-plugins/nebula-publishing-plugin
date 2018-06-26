@@ -76,11 +76,6 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
         }
 
-        mavenExcludes {
-            id = 'nebula.maven-excludes'
-            implementationClass = 'nebula.plugin.publishing.maven.MavenExcludesPlugin'
-        }
-
         mavenManifest {
             id = 'nebula.maven-manifest'
             implementationClass = 'nebula.plugin.publishing.maven.MavenManifestPlugin'
@@ -114,11 +109,6 @@ gradlePlugin {
         ivyCompileOnly {
             id = 'nebula.ivy-compile-only'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
-        }
-
-        ivyExcludes {
-            id = 'nebula.ivy-excludes'
-            implementationClass = 'nebula.plugin.publishing.ivy.IvyExcludesPlugin'
         }
 
         ivyManifest {
@@ -195,13 +185,6 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
-        mavenExcludes {
-            id = 'nebula.maven-excludes'
-            displayName = 'Nebula Maven Excludes Plugin'
-            description = 'Insert excludes into the pom when individual dependencies have exclude statements'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
         mavenManifest {
             id = 'nebula.maven-manifest'
             displayName = 'Nebula Maven Manifest Plugin'
@@ -241,13 +224,6 @@ pluginBundle {
             id = 'nebula.ivy-compile-only'
             displayName = 'Nebula Ivy CompileOnly Plugin'
             description = 'Deal with compileOnly configuration'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyExcludes {
-            id = 'nebula.ivy-excludes'
-            displayName = 'Nebula Ivy Excludes Plugin'
-            description = 'Insert excludes into the ivy.xml when individual dependencies have exclude statements'
             tags = ['nebula', 'publish', 'ivy']
         }
 

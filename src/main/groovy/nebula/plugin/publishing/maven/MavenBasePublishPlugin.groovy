@@ -17,9 +17,6 @@ package nebula.plugin.publishing.maven
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 
 class MavenBasePublishPlugin implements Plugin<Project> {
@@ -30,13 +27,9 @@ class MavenBasePublishPlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 withType(MavenPublication) {
-                    pom.withXml { XmlProvider xml ->
-                        def root = xml.asNode()
-                        root.appendNode('name', project.name)
-
-                        // if there is no description block, Maven Central will
-                        // not accept the artifact, but it is OK if it is blank
-                        root.appendNode('description', project.description)
+                    pom {
+                        name = project.name
+                        description = project.description
                     }
                 }
             }

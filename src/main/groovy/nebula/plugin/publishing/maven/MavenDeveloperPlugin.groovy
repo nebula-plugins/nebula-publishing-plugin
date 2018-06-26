@@ -39,29 +39,22 @@ class MavenDeveloperPlugin implements Plugin<Project> {
             project.publishing {
                 publications {
                     withType(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
+                        pom.developers {
                             def myContacts = contactsPlugin.getAllContacts()
-                            if (myContacts) {
-                                def developersNode = xml.asNode().appendNode('developers')
-                                myContacts.each { Contact contact ->
-                                    def devNode = developersNode.appendNode('developer')
+                            myContacts.each { Contact contact ->
+                                developer {
                                     if (contact.github) {
-                                        devNode.appendNode('id', contact.github)
+                                        id =  contact.github
                                     } else if (contact.twitter) {
-                                        devNode.appendNode('id', contact.twitter)
+                                        id = contact.twitter
                                     }
-
                                     if (contact.moniker) {
-                                        devNode.appendNode('name', contact.moniker)
+                                        name = contact.moniker
                                     }
 
-                                    devNode.appendNode('email', contact.email)
-
+                                    email = contact.email
                                     if (contact.roles) {
-                                        def rolesNode = devNode.appendNode('roles')
-                                        contact.roles.each { String roleString ->
-                                            rolesNode.appendNode('role', roleString)
-                                        }
+                                        roles = contact.roles
                                     }
                                 }
                             }

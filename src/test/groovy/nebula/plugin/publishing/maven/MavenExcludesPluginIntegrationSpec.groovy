@@ -24,7 +24,6 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-excludes'
                 id 'nebula.maven-nebula-publish'
             }
 
