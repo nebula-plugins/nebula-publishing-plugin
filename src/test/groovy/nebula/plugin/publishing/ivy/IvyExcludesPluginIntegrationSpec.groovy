@@ -26,7 +26,6 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.ivy-excludes'
                 id 'nebula.ivy-nebula-publish'
             }
 

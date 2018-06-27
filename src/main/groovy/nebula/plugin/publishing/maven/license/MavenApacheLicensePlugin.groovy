@@ -18,9 +18,7 @@ package nebula.plugin.publishing.maven.license
 import nebula.plugin.publishing.maven.MavenBasePublishPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 
 class MavenApacheLicensePlugin implements Plugin<Project> {
@@ -31,16 +29,12 @@ class MavenApacheLicensePlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 nebula(MavenPublication) {
-                    pom.withXml { XmlProvider xml ->
-                        def licensesNode = xml.asNode()?.licenses
-                        if (!licensesNode) {
-                            licensesNode = xml.asNode().appendNode('licenses')
+                    pom.licenses {
+                        license {
+                            name = 'The Apache Software License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution = 'repo'
                         }
-                        def apache = licensesNode.appendNode('license')
-                        apache.appendNode('name', 'The Apache Software License, Version 2.0')
-                        apache.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
-                        apache.appendNode('distribution', 'repo'
-                        )
                     }
                 }
             }

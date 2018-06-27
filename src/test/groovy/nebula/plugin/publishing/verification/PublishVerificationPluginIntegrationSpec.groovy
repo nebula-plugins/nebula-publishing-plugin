@@ -1,6 +1,7 @@
 package nebula.plugin.publishing.verification
 
 import nebula.plugin.dependencylock.DependencyLockPlugin
+import nebula.plugin.publishing.ivy.IvyNebulaPublishPlugin
 import nebula.plugin.publishing.ivy.IvyPublishPlugin
 import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.plugin.resolutionrules.ResolutionRulesPlugin
@@ -593,7 +594,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         gradleVersion = version
 
         buildFile << """           
-            ${applyPlugin(IvyPublishPlugin)}
+            ${applyPlugin(IvyNebulaPublishPlugin)}
             ${applyPlugin(PublishVerificationPlugin)}
             apply plugin: 'java'
          

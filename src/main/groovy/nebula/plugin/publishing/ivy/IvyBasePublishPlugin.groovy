@@ -51,16 +51,11 @@ class IvyBasePublishPlugin implements Plugin<Project> {
             publications {
                 withType(IvyPublication) {
                     descriptor.status = project.status
+                    descriptor.description {
+                        text = project.description ?: ''
+                    }
                     descriptor.withXml { XmlProvider xml ->
                         def root = xml.asNode()
-                        def infoNode = root?.info
-                        if (!infoNode) {
-                            infoNode = root.appendNode('info')
-                        } else {
-                            infoNode = infoNode[0]
-                        }
-                        infoNode.appendNode('description', [:], project.description ?: '')
-
                         def configurationsNode = root?.configurations
                         if(!configurationsNode) {
                             configurationsNode = root.appendNode('configurations')
