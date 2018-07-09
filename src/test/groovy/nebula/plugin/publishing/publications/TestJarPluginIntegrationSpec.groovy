@@ -30,6 +30,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         def graph = new DependencyGraphBuilder()
                 .addModule('test:compileDep:0.0.1')
                 .addModule('test:runtimeDep:0.0.1')
+                .addModule('test:excludedDep:0.0.2')
                 .build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
@@ -160,6 +161,67 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         runtimeDep.@org == 'test'
         runtimeDep.@rev == '0.0.1'
         runtimeDep.@conf == 'test->default'
+    }
+
+    def 'global excludes with test dependencies in ivy'() {
+        buildFile << """\
+            ${applyPlugin(IvyPublishPlugin)}
+            ${publishingBlock('ivy')}
+            configurations.all {
+                exclude group: 'test', module: 'excludedDep'
+            }
+
+            dependencies {
+                testCompile 'test:compileDep:0.0.1'
+                testRuntime 'test:runtimeDep:0.0.1'
+            }
+        """.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository')
+
+        def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
+        def configurationList = root.configurations.conf
+
+        then:
+        configurationList.find { it.@name == 'test' }
+
+        when:
+        def dependencyList = root.dependencies.dependency
+
+        then:
+        dependencyList.size() == 2
+
+        when:
+        def publishedArtifacts = root.publications.artifact
+
+        then:
+        publishedArtifacts.find { it.@conf == 'test' }
+
+        when:
+        def compileDep = dependencyList.find { it.@name == 'compileDep' }
+
+        then:
+        compileDep.@org == 'test'
+        compileDep.@rev == '0.0.1'
+        compileDep.@conf == 'test->default'
+
+        when:
+        def runtimeDep = dependencyList.find { it.@name == 'runtimeDep' }
+
+        then:
+        runtimeDep.@org == 'test'
+        runtimeDep.@rev == '0.0.1'
+        runtimeDep.@conf == 'test->default'
+
+        when:
+        def excludedDeps = root.dependencies.exclude
+
+        then:
+        excludedDeps.size() == 2
+        excludedDeps.collect { it.@org.text() }.toSet() == ['test'].toSet()
+        excludedDeps.collect { it.@module.text() }.toSet() == ['excludedDep'].toSet()
+        excludedDeps.collect { it.@conf.text() }.toSet() == ['compile', 'runtime'].toSet()
     }
 
     private def publishingBlock(String type) {
