@@ -102,6 +102,12 @@ class TestJarPlugin implements Plugin<Project> {
                                 }
 
                                 def dependencyList = root.dependencies[0]
+
+                                def excludes = dependencyList.exclude
+                                excludes.each {
+                                    dependencyList.remove(it)
+                                }
+
                                 [project.configurations.testCompile, project.configurations.testRuntime].each {
                                     it.dependencies.each { dep ->
                                         dependencyList.appendNode('dependency', [
@@ -112,6 +118,10 @@ class TestJarPlugin implements Plugin<Project> {
                                                 conf: 'test->default'
                                         ])
                                     }
+                                }
+
+                                excludes.each {
+                                    dependencyList.append(it)
                                 }
                             }
                         }
