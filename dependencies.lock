@@ -43,7 +43,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -73,7 +73,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -103,7 +103,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -133,7 +133,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -193,7 +193,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -223,7 +223,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -253,7 +253,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
@@ -283,7 +283,7 @@
             "requested": "latest.release"
         },
         "com.netflix.nebula:gradle-resolution-rules-plugin": {
-            "locked": "5.1.1",
+            "locked": "6.0.1",
             "requested": "latest.release"
         },
         "com.netflix.nebula:nebula-dependency-recommender": {
