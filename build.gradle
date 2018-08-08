@@ -50,7 +50,9 @@ dependencies {
     testCompile 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
     testCompile 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
     testCompile 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
-    testCompile 'org.jfrog.buildinfo:build-info-extractor-gradle:latest.release'
+    testCompile('org.jfrog.buildinfo:build-info-extractor-gradle:latest.release') {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+    }
     testRuntime files(tasks.createClasspathManifest)
 }
 
