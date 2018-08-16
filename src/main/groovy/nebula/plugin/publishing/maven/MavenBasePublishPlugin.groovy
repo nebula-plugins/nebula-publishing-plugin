@@ -27,12 +27,22 @@ class MavenBasePublishPlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 withType(MavenPublication) {
-                    pom {
-                        name = project.name
-                        description = project.description
+                    if (! project.state.executed) {
+                        project.afterEvaluate { p ->
+                            configureDescription(it, p)
+                        }
+                    } else {
+                        configureDescription(it, project)
                     }
                 }
             }
+        }
+    }
+
+    private void configureDescription(MavenPublication publication, Project p) {
+        publication.pom {
+            name = p.name
+            description = p.description
         }
     }
 }

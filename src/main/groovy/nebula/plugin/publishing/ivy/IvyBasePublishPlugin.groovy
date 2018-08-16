@@ -50,10 +50,14 @@ class IvyBasePublishPlugin implements Plugin<Project> {
         project.publishing {
             publications {
                 withType(IvyPublication) {
-                    descriptor.status = project.status
-                    descriptor.description {
-                        text = project.description ?: ''
+                    if (! project.state.executed) {
+                        project.afterEvaluate { p ->
+                            configureDescription(it, p)
+                        }
+                    } else {
+                        configureDescription(it, project)
                     }
+
                     descriptor.withXml { XmlProvider xml ->
                         def root = xml.asNode()
                         def configurationsNode = root?.configurations
@@ -83,6 +87,13 @@ class IvyBasePublishPlugin implements Plugin<Project> {
                     }
                 }
             }
+        }
+    }
+
+    private void configureDescription(IvyPublication publication, Project p) {
+        publication.descriptor.status = p.status
+        publication.descriptor.description {
+            text = p.description ?: ''
         }
     }
 }

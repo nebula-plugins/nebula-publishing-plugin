@@ -18,6 +18,7 @@ package nebula.plugin.publishing.maven
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Unroll
 
 class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
@@ -60,11 +61,16 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         pom.name == 'maventest'
     }
 
-    def 'description appears in pom'() {
+    @Unroll
+    def 'description appears in pom with #publishingType'() {
         given:
         buildFile << '''\
             description = 'Test description'
         '''.stripIndent()
+
+        settingsFile << """
+        $settingsUpdate
+        """
 
         when:
         runTasks('generatePomFileForNebulaPublication')
@@ -74,6 +80,11 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         def pom = new XmlSlurper().parse(pomFile)
 
         pom.description == 'Test description'
+
+        where:
+        publishingType      | settingsUpdate
+        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing"| ""
     }
 
     def 'creates a jar publication'() {
