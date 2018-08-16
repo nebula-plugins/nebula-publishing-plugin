@@ -16,6 +16,7 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationTestKitSpec
+import spock.lang.Unroll
 
 class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
@@ -34,7 +35,8 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
         '''.stripIndent()
     }
 
-    def 'take info from contacts plugin and place in pom'() {
+    @Unroll
+    def 'take info from contacts plugin and place in pom with #publishingType'() {
         buildFile << '''\
             apply plugin: 'nebula.contacts'
 
@@ -45,6 +47,10 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
                 }
             }
         '''.stripIndent()
+
+        settingsFile << """
+        $settingsUpdate
+        """
 
         when:
         runTasks('generatePomFileForNebulaPublication')
@@ -60,6 +66,12 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
         devs[0].name.text() == 'Example Nebula'
         devs[0].email.text() == 'nebula@example.test'
         devs[0].id.text() == 'nebula-plugins'
+
+        where:
+        publishingType      | settingsUpdate
+        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing"| ""
+
     }
 
     def 'multiple contacts'() {

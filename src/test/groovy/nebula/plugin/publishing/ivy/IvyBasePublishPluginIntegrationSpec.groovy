@@ -18,6 +18,7 @@ package nebula.plugin.publishing.ivy
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Unroll
 
 class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     File publishDir
@@ -78,12 +79,17 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         confs.size() == expectedConfs.size()
     }
 
-    def 'verify ivy.xml is correct'() {
+    @Unroll
+    def 'verify ivy.xml is correct with #publishingType'() {
         buildFile << '''\
             apply plugin: 'java'
 
             description = 'test description'
             '''.stripIndent()
+
+        settingsFile << """
+        $settingsUpdate
+        """
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -101,6 +107,11 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         artifact.@type == 'jar'
         artifact.@ext == 'jar'
         artifact.@conf == 'compile'
+
+        where:
+        publishingType      | settingsUpdate
+        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing"| ""
     }
 
     def 'status changes when set'() {

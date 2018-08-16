@@ -19,9 +19,7 @@ import nebula.plugin.contacts.BaseContactsPlugin
 import nebula.plugin.contacts.Contact
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class MavenDeveloperPlugin implements Plugin<Project> {
     @Override
@@ -38,27 +36,37 @@ class MavenDeveloperPlugin implements Plugin<Project> {
         project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
             project.publishing {
                 publications {
-                    withType(MavenPublication) {
-                        pom.developers {
-                            def myContacts = contactsPlugin.getAllContacts()
-                            myContacts.each { Contact contact ->
-                                developer {
-                                    if (contact.github) {
-                                        id =  contact.github
-                                    } else if (contact.twitter) {
-                                        id = contact.twitter
-                                    }
-                                    if (contact.moniker) {
-                                        name = contact.moniker
-                                    }
-
-                                    email = contact.email
-                                    if (contact.roles) {
-                                        roles = contact.roles
-                                    }
-                                }
+                    withType(MavenPublication) { publication ->
+                        if (! project.state.executed) {
+                            project.afterEvaluate {
+                                configureContacts(contactsPlugin, publication)
                             }
+                        } else {
+                            configureContacts(contactsPlugin, publication)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private void configureContacts(BaseContactsPlugin contactsPlugin, MavenPublication publication) {
+        publication.pom.developers {
+            def myContacts = contactsPlugin.getAllContacts()
+            myContacts.each { Contact contact ->
+                developer {
+                    if (contact.github) {
+                        id = contact.github
+                    } else if (contact.twitter) {
+                        id = contact.twitter
+                    }
+                    if (contact.moniker) {
+                        name = contact.moniker
+                    }
+
+                    email = contact.email
+                    if (contact.roles) {
+                        roles = contact.roles
                     }
                 }
             }
