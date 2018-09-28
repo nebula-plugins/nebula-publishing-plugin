@@ -45,6 +45,7 @@ task createClasspathManifest {
 dependencies {
     compile 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
     compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
+    compile 'com.netflix.nebula:nebula-gradle-interop:latest.release'
 
     testCompile gradleTestKit()
     testCompile 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
