@@ -23,6 +23,7 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
         def dir = new File(projectDir, 'zip')
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
+        settingsFile << "rootProject.name='when-applied-to-non-java-project-do-not-break'"
         buildFile << """\
             plugins {
                 id 'nebula.maven-publish'

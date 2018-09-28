@@ -28,6 +28,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
         def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
         generator.generateTestMavenRepo()
 
+        settingsFile << "rootProject.name='jar-from-compileApi-exists-in-runtime-classpath'"
         buildFile << """\
             plugins {
                 id 'java'
