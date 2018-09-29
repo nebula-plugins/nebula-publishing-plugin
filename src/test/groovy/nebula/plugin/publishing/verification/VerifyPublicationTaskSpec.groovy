@@ -179,14 +179,6 @@ class VerifyPublicationTaskSpec extends Specification {
         project.dependencies {
             runtimeClasspath DUMMY_LIBRARY
         }
-        project.dependencies {
-            components {
-                all { ComponentMetadataDetails details ->
-                    attributes {
-                        attribute PublishVerificationPlugin.STATUS_SCHEME, details.statusScheme.join(',')
-                    }
-                }
-            }
-        }
+        project.dependencies.components.all(StatusSchemaAttributeRule)
     }
 }

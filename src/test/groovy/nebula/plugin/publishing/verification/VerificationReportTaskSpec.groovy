@@ -2,7 +2,6 @@ package nebula.plugin.publishing.verification
 
 import org.gradle.api.BuildCancelledException
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.testfixtures.ProjectBuilder

@@ -1,8 +1,12 @@
 package nebula.plugin.publishing.verification
 
+import com.netflix.nebula.interop.GradleKt
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.CacheableRule
+import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataDetails
+import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
@@ -57,16 +61,19 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private void generateStatusSchemeAttribute(Project p) {
-        p.dependencies {
-            components {
-                all { ComponentMetadataDetails details ->
-                    attributes {
-                        attribute STATUS_SCHEME, details.statusScheme.join(',')
+        if(GradleKt.versionLessThan(p.gradle, "5.0")) {
+            p.dependencies {
+                components {
+                    all { ComponentMetadataDetails details ->
+                        StatusSchemaAttributeRule.modifyAttributes(details)
                     }
                 }
             }
+        } else {
+            p.dependencies.components.all(StatusSchemaAttributeRule)
         }
     }
+
 
     private VerificationReportTask getOrCreateReportTask(Project project, VerifyPublicationTask verificationTask) {
         //root project doesn't have to fulfil condition for plugin setup so first submodule will create report task if it not created
