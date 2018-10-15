@@ -13,7 +13,7 @@ class StatusSchemaAttributeRule implements ComponentMetadataRule {
         modifyAttributes(componentMetadataContext.details)
     }
 
-    static protected void modifyAttributes(ComponentMetadataDetails details) {
+    static void modifyAttributes(ComponentMetadataDetails details) {
         details.attributes {
             attribute PublishVerificationPlugin.STATUS_SCHEME, details.statusScheme.join(',')
         }
