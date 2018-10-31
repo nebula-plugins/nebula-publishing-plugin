@@ -28,15 +28,20 @@ class MavenApacheLicensePlugin implements Plugin<Project> {
 
         project.publishing {
             publications {
-                nebula(MavenPublication) {
-                    pom.licenses {
-                        license {
-                            name = 'The Apache Software License, Version 2.0'
-                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution = 'repo'
-                        }
-                    }
+                nebula(MavenPublication)
+                withType(MavenPublication) { publication ->
+                    configureLicense(publication)
                 }
+            }
+        }
+    }
+
+    def configureLicense(MavenPublication publication) {
+        publication.pom.licenses {
+            license {
+                name = 'The Apache Software License, Version 2.0'
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution = 'repo'
             }
         }
     }
