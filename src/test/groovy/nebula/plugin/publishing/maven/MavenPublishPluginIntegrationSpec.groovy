@@ -43,6 +43,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'mavenpublishingtest'
+            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 

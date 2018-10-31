@@ -47,6 +47,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
+            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
@@ -59,8 +60,8 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             '''
 
         def expectedConfs = [
-            compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
-            runtime: ['compile'], sources: [], test: ['runtime']
+                compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
+                runtime: ['compile'], sources: [], test: ['runtime']
         ]
 
         when:
@@ -109,9 +110,9 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         artifact.@conf == 'compile'
 
         where:
-        publishingType      | settingsUpdate
-        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing"| ""
+        publishingType       | settingsUpdate
+        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing" | ""
     }
 
     def 'status changes when set'() {

@@ -23,7 +23,10 @@ class IvyPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
         def dir = new File(projectDir, 'zip')
         dir.mkdir()
         new File(dir, 'test.txt').text = 'test'
-        settingsFile << "rootProject.name='when-applied-to-non-java-project-do-not-break'"
+        settingsFile << """
+            rootProject.name='when-applied-to-non-java-project-do-not-break'
+            enableFeaturePreview('STABLE_PUBLISHING')
+            """.stripIndent()
         buildFile << """\
             plugins {
                 id 'nebula.ivy-publish'

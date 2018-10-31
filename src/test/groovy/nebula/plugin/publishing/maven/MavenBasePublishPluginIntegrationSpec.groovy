@@ -45,6 +45,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'maventest'
+            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
@@ -82,9 +83,9 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         pom.description == 'Test description'
 
         where:
-        publishingType      | settingsUpdate
-        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing"| ""
+        publishingType       | settingsUpdate
+        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing" | ""
     }
 
     def 'creates a jar publication'() {

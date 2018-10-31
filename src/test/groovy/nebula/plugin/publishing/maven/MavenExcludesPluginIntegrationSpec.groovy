@@ -42,15 +42,16 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'excludesmaven'
+            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 
     def 'add excludes to dependencies'() {
         def graph = new DependencyGraphBuilder()
                 .addModule(new ModuleBuilder('test:a:1.0.0')
-                            .addDependency('test:b:2.0.0')
-                            .addDependency('test:c:0.9.0')
-                            .build())
+                .addDependency('test:b:2.0.0')
+                .addDependency('test:c:0.9.0')
+                .build())
                 .addModule('test:b:1.9.2')
                 .build()
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()

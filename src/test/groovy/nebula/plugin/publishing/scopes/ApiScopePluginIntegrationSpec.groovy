@@ -28,7 +28,10 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
         def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
         generator.generateTestMavenRepo()
 
-        settingsFile << "rootProject.name='jar-from-compileApi-exists-in-runtime-classpath'"
+        settingsFile << """
+            rootProject.name='jar-from-compileApi-exists-in-runtime-classpath'
+            enableFeaturePreview('STABLE_PUBLISHING')
+            """.stripIndent()
         buildFile << """\
             plugins {
                 id 'java'
@@ -60,6 +63,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'testmaven'
+            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         buildFile << """\
@@ -115,6 +119,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'testmaven'
+            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         buildFile << """\
@@ -170,6 +175,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'testivy'
+            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         buildFile << """\

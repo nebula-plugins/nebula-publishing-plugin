@@ -32,6 +32,7 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'developerpomtest'
+            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 
@@ -68,9 +69,9 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
         devs[0].id.text() == 'nebula-plugins'
 
         where:
-        publishingType      | settingsUpdate
-        "STABLE_PUBLISHING" | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing"| ""
+        publishingType       | settingsUpdate
+        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
+        "default publishing" | ""
 
     }
 

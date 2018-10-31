@@ -12,7 +12,10 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         def generator = new GradleDependencyGenerator(graph, "$projectDir/repo")
         generator.generateTestMavenRepo()
 
-        settingsFile.text = 'rootProject.name=\'mytest\''
+        settingsFile.text = """
+            rootProject.name='mytest'
+            enableFeaturePreview('STABLE_PUBLISHING')
+            """.stripIndent()
 
         buildFile << """\
             plugins {
