@@ -251,6 +251,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'ivy']
         }
 
+        publishVerification {
+            id = 'nebula.publish-verification'
+            displayName = 'Nebula Publish Verification Plugin'
+            description = 'Verifies a nebula publication'
+            tags = ['nebula', 'publish']
+        }
+
         compileApi {
             id = 'nebula.compile-api'
             displayName = 'Nebula compileApi Scope Plugin'
