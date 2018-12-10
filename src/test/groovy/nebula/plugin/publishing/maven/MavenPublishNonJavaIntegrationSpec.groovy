@@ -25,7 +25,6 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
         new File(dir, 'test.txt').text = 'test'
         settingsFile << """
             rootProject.name='when-applied-to-non-java-project-do-not-break'
-            enableFeaturePreview('STABLE_PUBLISHING')
             """.stripIndent()
         buildFile << """\
             plugins {

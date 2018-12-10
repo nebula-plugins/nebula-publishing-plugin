@@ -46,7 +46,6 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
 
         settingsFile << '''\
             rootProject.name = 'resolvedmaventest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test/nebula/resolvedmaventest/0.1.0')

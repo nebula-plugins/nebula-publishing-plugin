@@ -47,7 +47,6 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
-            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')
@@ -80,17 +79,12 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         confs.size() == expectedConfs.size()
     }
 
-    @Unroll
-    def 'verify ivy.xml is correct with #publishingType'() {
+    def 'verify ivy.xml is correct'() {
         buildFile << '''\
             apply plugin: 'java'
 
             description = 'test description'
             '''.stripIndent()
-
-        settingsFile << """
-        $settingsUpdate
-        """
 
         when:
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
@@ -108,11 +102,6 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         artifact.@type == 'jar'
         artifact.@ext == 'jar'
         artifact.@conf == 'compile'
-
-        where:
-        publishingType       | settingsUpdate
-        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing" | ""
     }
 
     def 'status changes when set'() {

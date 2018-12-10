@@ -26,7 +26,6 @@ class MavenPublishPluginSpec extends IntegrationSpec {
 
         settingsFile << '''\
             rootProject.name = 'test'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''
 
         when:

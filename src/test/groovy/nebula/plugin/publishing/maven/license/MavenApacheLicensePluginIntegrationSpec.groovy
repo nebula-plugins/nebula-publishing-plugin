@@ -32,7 +32,6 @@ class MavenApacheLicensePluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'apachelicensepomtest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         when:

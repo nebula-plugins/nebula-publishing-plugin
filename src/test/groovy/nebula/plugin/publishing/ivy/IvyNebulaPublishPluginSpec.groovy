@@ -27,7 +27,6 @@ class IvyNebulaPublishPluginSpec extends IntegrationSpec {
 
         settingsFile << '''\
             rootProject.name = 'test'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''
 
         when:

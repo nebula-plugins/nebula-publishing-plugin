@@ -31,7 +31,6 @@ class MavenManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'manifestpomtest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 

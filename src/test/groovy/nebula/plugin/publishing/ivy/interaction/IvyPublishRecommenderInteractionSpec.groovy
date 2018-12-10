@@ -14,7 +14,6 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
 
         settingsFile.text = """
             rootProject.name='mytest'
-            enableFeaturePreview('STABLE_PUBLISHING')
             """.stripIndent()
 
         buildFile << """\

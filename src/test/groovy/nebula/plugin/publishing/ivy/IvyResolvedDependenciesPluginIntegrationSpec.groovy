@@ -43,7 +43,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
 
         settingsFile << '''\
             rootProject.name = 'resolvedivytest'
-            enableFeaturePreview('STABLE_PUBLISHING')
             '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/resolvedivytest/0.1.0')

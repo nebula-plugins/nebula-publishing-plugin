@@ -44,7 +44,6 @@ class IvyCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'ivytest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test.nebula/ivytest/0.1.0')

@@ -32,12 +32,10 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'developerpomtest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 
-    @Unroll
-    def 'take info from contacts plugin and place in pom with #publishingType'() {
+    def 'take info from contacts plugin and place in pom'() {
         buildFile << '''\
             apply plugin: 'nebula.contacts'
 
@@ -48,10 +46,6 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
                 }
             }
         '''.stripIndent()
-
-        settingsFile << """
-        $settingsUpdate
-        """
 
         when:
         runTasks('generatePomFileForNebulaPublication')
@@ -67,12 +61,6 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
         devs[0].name.text() == 'Example Nebula'
         devs[0].email.text() == 'nebula@example.test'
         devs[0].id.text() == 'nebula-plugins'
-
-        where:
-        publishingType       | settingsUpdate
-        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing" | ""
-
     }
 
     def 'multiple contacts'() {

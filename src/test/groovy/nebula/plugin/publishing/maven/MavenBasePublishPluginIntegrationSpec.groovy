@@ -45,7 +45,6 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'maventest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')
@@ -62,16 +61,11 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         pom.name == 'maventest'
     }
 
-    @Unroll
-    def 'description appears in pom with #publishingType'() {
+    def 'description appears in pom'() {
         given:
         buildFile << '''\
             description = 'Test description'
         '''.stripIndent()
-
-        settingsFile << """
-        $settingsUpdate
-        """
 
         when:
         runTasks('generatePomFileForNebulaPublication')
@@ -81,11 +75,6 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         def pom = new XmlSlurper().parse(pomFile)
 
         pom.description == 'Test description'
-
-        where:
-        publishingType       | settingsUpdate
-        "STABLE_PUBLISHING"  | "enableFeaturePreview(\"STABLE_PUBLISHING\")"
-        "default publishing" | ""
     }
 
     def 'creates a jar publication'() {

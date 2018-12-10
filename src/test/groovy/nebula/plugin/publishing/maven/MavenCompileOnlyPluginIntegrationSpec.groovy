@@ -44,7 +44,6 @@ class MavenCompileOnlyPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'maventest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
         publishDir = new File(projectDir, 'testrepo/test/nebula/maventest/0.1.0')

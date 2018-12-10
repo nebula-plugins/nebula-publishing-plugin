@@ -31,7 +31,6 @@ class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'scmpomtest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 

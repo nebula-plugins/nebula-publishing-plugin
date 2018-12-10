@@ -42,7 +42,6 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'excludesmaven'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
     }
 
