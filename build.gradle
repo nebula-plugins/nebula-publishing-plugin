@@ -209,6 +209,14 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+
+        mavenNebulaPublish {
+            id = 'nebula.maven-nebula-publish'
+            displayName = 'Nebula Maven Publish Plugin'
+            description = 'Applies our opinions for maven publications'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
         mavenResolvedDependencies {
             id = 'nebula.maven-resolved-dependencies'
             displayName = 'Nebula Maven Resolved Dependencies Plugin'
