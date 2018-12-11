@@ -188,6 +188,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+        mavenDeveloper {
+            id = 'nebula.maven-developer'
+            displayName = 'Nebula Maven Developer Plugin'
+            description = 'Configures contacts for maven publishing'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
         mavenManifest {
             id = 'nebula.maven-manifest'
             displayName = 'Nebula Maven Manifest Plugin'
