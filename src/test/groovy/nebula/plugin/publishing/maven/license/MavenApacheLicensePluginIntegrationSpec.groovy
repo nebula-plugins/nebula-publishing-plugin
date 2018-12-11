@@ -88,7 +88,6 @@ publishing {
 
         settingsFile << '''\
             rootProject.name = 'apachelicensepomtest'
-            enableFeaturePreview('STABLE_PUBLISHING')
         '''.stripIndent()
 
 
