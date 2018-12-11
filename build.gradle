@@ -244,6 +244,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'ivy']
         }
 
+        ivyNebulaPublish {
+            id = 'nebula.ivy-nebula-publish'
+            displayName = 'Nebula Ivy Publish Plugin'
+            description = 'Applies our opinions for ivy publications'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
         ivyResolvedDependencies {
             id = 'nebula.ivy-resolved-dependencies'
             displayName = 'Nebula Ivy Resolved Dependencies Plugin'
