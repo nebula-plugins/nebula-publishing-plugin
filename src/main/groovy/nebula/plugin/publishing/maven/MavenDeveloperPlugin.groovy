@@ -15,8 +15,6 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.contacts.BaseContactsPlugin
-import nebula.plugin.contacts.Contact
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
@@ -33,7 +31,7 @@ class MavenDeveloperPlugin implements Plugin<Project> {
             return
         }
 
-        project.plugins.withType(BaseContactsPlugin) { BaseContactsPlugin contactsPlugin ->
+        project.plugins.withId("nebula.contacts-base") { contactsPlugin ->
             project.publishing {
                 publications {
                     withType(MavenPublication) { publication ->
@@ -50,10 +48,10 @@ class MavenDeveloperPlugin implements Plugin<Project> {
         }
     }
 
-    private void configureContacts(BaseContactsPlugin contactsPlugin, MavenPublication publication) {
+    private void configureContacts(contactsPlugin, MavenPublication publication) {
         publication.pom.developers {
             def myContacts = contactsPlugin.getAllContacts()
-            myContacts.each { Contact contact ->
+            myContacts.each { contact ->
                 developer {
                     if (contact.github) {
                         id = contact.github
