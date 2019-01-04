@@ -24,13 +24,6 @@ class MavenDeveloperPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        try {
-            Class.forName('nebula.plugin.contacts.BaseContactsPlugin')
-        } catch (Throwable ex) {
-            project.logger.info('Skipping adding extra manifest elements from the contacts plugin as it has not been applied')
-            return
-        }
-
         project.plugins.withId("nebula.contacts-base") { contactsPlugin ->
             project.publishing {
                 publications {
