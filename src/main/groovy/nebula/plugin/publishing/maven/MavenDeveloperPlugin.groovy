@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.contacts.BaseContactPluginConfigurator
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
@@ -30,34 +31,11 @@ class MavenDeveloperPlugin implements Plugin<Project> {
                     withType(MavenPublication) { publication ->
                         if (! project.state.executed) {
                             project.afterEvaluate {
-                                configureContacts(contactsPlugin, publication)
+                                BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
                             }
                         } else {
-                            configureContacts(contactsPlugin, publication)
+                            BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    private void configureContacts(contactsPlugin, MavenPublication publication) {
-        publication.pom.developers {
-            def myContacts = contactsPlugin.getAllContacts()
-            myContacts.each { contact ->
-                developer {
-                    if (contact.github) {
-                        id = contact.github
-                    } else if (contact.twitter) {
-                        id = contact.twitter
-                    }
-                    if (contact.moniker) {
-                        name = contact.moniker
-                    }
-
-                    email = contact.email
-                    if (contact.roles) {
-                        roles = contact.roles
                     }
                 }
             }
