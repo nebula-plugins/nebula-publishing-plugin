@@ -6,7 +6,7 @@ import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ComponentMetadataRule
 
 
-@CacheableRule
+//@CacheableRule TODO: this is disable to test RealisedMavenModuleResolveMetadataSerializationHelper duplicate objects
 class StatusSchemaAttributeRule implements ComponentMetadataRule {
     @Override
     void execute(ComponentMetadataContext componentMetadataContext) {
