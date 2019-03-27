@@ -33,47 +33,49 @@ class IvyResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
     void apply(Project project) {
         project.plugins.apply IvyBasePublishPlugin
 
-        project.publishing {
-            publications {
-                withType(IvyPublication) {
-                    descriptor.withXml { XmlProvider xml ->
-                        project.plugins.withType(JavaBasePlugin) {
-                            def dependencies = xml.asNode()?.dependencies?.dependency
-                            dependencies?.each { Node dep ->
-                                String scope = dep.@conf
-                                String group = dep.@org
-                                String name = dep.@name
+        project.afterEvaluate {
+            project.publishing {
+                publications {
+                    withType(IvyPublication) {
+                        descriptor.withXml { XmlProvider xml ->
+                            project.plugins.withType(JavaBasePlugin) {
+                                def dependencies = xml.asNode()?.dependencies?.dependency
+                                dependencies?.each { Node dep ->
+                                    String scope = dep.@conf
+                                    String group = dep.@org
+                                    String name = dep.@name
 
-                                if (scope == 'compile->default') {
-                                    scope = 'compile'
-                                }
+                                    if (scope == 'compile->default') {
+                                        scope = 'compile'
+                                    }
 
-                                if (scope == 'provided->default' || scope == 'runtime->default') {
-                                    scope = 'runtime'
-                                }
+                                    if (scope == 'provided->default' || scope == 'runtime->default') {
+                                        scope = 'runtime'
+                                    }
 
-                                if (scope == 'test->default') {
-                                    scope = 'test'
-                                }
+                                    if (scope == 'test->default') {
+                                        scope = 'test'
+                                    }
 
-                                if (scope.contains('->')) {
-                                    scope = scope.split('->')[0]
-                                }
+                                    if (scope.contains('->')) {
+                                        scope = scope.split('->')[0]
+                                    }
 
-                                def mvid = selectedModuleVersion(project, scope, group, name)
-                                if (!mvid) {
-                                    return  // continue loop if a dependency is not found in dependencyMap
-                                }
+                                    def mvid = selectedModuleVersion(project, scope, group, name)
+                                    if (!mvid) {
+                                        return  // continue loop if a dependency is not found in dependencyMap
+                                    }
 
-                                if (dep.@rev) {
-                                    def version = dep.@rev as String
-                                    VersionSelector selector = parseSelector(version)
-                                    setVersionConstraint(selector, version, dep, mvid)
-                                } else {
-                                    //no requested version we use selected
-                                    dep.@rev = mvid.version
+                                    if (dep.@rev) {
+                                        def version = dep.@rev as String
+                                        VersionSelector selector = parseSelector(version)
+                                        setVersionConstraint(selector, version, dep, mvid)
+                                    } else {
+                                        //no requested version we use selected
+                                        dep.@rev = mvid.version
+                                    }
+                                    updateReplacedModules(mvid, group, name, dep)
                                 }
-                                updateReplacedModules(mvid, group, name, dep)
                             }
                         }
                     }

@@ -30,40 +30,42 @@ class MavenResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        project.publishing {
-            publications {
-                withType(MavenPublication) {
-                    pom.withXml { XmlProvider xml->
-                        project.plugins.withType(JavaBasePlugin) {
-                            def dependencies = xml.asNode()?.dependencies?.dependency
-                            dependencies?.each { Node dep ->
-                                String scope = dep.scope.text()
-                                String group = dep.groupId.text()
-                                String name = dep.artifactId.text()
+        project.afterEvaluate {
+            project.publishing {
+                publications {
+                    withType(MavenPublication) {
+                        pom.withXml { XmlProvider xml->
+                            project.plugins.withType(JavaBasePlugin) {
+                                def dependencies = xml.asNode()?.dependencies?.dependency
+                                dependencies?.each { Node dep ->
+                                    String scope = dep.scope.text()
+                                    String group = dep.groupId.text()
+                                    String name = dep.artifactId.text()
 
-                                ModuleVersionIdentifier mvid
-                                if (scope == 'provided') {
-                                    scope = 'runtime'
-                                    mvid = selectedModuleVersion(project, scope, group, name)
-                                    if (!mvid) {
-                                        scope = 'compileOnly'
+                                    ModuleVersionIdentifier mvid
+                                    if (scope == 'provided') {
+                                        scope = 'runtime'
+                                        mvid = selectedModuleVersion(project, scope, group, name)
+                                        if (!mvid) {
+                                            scope = 'compileOnly'
+                                            mvid = selectedModuleVersion(project, scope, group, name)
+                                        }
+                                    } else {
                                         mvid = selectedModuleVersion(project, scope, group, name)
                                     }
-                                } else {
-                                    mvid = selectedModuleVersion(project, scope, group, name)
-                                }
 
-                                if (!mvid) {
-                                    return  // continue loop if a dependency is not found in dependencyMap
-                                }
+                                    if (!mvid) {
+                                        return  // continue loop if a dependency is not found in dependencyMap
+                                    }
 
-                                def versionNode = dep.version
-                                if (!versionNode) {
-                                    dep.appendNode('version')
+                                    def versionNode = dep.version
+                                    if (!versionNode) {
+                                        dep.appendNode('version')
+                                    }
+                                    dep.groupId[0].value = mvid.group
+                                    dep.artifactId[0].value = mvid.name
+                                    dep.version[0].value = mvid.version
                                 }
-                                dep.groupId[0].value = mvid.group
-                                dep.artifactId[0].value = mvid.name
-                                dep.version[0].value = mvid.version
                             }
                         }
                     }
