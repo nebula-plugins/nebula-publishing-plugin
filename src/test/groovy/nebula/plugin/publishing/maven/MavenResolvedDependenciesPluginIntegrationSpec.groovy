@@ -214,32 +214,6 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         d.version == '18.0'
     }
 
-    def 'module replacements reflected in published metadata'() {
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                jcenter()
-            }
-
-            dependencies {
-                 compile 'com.google.collections:google-collections:1.0'
-                 compile 'com.google.truth:truth:0.28'
-                 modules {
-                     module('com.google.collections:google-collections') {
-                         replacedBy('com.google.guava:guava')
-                     }
-                 }
-            }
-"""
-        when:
-        runTasks('publishNebulaPublicationToTestLocalRepository')
-
-        then:
-        def d = findDependency('guava')
-        d.version == '18.0'
-    }
-
     def 'works with java-library plugin and dependency-recommender'() {
         buildFile.text = '''\
             plugins {
@@ -281,35 +255,6 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         then:
         findDependencyInScope('truth', 'compile').version == '0.28'
         findDependencyInScope('google-collections', 'runtime').version == '1.0'
-    }
-
-    def 'excluded first order dependencies fail the build'() {
-        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
-                .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
-                .build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
-
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
-
-            configurations.all {
-                exclude group: 'test.resolved', module: 'a'
-            }
-
-            dependencies {
-                compile 'test.resolved:b:1.0.0'
-                compile 'test.resolved:a'
-            }
-            """.stripIndent()
-
-        when:
-        def results = runTasks('publishNebulaPublicationToTestLocalRepository')
-
-        then:
-        UnexpectedBuildFailure ex = thrown()
-        ex.message.contains 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
     }
 
     def 'dependency with no changes copied through'() {

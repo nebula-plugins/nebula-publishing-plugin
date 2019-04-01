@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2019 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,14 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.publishing.ivy.AbstractResolvedDependenciesPlugin
+import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
-import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.maven.MavenPublication
 
 /**
  * Replaces first order dependencies with the selected versions when publishing.
  */
-class MavenResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin {
+class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
@@ -34,38 +31,9 @@ class MavenResolvedDependenciesPlugin extends AbstractResolvedDependenciesPlugin
             project.publishing {
                 publications {
                     withType(MavenPublication) {
-                        pom.withXml { XmlProvider xml->
-                            project.plugins.withType(JavaBasePlugin) {
-                                def dependencies = xml.asNode()?.dependencies?.dependency
-                                dependencies?.each { Node dep ->
-                                    String scope = dep.scope.text()
-                                    String group = dep.groupId.text()
-                                    String name = dep.artifactId.text()
-
-                                    ModuleVersionIdentifier mvid
-                                    if (scope == 'provided') {
-                                        scope = 'runtime'
-                                        mvid = selectedModuleVersion(project, scope, group, name)
-                                        if (!mvid) {
-                                            scope = 'compileOnly'
-                                            mvid = selectedModuleVersion(project, scope, group, name)
-                                        }
-                                    } else {
-                                        mvid = selectedModuleVersion(project, scope, group, name)
-                                    }
-
-                                    if (!mvid) {
-                                        return  // continue loop if a dependency is not found in dependencyMap
-                                    }
-
-                                    def versionNode = dep.version
-                                    if (!versionNode) {
-                                        dep.appendNode('version')
-                                    }
-                                    dep.groupId[0].value = mvid.group
-                                    dep.artifactId[0].value = mvid.name
-                                    dep.version[0].value = mvid.version
-                                }
+                        versionMapping {
+                            allVariants {
+                                fromResolutionResult()
                             }
                         }
                     }
