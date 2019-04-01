@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.json.JsonSlurper
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
@@ -43,10 +44,11 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'mavenpublishingtest'
+            enableFeaturePreview("GRADLE_METADATA")
         '''.stripIndent()
     }
 
-    def 'all of the features work together'() {
+    def 'publish POM with resolved dependencies'() {
         def graph = new DependencyGraphBuilder()
                 .addModule('test:a:0.0.1')
                 .addModule('test:b:1.9.2')
@@ -70,7 +72,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
             dependencies {
                 compile 'test:a:0.+'
-                compileOnly 'test:b:[1.0.0, 2.0.0)'
+                compile 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 
@@ -96,6 +98,57 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         then:
         b.version == '1.9.2'
-        b.scope == 'provided'
     }
+
+    def 'produces gradle metadata file'() {
+        def graph = new DependencyGraphBuilder()
+                .addModule('test:a:0.0.1')
+                .addModule('test:b:1.9.2')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+            apply plugin: 'nebula.contacts'
+            apply plugin: 'nebula.info'
+
+            repositories {
+                maven { url '${mavenrepo.absolutePath}' }
+            }
+
+            contacts {
+                'nebula@example.test' {
+                    moniker 'Nebula'
+                }
+            }
+
+            dependencies {
+                compile 'test:a:0.+'
+                compile 'test:b:[1.0.0, 2.0.0)'
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('generateMetadataFileForNebulaPublication')
+
+
+        then:
+        def moduleJson = new JsonSlurper().parse(new File(projectDir, 'build/publications/nebula/module.json'))
+        def runtimeVariant = moduleJson.variants.find { it.name == 'runtimeElements'}
+        def dependencies = runtimeVariant.dependencies
+        dependencies.size() == 2
+
+        when:
+        def a = dependencies.find { it.module == 'a' }
+
+        then:
+        a.version.requires == '0.0.1'
+
+        when:
+        def b = dependencies.find { it.module == 'b' }
+
+        then:
+        b.version.requires == '1.9.2'
+    }
+
 }
