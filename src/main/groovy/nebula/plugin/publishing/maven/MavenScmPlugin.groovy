@@ -15,16 +15,21 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.transform.CompileStatic
 import nebula.plugin.info.scm.GitScmProvider
 import nebula.plugin.info.scm.ScmInfoPlugin
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
+import org.gradle.api.publish.maven.MavenPomScm
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class MavenScmPlugin implements Plugin<Project> {
     @Override
+    @CompileStatic
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
@@ -36,20 +41,33 @@ class MavenScmPlugin implements Plugin<Project> {
         }
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
-            project.publishing {
-                publications {
-                    withType(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
-                            def root = xml.asNode()
-                            if (scmInfo.selectedProvider instanceof GitScmProvider) {
-                                root.appendNode('url', calculateUrlFromOrigin(scmInfo.extension.origin, project))
-                            }
-                            def scmNode = root.appendNode('scm')
-                            scmNode.appendNode('url', scmInfo.extension.origin)
+            def publishing = project.extensions.getByType(PublishingExtension)
+            publishing.publications(new Action<PublicationContainer>() {
+                @Override
+                void execute(PublicationContainer publications) {
+                    publications.withType(MavenPublication) { MavenPublication publication ->
+                        if (scmInfo.selectedProvider instanceof GitScmProvider) {
+                            publication.pom(new Action<MavenPom>() {
+                                @Override
+                                void execute(MavenPom pom) {
+                                    pom.url.set(calculateUrlFromOrigin(scmInfo.extension.origin, project))
+                                }
+                            })
                         }
+                        publication.pom(new Action<MavenPom>() {
+                            @Override
+                            void execute(MavenPom pom) {
+                                pom.scm(new Action<MavenPomScm>() {
+                                    @Override
+                                    void execute(MavenPomScm scm) {
+                                        scm.url.set(scmInfo.extension.origin)
+                                    }
+                                })
+                            }
+                        })
                     }
                 }
-            }
+            })
         }
     }
 
