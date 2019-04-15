@@ -24,8 +24,8 @@ class IvyPublishPlugin implements Plugin<Project> {
         project.plugins.apply org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
         project.plugins.apply IvyNebulaPublishPlugin
         project.plugins.apply IvyBasePublishPlugin
-        project.plugins.apply IvyCompileOnlyPlugin
         project.plugins.apply IvyResolvedDependenciesPlugin
+        project.plugins.apply IvyCompileOnlyPlugin
         project.plugins.apply IvyManifestPlugin
     }
 }

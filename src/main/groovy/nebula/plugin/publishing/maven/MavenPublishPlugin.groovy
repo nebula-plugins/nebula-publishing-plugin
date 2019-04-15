@@ -25,8 +25,8 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
             apply MavenNebulaPublishPlugin
             apply MavenBasePublishPlugin
-            apply MavenCompileOnlyPlugin
             apply MavenResolvedDependenciesPlugin
+            apply MavenCompileOnlyPlugin
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
