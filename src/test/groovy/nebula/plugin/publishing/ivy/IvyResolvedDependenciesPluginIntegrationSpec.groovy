@@ -72,7 +72,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         then:
         def a = findDependency('a')
         a.@rev == '1.1.0'
-        a.@revConstraint == '1.+'
     }
 
     def 'latest.* versions are replaced by the resolved version and have a revConstraint'() {
@@ -99,7 +98,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         then:
         def a = findDependency('a')
         a.@rev == '1.1.0'
-        a.@revConstraint == 'latest.integration'
     }
 
     def 'range versions are replaced by the resolved version and have a revConstraint'() {
@@ -126,7 +124,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         then:
         def d = findDependency('d')
         d.@rev == '1.4.1'
-        d.@revConstraint == '[1.0.0, 2.0.0['
     }
 
     def 'omitted versions are replaced resolved version'() {
@@ -243,53 +240,6 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         then:
         def b = findDependency('sub')
         b.@rev == '1.0'
-    }
-
-    def 'conflict resolution with exactly requested version will keep requested version'() {
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                jcenter()
-            }
-
-            dependencies {
-                 compile 'com.google.guava:guava:16.0'
-                 compile 'com.google.truth:truth:0.28'
-            }
-            """.stripIndent()
-        when:
-        def r = runTasks('publishNebulaIvyPublicationToTestLocalRepository', 'dependencies')
-
-        then:
-        def d = findDependency('guava')
-        d.@rev == '16.0'
-    }
-
-    def 'module replacements reflected in published metadata'() {
-        buildFile << """\
-            apply plugin: 'java'
-
-            repositories {
-                jcenter()
-            }
-
-            dependencies {
-                 compile 'com.google.collections:google-collections:1.0'
-                 compile 'com.google.truth:truth:0.28'
-                 modules {
-                     module('com.google.collections:google-collections') {
-                         replacedBy('com.google.guava:guava')
-                     }
-                 }
-            }
-            """.stripIndent()
-        when:
-        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
-
-        then:
-        def d = findDependency('guava')
-        d.@rev == '18.0'
     }
 
     def findDependency(String module) {
