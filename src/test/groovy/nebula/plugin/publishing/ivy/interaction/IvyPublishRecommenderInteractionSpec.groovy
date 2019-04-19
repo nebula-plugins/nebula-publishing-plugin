@@ -18,7 +18,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
 
         buildFile << """\
             plugins {
-                id 'java'
+                id 'java-library'
                 id 'nebula.ivy-publish'
                 id 'nebula.dependency-recommender' version '5.0.0'
             }
@@ -56,7 +56,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         ivy.dependencies.dependency.first().@rev == '1.0.0'
 
         where:
-        scope << ['runtime', 'compile', 'compileOnly', 'runtimeOnly']
+        scope << ['compile', 'implementation', 'api', 'runtimeOnly']
 
     }
 }
