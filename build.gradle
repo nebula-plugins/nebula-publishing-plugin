@@ -137,6 +137,11 @@ gradlePlugin {
             id = 'nebula.ivy-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
         }
+        
+        ivyRemovePlatformDependencies {
+            id = 'nebula.ivy-remove-platform-dependencies'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyRemovePlatformDependenciesPlugin'
+        }
 
         publishVerification {
             id = 'nebula.publish-verification'
@@ -274,6 +279,13 @@ pluginBundle {
             id = 'nebula.ivy-resolved-dependencies'
             displayName = 'Nebula Ivy Resolved Dependencies Plugin'
             description = 'Built on top of nebula.ivy-dependencies, replacing dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyRemovePlatformDependencies {
+            id = 'nebula.ivy-remove-platform-dependencies'
+            displayName = 'Nebula Ivy Remove Platform Dependencies Plugin'
+            description = 'Built on top of nebula.ivy-dependencies, removes dependencies with platform or enforced-platform category status'
             tags = ['nebula', 'publish', 'ivy']
         }
 
