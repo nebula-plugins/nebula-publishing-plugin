@@ -27,5 +27,6 @@ class IvyPublishPlugin implements Plugin<Project> {
         project.plugins.apply IvyResolvedDependenciesPlugin
         project.plugins.apply IvyCompileOnlyPlugin
         project.plugins.apply IvyManifestPlugin
+        project.plugins.apply IvyRemovePlatformDependenciesPlugin
     }
 }
