@@ -185,13 +185,6 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
-        mavenCompileOnly {
-            id = 'nebula.maven-compile-only'
-            displayName = 'Nebula Maven CompileOnly Plugin'
-            description = 'Deal with compileOnly configuration'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
         mavenDeveloper {
             id = 'nebula.maven-developer'
             displayName = 'Nebula Maven Developer Plugin'
