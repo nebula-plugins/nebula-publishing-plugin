@@ -73,11 +73,6 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
         }
 
-        mavenCompileOnly {
-            id = 'nebula.maven-compile-only'
-            implementationClass = 'nebula.plugin.publishing.maven.MavenCompileOnlyPlugin'
-        }
-
         mavenDeveloper {
             id = 'nebula.maven-developer'
             implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
