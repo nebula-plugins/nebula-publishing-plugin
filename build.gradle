@@ -73,10 +73,6 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
         }
 
-        mavenCompileOnly {
-            id = 'nebula.maven-compile-only'
-            implementationClass = 'nebula.plugin.publishing.maven.MavenCompileOnlyPlugin'
-        }
 
         mavenDeveloper {
             id = 'nebula.maven-developer'
@@ -184,13 +180,7 @@ pluginBundle {
             description = 'Setup nebula maven publication. Add a name and description element to the published POM'
             tags = ['nebula', 'publish', 'maven']
         }
-
-        mavenCompileOnly {
-            id = 'nebula.maven-compile-only'
-            displayName = 'Nebula Maven CompileOnly Plugin'
-            description = 'Deal with compileOnly configuration'
-            tags = ['nebula', 'publish', 'maven']
-        }
+        
 
         mavenDeveloper {
             id = 'nebula.maven-developer'
