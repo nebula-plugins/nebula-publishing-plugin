@@ -70,7 +70,6 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
             dependencies {
                 compile 'test:a:0.+'
-                compileOnly 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 
@@ -91,11 +90,5 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         then:
         a.version == '0.0.1'
 
-        when:
-        def b = dependencies.find { it.artifactId == 'b' }
-
-        then:
-        b.version == '1.9.2'
-        b.scope == 'provided'
     }
 }
