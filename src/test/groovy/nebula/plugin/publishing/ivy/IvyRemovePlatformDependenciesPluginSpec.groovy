@@ -47,7 +47,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                mavenCentral()
+                jcenter()
             }
 
             dependencies {
@@ -99,7 +99,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                mavenCentral()
+                jcenter()
             }
 
             dependencies {
@@ -150,7 +150,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                mavenCentral()
+                jcenter()
             }
 
             dependencies {
@@ -167,7 +167,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
         a.@rev == '1.1.0'
 
         def bom = findDependency('jenkins-bom')
-        bom.@rev == 'latest.release'
+        bom != null
     }
 
     def 'publishes ivy descriptor with enforced-platform dependency if plugin is not applied'() {
@@ -201,7 +201,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                mavenCentral()
+                jcenter()
             }
 
             dependencies {
@@ -218,7 +218,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
         a.@rev == '1.1.0'
 
         def bom = findDependency('jenkins-bom')
-        bom.@rev == 'latest.release'
+        bom != null
     }
 
 
