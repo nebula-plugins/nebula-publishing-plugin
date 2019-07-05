@@ -690,6 +690,58 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         noExceptionThrown()
     }
 
+    def 'should work with custom ComponentMetadataSupplier'() {
+        given:
+        writeHelloWorld('test.nebula.netflix')
+        buildFile <<  """           
+            ${applyPlugin(PublishVerificationPlugin)}         
+            apply plugin: 'java'
+
+            group = 'test.nebula.netflix'                       
+            version = '1.0'            
+                       
+            repositories {
+                maven {
+                    metadataSupplier = CustomMetadataSupplier.class
+                    url "https://repo.maven.apache.org/maven2/" //This usually would be an internal repository
+                }
+            }
+            
+            dependencies {
+                implementation 'org.slf4j:slf4j-api:latest.release'
+            }
+
+
+            class CustomMetadataSupplier implements ComponentMetadataSupplier {
+            
+                static final SNAPSHOT_VERSION = ~/(?i).+(-|\\.)(ALPHA|SNAPSHOT|PR|DEV).*/
+                static final CANDIDATE_VERSION = ~/(?i).+(-|\\.)(BETA|CANDIDATE|CR|RC).*/
+            
+                @Override
+                void execute(ComponentMetadataSupplierDetails details) {
+                    def id = details.getId()
+                    println "Printing ID: " + id
+                    String status
+                    if (id.version =~ CANDIDATE_VERSION) {
+                        status = 'milestone'
+                    }
+                    else if (id.version =~ SNAPSHOT_VERSION) {
+                        status = 'integration'
+                    } else {
+                        status = 'release'
+                    }
+                    details.getResult().setStatus(status)
+                }
+            }
+        """
+
+        when:
+        def result = runTasksSuccessfully('build')
+
+        then:
+        result.standardOutput.contains("Printing ID: org.slf4j:slf4j-api")
+    }
+
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph, new File(projectDir, "testrepogen").canonicalPath)
