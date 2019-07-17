@@ -720,7 +720,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                 @Override
                 void execute(ComponentMetadataSupplierDetails details) {
                     def id = details.getId()
-                    println "Printing ID: " + id
                     String status
                     if (id.version =~ CANDIDATE_VERSION) {
                         status = 'milestone'
@@ -736,10 +735,12 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         """
 
         when:
-        def result = runTasksSuccessfully('build')
+        def result = runTasksSuccessfully('dependencies')
 
         then:
-        result.standardOutput.contains("Printing ID: org.slf4j:slf4j-api")
+        result.standardOutput.contains("org.slf4j:slf4j-api:latest.release ->")
+        !result.standardOutput.contains("-alpha")
+        !result.standardOutput.contains("-beta")
     }
 
     private String createBuildFileFromTemplate(String projectStatus, String dependencies, DependencyGraphBuilder builder) {
