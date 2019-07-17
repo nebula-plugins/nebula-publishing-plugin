@@ -14,6 +14,7 @@ import nebula.test.dependencies.ModuleBuilder
 import nebula.test.functional.ExecutionResult
 import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
 import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
+import spock.lang.IgnoreIf
 
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
@@ -690,6 +691,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         noExceptionThrown()
     }
 
+    @IgnoreIf({ Boolean.valueOf(env["NEBULA_IGNORE_TEST"]) })
     def 'should work with custom ComponentMetadataSupplier'() {
         given:
         writeHelloWorld('test.nebula.netflix')
