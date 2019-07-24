@@ -15,10 +15,9 @@
  */
 package nebula.plugin.publishing.ivy
 
-import org.gradle.api.GradleException
+import nebula.plugin.publishing.verification.DirectDependenciesVerifier
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ExcludeRule
 import org.gradle.api.publish.ivy.IvyPublication
 
 /**
@@ -30,7 +29,7 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
         project.plugins.apply IvyBasePublishPlugin
 
         project.afterEvaluate {
-            verifyFirstDependencyExclusions(project)
+            DirectDependenciesVerifier.verify(project)
             project.publishing {
                 publications {
                     withType(IvyPublication) {
@@ -40,24 +39,6 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    private void verifyFirstDependencyExclusions(Project project) {
-        project.configurations.forEach { configuration ->
-            configuration.dependencies.forEach { dependency ->
-                ExcludeRule exclude
-                try {
-                    exclude = configuration.excludeRules.find {
-                        it.group == dependency.group && it.module == dependency.name
-                    }
-                } catch (e) {
-                    // leave exclude null in case of unknown configuration
-                }
-                if(exclude) {
-                    throw new GradleException("Direct dependency \"${dependency.group}:${dependency.name}\" is excluded, delete direct dependency or stop excluding it")
                 }
             }
         }

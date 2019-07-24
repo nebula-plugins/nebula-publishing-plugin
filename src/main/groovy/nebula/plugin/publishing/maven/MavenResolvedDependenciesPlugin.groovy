@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.verification.DirectDependenciesVerifier
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
@@ -26,8 +27,8 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
-
         project.afterEvaluate {
+            DirectDependenciesVerifier.verify(project)
             project.publishing {
                 publications {
                     withType(MavenPublication) {

@@ -25,6 +25,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
     File publishDir
 
     def setup() {
+        debug = true
         buildFile << """\
             plugins {
                 id 'nebula.maven-resolved-dependencies'
@@ -278,6 +279,35 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         then:
         def a = findDependency('a')
         a.version == '1.0.0'
+    }
+
+    def 'excluded first order dependencies fail the build'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule(new ModuleBuilder('test.resolved:b:1.0.0').addDependency('test.resolved:a:1.0.0').build())
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            configurations.all {
+                exclude group: 'test.resolved', module: 'a'
+            }
+
+            dependencies {
+                compile 'test.resolved:b:1.0.0'
+                compile 'test.resolved:a'
+            }
+            """.stripIndent()
+
+        when:
+        def result = runTasksAndFail('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def expectedMessage = 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
+        result.output.contains(expectedMessage)
     }
 
     def findDependency(String artifactId) {
