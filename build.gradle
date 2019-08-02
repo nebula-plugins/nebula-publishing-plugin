@@ -327,3 +327,7 @@ gradleTest.dependsOn(jar)
 gradleTest.doFirst {
     project.version = project.version.toString()
 }
+
+
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
