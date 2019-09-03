@@ -51,7 +51,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile platform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation platform('com.github.sghill.jenkins:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
             """.stripIndent()
@@ -103,7 +103,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
             """.stripIndent()

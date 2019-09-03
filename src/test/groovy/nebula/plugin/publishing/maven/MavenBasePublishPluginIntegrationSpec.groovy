@@ -164,23 +164,15 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             apply plugin: 'java'
         '''.stripIndent()
 
-        String expectedPom = '''\
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>test.nebula</groupId>
-              <artifactId>maventest</artifactId>
-              <version>0.1.0</version>
-              <name>maventest</name>
-            </project>
-        '''.stripIndent()
-
         when:
         runTasks('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        new File(publishDir, 'maventest-0.1.0.pom').text == expectedPom
+        def resultPom = new File(publishDir, 'maventest-0.1.0.pom').text
+        resultPom.contains("<groupId>test.nebula</groupId>")
+        resultPom.contains("<artifactId>maventest</artifactId>")
+        resultPom.contains("<version>0.1.0</version>")
+        resultPom.contains("<name>maventest</name>")
     }
 
     def 'verify pom contains compile dependencies'() {
@@ -188,14 +180,14 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
 
         buildFile << """\
-            apply plugin: 'java'
+            apply plugin: 'java-library'
 
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
             }
 
             dependencies {
-                compile 'testjava:a:0.0.1'
+                api 'testjava:a:0.0.1'
             }
         """.stripIndent()
 
@@ -223,7 +215,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                runtime 'testjava:c:0.0.1'
+                implementation 'testjava:c:0.0.1'
             }
         """.stripIndent()
 
@@ -236,7 +228,7 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         dependency.groupId.text() == 'testjava'
         dependency.artifactId.text() == 'c'
         dependency.version.text() == '0.0.1'
-        dependency.scope.text() == 'compile'
+        dependency.scope.text() == 'runtime'
     }
 
     def 'verify pom contains api dependencies from java-library'() {
