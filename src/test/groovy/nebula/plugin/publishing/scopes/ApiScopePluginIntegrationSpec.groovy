@@ -47,7 +47,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
             """.stripIndent()
 
         when:
-        BuildResult result = runTasks('dependencies', '--configuration', 'runtime')
+        BuildResult result = runTasks('dependencies', '--configuration', 'runtimeClasspath')
 
         then:
         result.output.contains('\\--- test.nebula:a:1.0.0')
@@ -121,7 +121,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
 
         buildFile << """\
             plugins {
-                id 'java'
+                id 'java-library'
                 id 'nebula.compile-api'
                 id 'maven-publish'
             }
@@ -135,7 +135,7 @@ class ApiScopePluginIntegrationSpec extends IntegrationTestKitSpec {
 
             dependencies {
                 compileApi 'test.nebula:a:1.0.0'
-                compile 'test.nebula:b:1.0.0'
+                api 'test.nebula:b:1.0.0'
             }
 
             publishing {

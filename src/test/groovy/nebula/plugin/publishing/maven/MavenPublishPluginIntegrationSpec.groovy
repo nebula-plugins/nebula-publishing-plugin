@@ -19,6 +19,7 @@ import groovy.json.JsonSlurper
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import org.gradle.util.GradleVersion
 
 class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
@@ -44,8 +45,13 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         settingsFile << '''\
             rootProject.name = 'mavenpublishingtest'
-            enableFeaturePreview("GRADLE_METADATA")
         '''.stripIndent()
+
+        if (GradleVersion.current().baseVersion < GradleVersion.version("6.0")) {
+            settingsFile << '''\
+                enableFeaturePreview("GRADLE_METADATA")
+            '''.stripIndent()
+        }
     }
 
     def 'publish POM with resolved dependencies'() {

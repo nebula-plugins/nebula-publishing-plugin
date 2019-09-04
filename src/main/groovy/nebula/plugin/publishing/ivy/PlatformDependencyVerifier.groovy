@@ -52,7 +52,6 @@ class PlatformDependencyVerifier {
         Map<String, Set<? extends ModuleIdentifier>> dependencyMap = [:]
         dependencyMap['runtime'] = platformDependencies(configurations.runtimeClasspath)
         dependencyMap['compile'] = platformDependencies(configurations.compileClasspath)
-        dependencyMap['compileOnly'] = platformDependencies(configurations.compileOnly)
         dependencyMap['test'] = platformDependencies(configurations.testRuntimeClasspath)
         dependencyMap
     }
