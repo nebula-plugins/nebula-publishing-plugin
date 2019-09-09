@@ -6,6 +6,7 @@ import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionSelectorScheme
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.SubVersionSelector
+import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.VersionParser
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.VersionSelector
 
 class VersionSelectorVerification {
@@ -32,7 +33,7 @@ class VersionSelectorVerification {
     }
 
     private VersionSelector parseSelector(String version) {
-        def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator())
+        def scheme = new DefaultVersionSelectorScheme(new DefaultVersionComparator(), new VersionParser())
         def selector = scheme.parseSelector(version)
         selector
     }
