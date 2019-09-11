@@ -312,11 +312,6 @@ pluginBundle {
             tags = ['nebula', 'publish', 'test']
         }
     }
-
-    mavenCoordinates {
-        groupId = 'com.netflix.nebula'
-        artifactId = 'nebula-publishing-plugin'
-    }
 }
 
 gradleTest {
