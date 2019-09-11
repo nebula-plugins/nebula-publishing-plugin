@@ -7,4 +7,3 @@ build/
 out/
 
 # encrypted gradle.properties for travis
-gradle.properties
