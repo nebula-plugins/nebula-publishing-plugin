@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '12.3.5'
+    id 'nebula.plugin-plugin' version '12.4.1'
     id 'org.ysb33r.gradletest' version '0.5.4'
     id 'java-gradle-plugin'
 }
@@ -47,18 +47,18 @@ task createClasspathManifest {
 }
 
 dependencies {
-    compile 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
-    compile 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
-    compile 'com.netflix.nebula:nebula-gradle-interop:latest.release'
+    implementation 'com.netflix.nebula:gradle-info-plugin:latest.release', optional
+    implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
+    implementation 'com.netflix.nebula:nebula-gradle-interop:latest.release'
 
-    testCompile gradleTestKit()
-    testCompile 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
-    testCompile 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
-    testCompile 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
-    testCompile('org.jfrog.buildinfo:build-info-extractor-gradle:latest.release') {
+    testImplementation gradleTestKit()
+    testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
+    testImplementation 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
+    testImplementation 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
+    testImplementation('org.jfrog.buildinfo:build-info-extractor-gradle:latest.release') {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
     }
-    testRuntime files(tasks.createClasspathManifest)
+    testRuntimeOnly files(tasks.createClasspathManifest)
 }
 
 gradlePlugin {
