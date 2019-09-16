@@ -111,6 +111,45 @@ Walk through all project dependencies and replace all dynamic dependencies with 
 
 Adds scm block to the pom. Tries to use the the info-scm plugin from [gradle-info-plugin](https://github.com/nebula-plugins/gradle-info-plugin) 
 
+### nebula.maven-developer
+
+When [Gradle Contacts](https://github.com/nebula-plugins/gradle-contacts-plugin) plugin is applied, it will take the configured contacts and add them to the POM file. 
+
+Example, given:
+
+```
+ apply plugin: 'nebula.contacts'
+
+contacts {
+    'nebula@example.test' {
+        moniker 'Example Nebula'
+        github 'nebula-plugins'
+    }
+}
+```
+
+resulting POM will be:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>test.nebula</groupId>
+  <artifactId>developerpomtest</artifactId>
+  <version>0.1.0</version>
+  <packaging>pom</packaging>
+  <name>developerpomtest</name>
+  <developers>
+    <developer>
+      <id>nebula-plugins</id>
+      <name>Example Nebula</name>
+      <email>nebula@example.test</email>
+    </developer>
+  </developers>
+</project>
+```
+
 ## Ivy Related Publishing Plugins
 
 ### nebula.ivy-base-publish
