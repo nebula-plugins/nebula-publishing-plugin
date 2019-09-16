@@ -31,7 +31,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'snapshot'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -52,8 +52,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule(expectedFailureDependency)
         builder.addModule(expectedFailureDependency2)
         def dependencies = """
-             compile '$expectedFailureDependency'
-             compile '$expectedFailureDependency2'
+             implementation '$expectedFailureDependency'
+             implementation '$expectedFailureDependency2'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -73,7 +73,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule('foo:bar:1.1')
         def dependencies = """
-             compile '$expectedFailureDependency'
+             implementation '$expectedFailureDependency'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -94,8 +94,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule('foo:bar:1.1')
         builder.addModule(expectedFailureDependency2)
         def dependencies = """
-             compile '$expectedFailureDependency'
-             compile '$expectedFailureDependency2'
+             implementation '$expectedFailureDependency'
+             implementation '$expectedFailureDependency2'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -114,7 +114,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -131,7 +131,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -149,7 +149,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile 'foo:bar'"
+        def dependencies = "implementation 'foo:bar'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
         buildFile << """           
@@ -176,8 +176,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                 .addDependency(expectedFailureDependency).build()
         builder.addModule(somethingWithNew)
         def dependencies = """
-            compile 'replace-original:replace-original:1.0-SNAPSHOT'
-            compile 'something-with-new:something-with-new:1.5'
+            implementation 'replace-original:replace-original:1.0-SNAPSHOT'
+            implementation 'something-with-new:something-with-new:1.5'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -198,8 +198,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule(expectedFailureDependency)
         builder.addModule('align-group:align-part2:1.1-SNAPSHOT')
         def dependencies = """
-            compile 'align-group:align-part1:1.0-SNAPSHOT'
-            compile 'align-group:align-part2:1.1-SNAPSHOT'
+            implementation 'align-group:align-part1:1.0-SNAPSHOT'
+            implementation 'align-group:align-part2:1.1-SNAPSHOT'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -219,7 +219,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule('substitute-original:substitute-original:1.1-SNAPSHOT')
         builder.addModule(expectedFailureDependency)
         builder.addModule('substitute-new:substitute-new:1.1-SNAPSHOT')
-        def dependencies = "compile 'substitute-original:substitute-original:1.1-SNAPSHOT'"
+        def dependencies = "implementation 'substitute-original:substitute-original:1.1-SNAPSHOT'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -237,7 +237,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
         builder.addModule('reject:reject:1.1.0-SNAPSHOT')
-        def dependencies = "compile 'reject:reject:1.+'"
+        def dependencies = "implementation 'reject:reject:1.+'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -254,7 +254,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -271,7 +271,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -288,7 +288,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile '$expectedFailureDependency'"
+        def dependencies = "implementation '$expectedFailureDependency'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -306,7 +306,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
         builder.addModule('foo:bar:1.0')
-        def dependencies = "compile 'foo:bar:1.0'"
+        def dependencies = "implementation 'foo:bar:1.0'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
         buildFile << """
@@ -330,7 +330,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         def projectStatus = 'release'
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         builder.addModule(expectedFailureDependency)
-        def dependencies = "compile 'foo:bar:latest.integration'"
+        def dependencies = "implementation 'foo:bar:latest.integration'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -348,8 +348,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule('foo:bar:1.0-SNAPSHOT')
         builder.addModule('foo:bar:1.0')
         def dependencies = """
-            compile 'foo:bar:1.0'
-            testCompile 'foo:bar:1.0-SNAPSHOT'
+            implementation 'foo:bar:1.0'
+            testImplementation 'foo:bar:1.0-SNAPSHOT'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -368,7 +368,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
         def module = new ModuleBuilder('foo:bar:1.0').addDependency('baz:buz:1.0-SNAPSHOT').build()
         builder.addModule(module)
-        def dependencies = "compile 'foo:bar:1.0'"
+        def dependencies = "implementation 'foo:bar:1.0'"
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
 
@@ -390,11 +390,11 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         builder.addModule('ignore.as.group:some-artifact2:1.0-SNAPSHOT')
         builder.addModule('some.group:ignore-from-extension:1.0-SNAPSHOT')
         def dependencies = """
-             compile nebulaPublishVerification.ignore('some.group:ignore-as-string:1.0-SNAPSHOT')
-             compile nebulaPublishVerification.ignore(group: 'some.group', name: 'ignore-as-map', version: '1.0-SNAPSHOT')
-             compile 'ignore.as.group:some-artifact:1.0-SNAPSHOT'
-             compile 'ignore.as.group:some-artifact2:1.0-SNAPSHOT'
-             compile 'some.group:ignore-from-extension:1.0-SNAPSHOT'
+             implementation nebulaPublishVerification.ignore('some.group:ignore-as-string:1.0-SNAPSHOT')
+             implementation nebulaPublishVerification.ignore(group: 'some.group', name: 'ignore-as-map', version: '1.0-SNAPSHOT')
+             implementation 'ignore.as.group:some-artifact:1.0-SNAPSHOT'
+             implementation 'ignore.as.group:some-artifact2:1.0-SNAPSHOT'
+             implementation 'some.group:ignore-from-extension:1.0-SNAPSHOT'
         """
 
         buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
@@ -448,13 +448,13 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         addSubproject('common', """
             dependencies {
-                compile '$expectedFailureDependency'
+                implementation '$expectedFailureDependency'
             }
         """)
         addSubproject('consumer', """
         dependencies {
-           compile project(':common')
-           compile '$expectedFailureDependency2'
+           implementation project(':common')
+           implementation '$expectedFailureDependency2'
         }
         """)
 
@@ -502,13 +502,13 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
         addSubproject('common', """
             dependencies {
-                compile '$expectedFailureDependency'
+                implementation '$expectedFailureDependency'
             }
         """)
         addSubproject('consumer', """
         dependencies {
-           compile project(':common')
-           compile '$expectedFailureDependency2'
+           implementation project(':common')
+           implementation '$expectedFailureDependency2'
         }
         """)
 
@@ -631,7 +631,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             version = '1.0'
 
             dependencies {
-                compile '$unresolvableDependency'
+                implementation '$unresolvableDependency'
             }
             
             ${publishingRepos()}
@@ -673,7 +673,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             version = '1.0'
             
             dependencies {
-                compile 'test.nebula.netflix:included-project:1.0'
+                implementation 'test.nebula.netflix:included-project:1.0'
             }
 
             ${publishingRepos()}

@@ -22,7 +22,7 @@ repositories {
     jcenter()
 }
 dependencies {
-    compile 'com.google.guava:guava:18.+'
+    implementation 'com.google.guava:guava:18.+'
 }
 
 publishing {

@@ -77,8 +77,8 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                compile 'test:a:0.+'
-                compile 'test:b:[1.0.0, 2.0.0)'
+                implementation 'test:a:0.+'
+                implementation 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 
@@ -129,8 +129,8 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                compile 'test:a:0.+'
-                compile 'test:b:[1.0.0, 2.0.0)'
+                implementation 'test:a:0.+'
+                implementation 'test:b:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 

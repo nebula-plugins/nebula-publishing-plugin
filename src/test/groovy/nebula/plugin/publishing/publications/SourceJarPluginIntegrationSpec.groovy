@@ -148,7 +148,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
             apply plugin: 'groovy'
 
             dependencies {
-                compile localGroovy()
+                implementation localGroovy()
             }
         '''.stripIndent()
 
@@ -168,7 +168,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
             apply plugin: 'groovy'
 
             dependencies {
-                compile localGroovy()
+                implementation localGroovy()
             }
         '''.stripIndent()
 

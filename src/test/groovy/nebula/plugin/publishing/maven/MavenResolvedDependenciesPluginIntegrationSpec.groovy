@@ -63,7 +63,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:a:1.+'
+                implementation 'test.resolved:a:1.+'
             }
         """.stripIndent()
 
@@ -86,7 +86,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:a:latest.release'
+                implementation 'test.resolved:a:latest.release'
             }
         """.stripIndent()
 
@@ -109,7 +109,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:d:[1.0.0, 2.0.0)'
+                implementation 'test.resolved:d:[1.0.0, 2.0.0)'
             }
         """.stripIndent()
 
@@ -133,8 +133,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:b:1.0.0'
-                compile 'test.resolved:a'
+                implementation 'test.resolved:b:1.0.0'
+                implementation 'test.resolved:a'
             }
         """.stripIndent()
 
@@ -177,7 +177,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             }
 
             dependencies {
-                compile project(':sub')
+                implementation project(':sub')
             }
             """.stripIndent()
 
@@ -203,8 +203,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             }
 
             dependencies {
-                 compile 'com.google.guava:guava:16.0'
-                 compile 'com.google.truth:truth:0.28'
+                 implementation 'com.google.guava:guava:16.0'
+                 implementation 'com.google.truth:truth:0.28'
             }
 """
         when:
@@ -269,7 +269,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:a:1.0.0'
+                implementation 'test.resolved:a:1.0.0'
             }
             """.stripIndent()
 
@@ -297,8 +297,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             }
 
             dependencies {
-                compile 'test.resolved:b:1.0.0'
-                compile 'test.resolved:a'
+                implementation 'test.resolved:b:1.0.0'
+                implementation 'test.resolved:a'
             }
             """.stripIndent()
 
