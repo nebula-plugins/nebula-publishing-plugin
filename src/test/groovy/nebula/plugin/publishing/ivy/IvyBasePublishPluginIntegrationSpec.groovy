@@ -204,7 +204,7 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         !new File(publishDir, 'ivytest-0.1.0.jar').exists()
     }
 
-    def 'verify ivy.xml contains compile and runtime dependencies'() {
+    def 'verify ivy.xml contains implementation and runtimeOnly dependencies'() {
         def graph = new DependencyGraphBuilder().addModule('testjava:a:0.0.1').addModule('testjava:b:0.0.1').build()
         File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
 
@@ -216,8 +216,8 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                compile 'testjava:a:0.0.1'
-                runtime 'testjava:b:0.0.1'
+                implementation 'testjava:a:0.0.1'
+                runtimeOnly'testjava:b:0.0.1'
             }
             """.stripIndent()
 
@@ -225,8 +225,8 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        assertDependency('testjava', 'a', '0.0.1', 'compile->default')
-        assertDependency('testjava', 'b', '0.0.1', 'compile->default')
+        assertDependency('testjava', 'a', '0.0.1', 'runtime->default')
+        assertDependency('testjava', 'b', '0.0.1', 'runtime->default')
     }
 
     boolean assertDependency(String org, String name, String rev, String conf = null) {

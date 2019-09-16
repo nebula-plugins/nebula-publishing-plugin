@@ -275,9 +275,9 @@ contains critical bug fix or you are early adopter of release candidates. You ca
 checking process.
 
     dependencies {
-      compile 'group:this_will_be_checked:1.0'
-      compile nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
-      compile nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
+      implementation 'group:this_will_be_checked:1.0'
+      implementation nebulaPublishVerification.ignore('foo:bar:1.0-SNAPSHOT')
+      implementation nebulaPublishVerification.ignore(group: 'baz', name: 'bax', version: '1.0-SNAPSHOT')
     }
     
 Or you can use extension for this plugin which allows you exclude not just single artifacts but whole groups.

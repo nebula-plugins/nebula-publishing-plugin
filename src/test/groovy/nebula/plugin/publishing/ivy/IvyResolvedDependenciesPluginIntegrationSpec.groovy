@@ -62,7 +62,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile 'test.resolved:a:1.+'
+                implementation 'test.resolved:a:1.+'
             }
             """.stripIndent()
 
@@ -88,7 +88,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile 'test.resolved:a:latest.integration'
+                implementation 'test.resolved:a:latest.integration'
             }
             """.stripIndent()
 
@@ -114,7 +114,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile 'test.resolved:d:[1.0.0, 2.0.0['
+                implementation 'test.resolved:d:[1.0.0, 2.0.0['
             }
             """.stripIndent()
 
@@ -138,8 +138,8 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:b:1.0.0'
-                compile 'test.resolved:a'
+                implementation 'test.resolved:b:1.0.0'
+                implementation 'test.resolved:a'
             }
             """.stripIndent()
 
@@ -162,7 +162,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             repositories { maven { url '${mavenrepo.absolutePath}' } }
 
             dependencies {
-                compile 'test.resolved:a:1.0.0'
+                implementation 'test.resolved:a:1.0.0'
             }
             """.stripIndent()
 
@@ -190,8 +190,8 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile 'test.resolved:b:1.0.0'
-                compile 'test.resolved:a'
+                implementation 'test.resolved:b:1.0.0'
+                implementation 'test.resolved:a'
             }
             """.stripIndent()
 
@@ -221,7 +221,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile project(':sub')
+                implementation project(':sub')
             }
             """.stripIndent()
 
@@ -230,7 +230,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             version = '1.0'
 
             dependencies {
-                compile 'test.resolved:b:1.+'
+                implementation 'test.resolved:b:1.+'
             }
             '''.stripIndent())
 
