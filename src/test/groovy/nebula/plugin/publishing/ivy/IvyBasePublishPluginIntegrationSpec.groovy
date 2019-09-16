@@ -18,6 +18,7 @@ package nebula.plugin.publishing.ivy
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import org.gradle.util.GradleVersion
 import spock.lang.Unroll
 
 class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
@@ -101,7 +102,11 @@ class IvyBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         artifact.@name == 'ivytest'
         artifact.@type == 'jar'
         artifact.@ext == 'jar'
-        artifact.@conf == 'compile'
+        if(GradleVersion.current().baseVersion >= GradleVersion.version('6.0')) {
+           assert artifact.@conf == 'compile,runtime'
+        } else {
+            artifact.@conf == 'compile'
+        }
     }
 
     def 'status changes when set'() {
