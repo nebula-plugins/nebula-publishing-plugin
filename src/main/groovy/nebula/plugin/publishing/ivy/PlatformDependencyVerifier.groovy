@@ -21,6 +21,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.ModuleIdentifier
+import org.gradle.api.artifacts.component.ComponentSelector
+import org.gradle.api.artifacts.component.ModuleComponentSelector
+import org.gradle.api.artifacts.component.ProjectComponentSelector
 
 /**
  * Verifies if a dependency has platform or enhanced-platform category attribute
@@ -42,23 +45,28 @@ class PlatformDependencyVerifier {
 
     private static boolean checkIfPlatformDependency(Project project, String scope, String group, String name) {
         def platformDependencies = findPlatformDependencies(project)[scope]
-        return platformDependencies.find { requested -> requested.group == group && requested.name == name
+        return platformDependencies.find { ComponentSelector componentSelector ->
+            if(componentSelector instanceof ModuleComponentSelector) {
+                return componentSelector.moduleIdentifier.group == group && componentSelector.moduleIdentifier.name == name
+            } else if(componentSelector instanceof ProjectComponentSelector) {
+                return componentSelector.projectName == name
+            }
         }
     }
 
     @Memoized
     static Map<String, Set<? extends ModuleIdentifier>> findPlatformDependencies(Project project) {
         ConfigurationContainer configurations = project.configurations
-        Map<String, Set<? extends ModuleIdentifier>> dependencyMap = [:]
+        Map<String, Set<? extends ComponentSelector>> dependencyMap = [:]
         dependencyMap['runtime'] = platformDependencies(configurations.runtimeClasspath)
         dependencyMap['compile'] = platformDependencies(configurations.compileClasspath)
         dependencyMap['test'] = platformDependencies(configurations.testRuntimeClasspath)
         dependencyMap
     }
 
-    static Set<? extends ModuleIdentifier> platformDependencies(Configuration configuration) {
+    static Set<? extends ComponentSelector> platformDependencies(Configuration configuration) {
         return configuration.incoming.resolutionResult.allDependencies.requested.findAll {
-            it.attributes.keySet().name.contains(CATEGORY_ATTRIBUTE) && it.attributes.findEntry(CATEGORY_ATTRIBUTE).get() in [REGULAR_PLATFORM, ENFORCED_PLATFORM]
-        }?.moduleIdentifier
+           it.attributes.keySet().name.contains(CATEGORY_ATTRIBUTE) && it.attributes.findEntry(CATEGORY_ATTRIBUTE).get() in [REGULAR_PLATFORM, ENFORCED_PLATFORM]
+        }
     }
 }
