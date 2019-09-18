@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.publications
+
+import groovy.transform.CompileDynamic
 import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
 import nebula.plugin.publishing.maven.MavenBasePublishPlugin
 import org.gradle.api.Plugin
@@ -24,6 +26,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 
+@CompileDynamic
 class JavadocJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

@@ -15,7 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
-import groovy.transform.CompileStatic
+import groovy.transform.CompileDynamic
 import nebula.plugin.info.scm.GitScmProvider
 import nebula.plugin.info.scm.ScmInfoPlugin
 import org.gradle.api.Action
@@ -28,8 +28,8 @@ import org.gradle.api.publish.maven.MavenPomScm
 import org.gradle.api.publish.maven.MavenPublication
 
 class MavenScmPlugin implements Plugin<Project> {
+
     @Override
-    @CompileStatic
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
@@ -77,6 +77,7 @@ class MavenScmPlugin implements Plugin<Project> {
      * Convert git syntax of git@github.com:reactivex/rxjava-core.git to https://github.com/reactivex/rxjava-core
      * @param origin
      */
+    @CompileDynamic
     static String calculateUrlFromOrigin(String origin, Project project) {
         def m = origin =~ GIT_PATTERN
         if (m) {

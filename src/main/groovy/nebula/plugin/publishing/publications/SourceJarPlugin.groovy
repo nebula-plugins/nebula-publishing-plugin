@@ -15,15 +15,19 @@
  */
 package nebula.plugin.publishing.publications
 
+import groovy.transform.CompileDynamic
 import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
 import nebula.plugin.publishing.maven.MavenBasePublishPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.IvyPublication
+import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
 
+@CompileDynamic
 class SourceJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -36,7 +40,7 @@ class SourceJarPlugin implements Plugin<Project> {
                 group 'build'
             }
 
-            project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
+            project.plugins.withType(MavenPublishPlugin) {
                 project.plugins.apply(MavenBasePublishPlugin)
 
                 project.publishing {
@@ -48,7 +52,7 @@ class SourceJarPlugin implements Plugin<Project> {
                 }
             }
 
-            project.plugins.withType(org.gradle.api.publish.ivy.plugins.IvyPublishPlugin) {
+            project.plugins.withType(IvyPublishPlugin) {
                 project.plugins.apply(IvyBasePublishPlugin)
 
                 project.publishing {

@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 package nebula.plugin.publishing.ivy
+
+import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.ivy.IvyModuleDescriptorDescription
+import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
 import org.gradle.api.publish.ivy.IvyPublication
 
 class IvyBasePublishPlugin implements Plugin<Project> {
@@ -47,53 +54,74 @@ class IvyBasePublishPlugin implements Plugin<Project> {
             <conf name="provided" visibility="public"/>
          */
 
-        project.publishing {
-            publications {
-                withType(IvyPublication) {
+        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+        publishing.publications(new Action<PublicationContainer>() {
+            @Override
+            void execute(PublicationContainer publications) {
+                publications.withType(IvyPublication) { IvyPublication publication ->
                     if (! project.state.executed) {
-                        project.afterEvaluate { p ->
-                            configureDescription(it, p)
-                        }
-                    } else {
-                        configureDescription(it, project)
-                    }
-
-                    descriptor.withXml { XmlProvider xml ->
-                        def root = xml.asNode()
-                        def configurationsNode = root?.configurations
-                        if(!configurationsNode) {
-                            configurationsNode = root.appendNode('configurations')
-                        }
-                        else {
-                            configurationsNode = configurationsNode[0]
-                        }
-
-                        def minimalConfs = [
-                            compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
-                            runtime: ['compile'], sources: [], test: ['runtime']
-                        ]
-
-                        minimalConfs.each { minimal ->
-                            def conf = configurationsNode.conf.find { it.@name == minimal.key }
-                            if(!conf) {
-                                conf = configurationsNode.appendNode('conf')
+                        project.afterEvaluate(new Action<Project>() {
+                            @Override
+                            void execute(Project p) {
+                                configureDescription(publication, project)
                             }
-                            conf.@name = minimal.key
-                            conf.@visibility = 'public'
-
-                            if(!minimal.value.empty)
-                                conf.@extends = minimal.value.join(',')
-                        }
+                        })
+                    } else {
+                        configureDescription(publication, project)
                     }
+
+                    publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+                        @Override
+                        void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
+                            ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
+                                @Override
+                                void execute(XmlProvider xml) {
+                                    configureXml(xml)
+                                }
+                            })
+                        }
+                    })
                 }
             }
+        })
+    }
+
+    @CompileDynamic
+    private void configureXml(XmlProvider xml) {
+        def root = xml.asNode()
+        def configurationsNode = root?.configurations
+        if(!configurationsNode) {
+            configurationsNode = root.appendNode('configurations')
+        }
+        else {
+            configurationsNode = configurationsNode[0]
+        }
+
+        def minimalConfs = [
+                compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
+                runtime: ['compile'], sources: [], test: ['runtime']
+        ]
+
+        minimalConfs.each { minimal ->
+            def conf = configurationsNode.conf.find { it.@name == minimal.key }
+            if(!conf) {
+                conf = configurationsNode.appendNode('conf')
+            }
+            conf.@name = minimal.key
+            conf.@visibility = 'public'
+
+            if(!minimal.value.empty)
+                conf.@extends = minimal.value.join(',')
         }
     }
 
     private void configureDescription(IvyPublication publication, Project p) {
         publication.descriptor.status = p.status
-        publication.descriptor.description {
-            text = p.description ?: ''
-        }
+        publication.descriptor.description(new Action<IvyModuleDescriptorDescription>() {
+            @Override
+            void execute(IvyModuleDescriptorDescription ivyModuleDescriptorDescription) {
+                ivyModuleDescriptorDescription.text.set(p.description ?: '')
+            }
+        })
     }
 }

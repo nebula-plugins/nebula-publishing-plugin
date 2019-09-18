@@ -15,8 +15,12 @@
  */
 package nebula.plugin.publishing.maven
 
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 
 class MavenBasePublishPlugin implements Plugin<Project> {
@@ -24,25 +28,33 @@ class MavenBasePublishPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
-        project.publishing {
-            publications {
-                withType(MavenPublication) {
-                    if (! project.state.executed) {
-                        project.afterEvaluate { p ->
-                            configureDescription(it, p)
-                        }
+        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+        publishing.publications(new Action<PublicationContainer>() {
+            @Override
+            void execute(PublicationContainer publications) {
+                publications.withType(MavenPublication) { MavenPublication publication ->
+                    if (!project.state.executed) {
+                        project.afterEvaluate(new Action<Project>() {
+                            @Override
+                            void execute(Project p) {
+                                configureDescription(publication, p)
+                            }
+                        })
                     } else {
-                        configureDescription(it, project)
+                        configureDescription(publication, project)
                     }
                 }
             }
-        }
+        })
     }
 
-    private void configureDescription(MavenPublication publication, Project p) {
-        publication.pom {
-            name = p.name
-            description = p.description
-        }
+    private static void configureDescription(MavenPublication publication, Project p) {
+        publication.pom(new Action<MavenPom>() {
+            @Override
+            void execute(MavenPom mavenPom) {
+                mavenPom.name.set(p.name)
+                mavenPom.description.set(p.description)
+            }
+        })
     }
 }
