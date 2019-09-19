@@ -12,7 +12,7 @@ com.jcraft:jsch.agentproxy.usocket-nc:0.0.7
 com.jcraft:jsch:0.1.54
 com.jcraft:jzlib:1.1.2
 com.netflix.nebula:gradle-contacts-plugin:5.1.0-rc.1
-com.netflix.nebula:gradle-info-plugin:5.0.3
+com.netflix.nebula:gradle-info-plugin:5.1.0
 com.netflix.nebula:nebula-gradle-interop:1.0.11
 com.perforce:p4java:2015.2.1365273
 com.trilead:trilead-ssh2:1.0.0-build220

@@ -24,7 +24,7 @@ com.jcraft:jsch:0.1.54
 com.jcraft:jzlib:1.1.2
 com.netflix.nebula:gradle-contacts-plugin:5.1.0-rc.1
 com.netflix.nebula:gradle-dependency-lock-plugin:8.0.0
-com.netflix.nebula:gradle-info-plugin:5.0.3
+com.netflix.nebula:gradle-info-plugin:5.1.0
 com.netflix.nebula:gradle-resolution-rules-plugin:7.4.1
 com.netflix.nebula:gradle-scm-plugin:5.0.3
 com.netflix.nebula:nebula-dependency-recommender:8.0.1
