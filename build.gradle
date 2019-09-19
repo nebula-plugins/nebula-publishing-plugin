@@ -50,7 +50,7 @@ task createClasspathManifest {
 
 dependencies {
     implementation 'com.netflix.nebula:gradle-info-plugin:latest.release'
-    implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release', optional
+    implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release'
     implementation 'com.netflix.nebula:nebula-gradle-interop:latest.release'
 
     testImplementation gradleTestKit()
