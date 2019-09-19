@@ -15,10 +15,14 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
-import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 
 /**
@@ -28,25 +32,47 @@ import org.gradle.api.publish.maven.MavenPublication
 class MavenRemoveInvalidDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.afterEvaluate {
-            project.publishing {
-                publications {
-                    withType(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
-                            project.plugins.withType(JavaBasePlugin) {
-                                def dependencies = xml.asNode()?.dependencies?.dependency
-                                dependencies?.each { Node dep ->
-                                    String version = dep.version.text()
-                                    if(!version) {
-                                       dep.parent().remove(dep)
-                                    }
+        project.afterEvaluate(new Action<Project>() {
+            @Override
+            void execute(Project p) {
 
+                PublishingExtension publishing = p.extensions.getByType(PublishingExtension)
+                publishing.publications(new Action<PublicationContainer>() {
+
+                    @Override
+                    void execute(PublicationContainer publications) {
+                        publications.withType(MavenPublication) { MavenPublication publication ->
+
+                            publication.pom(new Action<MavenPom>() {
+
+                                @Override
+                                void execute(MavenPom pom) {
+
+                                    pom.withXml(new Action<XmlProvider>() {
+
+                                        @Override
+                                        void execute(XmlProvider xml) {
+                                            removeDependencies(xml)
+                                        }
+                                    })
                                 }
-                            }
+                            })
                         }
                     }
-                }
+                })
             }
+        })
+    }
+
+    @CompileDynamic
+    private void removeDependencies(XmlProvider xml) {
+        def dependencies = xml.asNode()?.dependencies?.dependency
+        dependencies?.each { Node dep ->
+            String version = dep.version.text()
+            if (!version) {
+                dep.parent().remove(dep)
+            }
+
         }
     }
 }
