@@ -1,6 +1,5 @@
 package nebula.plugin.publishing.verification
 
-import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 
 class StatusVerificationViolation {

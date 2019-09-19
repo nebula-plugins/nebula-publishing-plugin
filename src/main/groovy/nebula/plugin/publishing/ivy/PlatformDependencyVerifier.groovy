@@ -16,11 +16,11 @@
 
 package nebula.plugin.publishing.ivy
 
+import groovy.transform.CompileDynamic
 import groovy.transform.Memoized
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.component.ComponentSelector
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.component.ProjectComponentSelector
@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.component.ProjectComponentSelector
 /**
  * Verifies if a dependency has platform or enhanced-platform category attribute
  */
+@CompileDynamic
 class PlatformDependencyVerifier {
 
     private static final String CATEGORY_ATTRIBUTE = "org.gradle.category"
@@ -55,7 +56,7 @@ class PlatformDependencyVerifier {
     }
 
     @Memoized
-    static Map<String, Set<? extends ModuleIdentifier>> findPlatformDependencies(Project project) {
+    static Map<String, Set<? extends ComponentSelector>> findPlatformDependencies(Project project) {
         ConfigurationContainer configurations = project.configurations
         Map<String, Set<? extends ComponentSelector>> dependencyMap = [:]
         dependencyMap['runtime'] = platformDependencies(configurations.runtimeClasspath)

@@ -15,10 +15,15 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.transform.CompileDynamic
 import nebula.plugin.info.InfoBrokerPlugin
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import static nebula.plugin.publishing.ManifestElementNameGenerator.*
 
@@ -35,23 +40,36 @@ class MavenManifestPlugin implements Plugin<Project> {
         }
 
         project.plugins.withType(InfoBrokerPlugin) { InfoBrokerPlugin infoBroker ->
-            project.publishing {
-                publications {
-                    withType(MavenPublication) {
-                        pom.withXml { XmlProvider xml ->
-                            Map<String, String> manifest = infoBroker.buildManifest()
-
-                            def propertiesNode = xml.asNode()?.properties
-                            if (!propertiesNode) {
-                                propertiesNode = xml.asNode().appendNode('properties')
+            PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+            publishing.publications(new Action<PublicationContainer>() {
+                @Override
+                void execute(PublicationContainer publications) {
+                    publications.withType(MavenPublication) { MavenPublication publication ->
+                        publication.pom(new Action<MavenPom>() {
+                            @Override
+                            void execute(MavenPom pom) {
+                                pom.withXml(new Action<XmlProvider>() {
+                                    @Override
+                                    void execute(XmlProvider xml) {
+                                        appendManifest(xml, infoBroker.buildManifest())
+                                    }
+                                })
                             }
-                            manifest.each { key, value ->
-                                propertiesNode.appendNode(elementName("nebula_$key"), value)
-                            }
-                        }
+                        })
                     }
                 }
-            }
+            })
+        }
+    }
+
+    @CompileDynamic
+    private void appendManifest(XmlProvider xml, Map<String, String> manifest) {
+        def propertiesNode = xml.asNode()?.properties
+        if (!propertiesNode) {
+            propertiesNode = xml.asNode().appendNode('properties')
+        }
+        manifest.each { String key, String value ->
+            propertiesNode.appendNode(elementName("nebula_$key"), value)
         }
     }
 }

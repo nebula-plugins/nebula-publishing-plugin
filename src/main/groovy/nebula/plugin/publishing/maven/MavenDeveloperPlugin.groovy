@@ -15,9 +15,13 @@
  */
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.contacts.BaseContactsPlugin
 import nebula.plugin.publishing.contacts.BaseContactPluginConfigurator
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 
 class MavenDeveloperPlugin implements Plugin<Project> {
@@ -25,20 +29,25 @@ class MavenDeveloperPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        project.plugins.withId("nebula.contacts-base") { contactsPlugin ->
-            project.publishing {
-                publications {
-                    withType(MavenPublication) { publication ->
-                        if (! project.state.executed) {
-                            project.afterEvaluate {
-                                BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
-                            }
+        project.plugins.withId("nebula.contacts-base") { BaseContactsPlugin contactsPlugin ->
+            PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+            publishing.publications(new Action<PublicationContainer>() {
+                @Override
+                void execute(PublicationContainer publications) {
+                    publications.withType(MavenPublication) { MavenPublication publication ->
+                        if (!project.state.executed) {
+                            project.afterEvaluate(new Action<Project>() {
+                                @Override
+                                void execute(Project p) {
+                                    BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
+                                }
+                            })
                         } else {
                             BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
                         }
                     }
                 }
-            }
+            })
         }
     }
 }
