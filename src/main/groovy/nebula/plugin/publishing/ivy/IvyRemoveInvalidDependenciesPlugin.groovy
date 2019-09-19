@@ -16,9 +16,14 @@
 
 package nebula.plugin.publishing.ivy
 
+import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
 import org.gradle.api.publish.ivy.IvyPublication
 
 
@@ -29,18 +34,33 @@ import org.gradle.api.publish.ivy.IvyPublication
 class IvyRemoveInvalidDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.publishing {
-            publications {
-                withType(IvyPublication) {
-                    descriptor.withXml { XmlProvider xml ->
-                        xml.asNode().dependencies.dependency.findAll() { Node dep ->
-                            String revision = dep.@rev
-                            if(!revision) {
-                                dep.parent().remove(dep)
-                            }
+        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+        publishing.publications(new Action<PublicationContainer>() {
+            @Override
+            void execute(PublicationContainer publications) {
+                publications.withType(IvyPublication) { IvyPublication publication ->
+                    publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+                        @Override
+                        void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
+                            ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
+                                @Override
+                                void execute(XmlProvider xml) {
+                                    configureXml(xml)
+                                }
+                            })
                         }
-                    }
+                    })
                 }
+            }
+        })
+    }
+
+    @CompileDynamic
+    private void configureXml(XmlProvider xml) {
+        xml.asNode().dependencies.dependency.findAll() { Node dep ->
+            String revision = dep.@rev
+            if(!revision) {
+                dep.parent().remove(dep)
             }
         }
     }

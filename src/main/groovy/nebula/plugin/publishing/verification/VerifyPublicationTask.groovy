@@ -24,7 +24,7 @@ class VerifyPublicationTask extends DefaultTask {
     void verifyDependencies() {
         if (sourceSet == null) throw new IllegalStateException('sourceSet must be configured')
         Configuration runtimeClasspath = project.configurations.getByName(sourceSet.getRuntimeClasspathConfigurationName())
-        Set<DependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
+        Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
         List<StatusVerificationViolation> violations = new StatusVerification(ignore, ignoreGroups, project.status).verify(firstLevel)
 
         List<Dependency> definedDependencies = getDefinedDependencies()
@@ -35,14 +35,14 @@ class VerifyPublicationTask extends DefaultTask {
     }
 
     private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
-        def firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
-        def unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult }
+        Set<? extends DependencyResult> firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
+        List<UnresolvedDependencyResult> unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult } as List<UnresolvedDependencyResult>
         if (! unresolvedDependencies.isEmpty()) {
             UnresolvedDependencyResult unresolvedDependencyResult = (UnresolvedDependencyResult) unresolvedDependencies.first()
             throw unresolvedDependencyResult.failure
         }
-        firstLevelDependencies.findAll {
-            ! (it.selected.id instanceof ProjectComponentIdentifier)
+        firstLevelDependencies.findAll { DependencyResult result ->
+            result instanceof ResolvedDependencyResult && ! (result.selected.id instanceof ProjectComponentIdentifier)
         } as Set<ResolvedDependencyResult>
     }
 
@@ -52,9 +52,9 @@ class VerifyPublicationTask extends DefaultTask {
         extension.collector
     }
 
-    private List<Object> getDefinedDependencies() {
-        project.configurations.collect { configuration ->
+    private List<Dependency> getDefinedDependencies() {
+        project.configurations.collect { Configuration configuration ->
             configuration.dependencies
-        }.flatten()
+        }.flatten() as List<Dependency>
     }
 }

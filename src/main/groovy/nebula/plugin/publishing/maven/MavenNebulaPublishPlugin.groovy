@@ -1,11 +1,13 @@
 package nebula.plugin.publishing.maven
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
 
+@CompileDynamic
 class MavenNebulaPublishPlugin implements Plugin<Project> {
     static final String MAVEN_WAR = 'nebulaPublish.maven.war'
     static final String MAVEN_JAR = 'nebulaPublish.maven.jar'

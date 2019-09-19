@@ -16,33 +16,50 @@
 package nebula.plugin.publishing.maven.license
 
 import nebula.plugin.publishing.maven.MavenBasePublishPlugin
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPom
+import org.gradle.api.publish.maven.MavenPomLicense
+import org.gradle.api.publish.maven.MavenPomLicenseSpec
 import org.gradle.api.publish.maven.MavenPublication
-
 
 class MavenApacheLicensePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        project.publishing {
-            publications {
-                nebula(MavenPublication)
-                withType(MavenPublication) { publication ->
+        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+        publishing.publications(new Action<PublicationContainer>() {
+            @Override
+            void execute(PublicationContainer publications) {
+                publications.withType(MavenPublication) { MavenPublication publication ->
                     configureLicense(publication)
                 }
             }
-        }
+        })
     }
 
-    def configureLicense(MavenPublication publication) {
-        publication.pom.licenses {
-            license {
-                name = 'The Apache Software License, Version 2.0'
-                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution = 'repo'
+    private void configureLicense(MavenPublication publication) {
+        publication.pom(new Action<MavenPom>() {
+            @Override
+            void execute(MavenPom mavenPom) {
+                mavenPom.licenses(new Action<MavenPomLicenseSpec>() {
+                    @Override
+                    void execute(MavenPomLicenseSpec mavenPomLicenseSpec) {
+                        mavenPomLicenseSpec.license(new Action<MavenPomLicense>() {
+                            @Override
+                            void execute(MavenPomLicense mavenPomLicense) {
+                                mavenPomLicense.name.set('The Apache Software License, Version 2.0')
+                                mavenPomLicense.url.set('http://www.apache.org/licenses/LICENSE-2.0.txt')
+                                mavenPomLicense.distribution.set('repo')
+                            }
+                        })
+                    }
+                })
             }
-        }
+        })
     }
 }

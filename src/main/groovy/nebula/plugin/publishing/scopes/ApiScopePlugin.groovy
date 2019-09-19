@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.scopes
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -26,6 +27,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 
+@Deprecated
+@CompileDynamic
 class ApiScopePlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

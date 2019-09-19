@@ -1,9 +1,11 @@
 package nebula.plugin.publishing.contacts
 
+import groovy.transform.CompileDynamic
 import nebula.plugin.contacts.BaseContactsPlugin
 import nebula.plugin.contacts.Contact
 import org.gradle.api.publish.maven.MavenPublication
 
+@CompileDynamic
 class BaseContactPluginConfigurator {
 
     static void configureContacts(BaseContactsPlugin contactsPlugin, MavenPublication publication) {
