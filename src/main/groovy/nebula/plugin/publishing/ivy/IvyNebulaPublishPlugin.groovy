@@ -1,13 +1,11 @@
 package nebula.plugin.publishing.ivy
 
-import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 
-@CompileDynamic
 class IvyNebulaPublishPlugin implements Plugin<Project> {
     static final String IVY_WAR = 'nebulaPublish.ivy.war'
     static final String IVY_JAR = 'nebulaPublish.ivy.jar'

@@ -15,7 +15,6 @@
  */
 package nebula.plugin.publishing.publications
 
-import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -32,7 +31,6 @@ import org.gradle.api.tasks.bundling.Jar
  * the test harness.
  */
 @Deprecated
-@CompileDynamic
 class TestJarPlugin implements Plugin<Project> {
     static final String FIXTURE_CONF = 'test'
 

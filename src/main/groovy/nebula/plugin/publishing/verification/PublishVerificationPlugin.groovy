@@ -1,10 +1,8 @@
 package nebula.plugin.publishing.verification
 
 import com.netflix.nebula.interop.GradleKt
-import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataDetails
@@ -26,7 +24,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         if (shouldApplyPlugin()) {
-            PublishVerificationExtension extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension) as PublishVerificationExtension
+            def extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension)
             project.plugins.withType(JavaBasePlugin) {
                 setupPlugin(project, extension)
             }
@@ -38,7 +36,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
         GradleVersion.current() >= minVersion
     }
 
-    @CompileDynamic
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
         createVerificationViolationsCollector(project)
         generateStatusSchemeAttribute(project)
@@ -63,7 +60,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
-    @CompileDynamic
     private void generateStatusSchemeAttribute(Project p) {
         if(GradleKt.versionLessThan(p.gradle, "5.0")) {
             p.dependencies {
@@ -93,10 +89,10 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private void configureHooks(Project project, VerificationReportTask reportTask) {
-        project.tasks.withType(PublishToIvyRepository) { Task task ->
+        project.tasks.withType(PublishToIvyRepository) { task ->
             task.dependsOn(reportTask)
         }
-        project.tasks.withType(PublishToMavenRepository) { Task task ->
+        project.tasks.withType(PublishToMavenRepository) { task ->
             task.dependsOn(reportTask)
         }
         project.plugins.withId('com.jfrog.artifactory') {

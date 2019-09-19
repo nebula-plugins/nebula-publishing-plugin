@@ -16,13 +16,8 @@
 package nebula.plugin.publishing.maven
 
 import nebula.plugin.publishing.verification.DirectDependenciesVerifier
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.publish.PublicationContainer
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.VariantVersionMappingStrategy
-import org.gradle.api.publish.VersionMappingStrategy
 import org.gradle.api.publish.maven.MavenPublication
 
 /**
@@ -32,32 +27,19 @@ class MavenResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
-        project.afterEvaluate(new Action<Project>() {
-            @Override
-            void execute(Project p) {
-
-                PublishingExtension publishing = p.extensions.getByType(PublishingExtension)
-                publishing.publications(new Action<PublicationContainer>() {
-
-                    @Override
-                    void execute(PublicationContainer publications) {
-                        DirectDependenciesVerifier.verify(project)
-                        publications.withType(MavenPublication) { MavenPublication publication ->
-                            publication.versionMapping(new Action<VersionMappingStrategy>() {
-                                @Override
-                                void execute(VersionMappingStrategy versionMappingStrategy) {
-                                    versionMappingStrategy.allVariants(new Action<VariantVersionMappingStrategy>() {
-                                        @Override
-                                        void execute(VariantVersionMappingStrategy variantVersionMappingStrategy) {
-                                            variantVersionMappingStrategy.fromResolutionResult()
-                                        }
-                                    })
-                                }
-                            })
+        project.afterEvaluate {
+            DirectDependenciesVerifier.verify(project)
+            project.publishing {
+                publications {
+                    withType(MavenPublication) {
+                        versionMapping {
+                            allVariants {
+                                fromResolutionResult()
+                            }
                         }
                     }
-                })
+                }
             }
-        })
+        }
     }
 }
