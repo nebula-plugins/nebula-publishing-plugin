@@ -1,6 +1,5 @@
 package nebula.plugin.publishing.verification
 
-import groovy.transform.CompileDynamic
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 
@@ -66,7 +65,6 @@ class VerificationReportGenerator {
         builder.append('\n')
     }
 
-    @CompileDynamic
     private void singleModuleProjectIgnoreBlock(StringBuilder builder, Map<String, ViolationsContainer> violationsPerProject) {
         builder.append(INDENTATION + "Place following configuration at the end of your project build.gradle file\n\n")
         builder.append(INDENTATION + "nebulaPublishVerification {\n")
@@ -79,7 +77,6 @@ class VerificationReportGenerator {
         builder.append(INDENTATION + "}\n")
     }
 
-    @CompileDynamic
     private void multiModuleProjectIgnoreBlock(StringBuilder builder, Map<String, ViolationsContainer> violationsPerProject) {
         builder.append(INDENTATION + "Place following configuration at the end of your root project build.gradle file\n\n")
         builder.append(INDENTATION + "allprojects {\n")

@@ -7,7 +7,7 @@ import org.gradle.api.tasks.TaskAction
 
 class VerificationReportTask extends DefaultTask {
 
-    protected VerificationReportGenerator verificationReportGenerator = new VerificationReportGenerator()
+    protected def verificationReportGenerator = new VerificationReportGenerator()
 
     @TaskAction
     void reportViolatingDependencies() {
@@ -30,6 +30,6 @@ class VerificationReportTask extends DefaultTask {
 
 
     private String generateReportMessage(Map<Project, ViolationsContainer> violationsPerProject){
-        verificationReportGenerator.generateReport(violationsPerProject.collectEntries { [it.key.toString(), it.value] } as Map<String, ViolationsContainer> , project.status.toString())
+        verificationReportGenerator.generateReport(violationsPerProject.collectEntries { [it.key.toString(), it.value] }, project.status)
     }
 }

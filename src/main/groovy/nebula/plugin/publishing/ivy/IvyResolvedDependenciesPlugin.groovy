@@ -16,15 +16,9 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.plugin.publishing.verification.DirectDependenciesVerifier
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.publish.PublicationContainer
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.VariantVersionMappingStrategy
-import org.gradle.api.publish.VersionMappingStrategy
 import org.gradle.api.publish.ivy.IvyPublication
-
 
 /**
  * Replaces first order dependencies with the selected versions when publishing.
@@ -33,32 +27,20 @@ class IvyResolvedDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.apply IvyBasePublishPlugin
-        project.afterEvaluate(new Action<Project>() {
-            @Override
-            void execute(Project p) {
 
-                PublishingExtension publishing = p.extensions.getByType(PublishingExtension)
-                publishing.publications(new Action<PublicationContainer>() {
-
-                    @Override
-                    void execute(PublicationContainer publications) {
-                        DirectDependenciesVerifier.verify(project)
-                        publications.withType(IvyPublication) { IvyPublication publication ->
-                            publication.versionMapping(new Action<VersionMappingStrategy>() {
-                                @Override
-                                void execute(VersionMappingStrategy versionMappingStrategy) {
-                                    versionMappingStrategy.allVariants(new Action<VariantVersionMappingStrategy>() {
-                                        @Override
-                                        void execute(VariantVersionMappingStrategy variantVersionMappingStrategy) {
-                                            variantVersionMappingStrategy.fromResolutionResult()
-                                        }
-                                    })
-                                }
-                            })
+        project.afterEvaluate {
+            DirectDependenciesVerifier.verify(project)
+            project.publishing {
+                publications {
+                    withType(IvyPublication) {
+                        versionMapping {
+                            allVariants {
+                                fromResolutionResult()
+                            }
                         }
                     }
-                })
+                }
             }
-        })
+        }
     }
 }

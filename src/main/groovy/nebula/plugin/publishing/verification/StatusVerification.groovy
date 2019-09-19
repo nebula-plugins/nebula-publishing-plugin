@@ -8,7 +8,7 @@ import org.gradle.api.attributes.Attribute
 
 class StatusVerification {
 
-    private static final Attribute STATUS = Attribute.of("org.gradle.status", String.class)
+    private static final STATUS = Attribute.of("org.gradle.status", String.class)
 
     Set<ModuleIdentifier> ignore
     Set<String> ignoreGroups
