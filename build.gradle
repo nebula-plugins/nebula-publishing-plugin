@@ -53,6 +53,8 @@ dependencies {
     implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release'
     implementation 'com.netflix.nebula:nebula-gradle-interop:latest.release'
 
+    implementation platform("com.fasterxml.jackson:jackson-bom:2.9.9.20190807")
+
     testImplementation gradleTestKit()
     testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
     testImplementation 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
@@ -134,7 +136,7 @@ gradlePlugin {
             id = 'nebula.ivy-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
         }
-        
+
         ivyRemovePlatformDependencies {
             id = 'nebula.ivy-remove-platform-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyRemovePlatformDependenciesPlugin'
