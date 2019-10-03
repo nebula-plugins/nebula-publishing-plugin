@@ -43,8 +43,8 @@ class TestJarPlugin implements Plugin<Project> {
         project.plugins.withType(JavaPlugin) { // needed for source sets
             def testJar = project.tasks.create('testJar', Jar) {
                 dependsOn project.tasks.getByName('testClasses')
-                classifier = 'tests'
-                extension = 'jar'
+                archiveClassifier.set 'tests'
+                archiveExtension.set 'jar'
                 from project.sourceSets.test.output
                 group 'build'
             }

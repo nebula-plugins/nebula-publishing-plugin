@@ -35,8 +35,8 @@ class SourceJarPlugin implements Plugin<Project> {
             project.tasks.create('sourceJar', Jar) {
                 dependsOn project.tasks.getByName('classes')
                 from project.sourceSets.main.allSource
-                classifier 'sources'
-                extension 'jar'
+                archiveClassifier.set 'sources'
+                archiveExtension.set 'jar'
                 group 'build'
             }
 

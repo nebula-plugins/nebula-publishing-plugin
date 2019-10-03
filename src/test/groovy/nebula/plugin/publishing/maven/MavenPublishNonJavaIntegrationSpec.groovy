@@ -35,7 +35,7 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
             version = '0.1.0'
 
             task createZip(type: Zip) {
-                destinationDir = project.buildDir
+                destinationDirectory = project.buildDir
                 classifier = 'testzip'
                 from 'zip'
             }

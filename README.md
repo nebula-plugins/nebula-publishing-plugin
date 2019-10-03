@@ -7,12 +7,12 @@
 
 ## Usage
 
-__WARNING: Version 8.x.x requires at least Gradle 4.8__
+__WARNING: Version 14.x.x requires at least Gradle 5.1__
 
 To apply this plugin if using plugins block
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '8.1.0'
+      id 'nebula.<publishing plugin of your choice>' version '14.0.0'
     }
 
 If using an older version of Gradle
@@ -20,7 +20,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:8.1.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:14.0.0'
       }
     }
 
@@ -226,8 +226,8 @@ Eliminates this boilerplate:
     tasks.create('javadocJar', Jar) {
       dependsOn tasks.javadoc
       from tasks.javadoc.destinationDir
-      classifier 'javadoc'
-      extension 'jar'
+      archiveClassifier 'javadoc'
+      archiveExtension 'jar'
       group 'build'
     }
     publishing {
@@ -250,8 +250,8 @@ Eliminates this boilerplate:
     tasks.create('sourceJar', Jar) {
         dependsOn tasks.classes
         from sourceSets.main.allSource
-        classifier 'sources'
-        extension 'jar'
+        archiveClassifier 'sources'
+        archiveExtension 'jar'
         group 'build'
     }
     publishing {
@@ -329,18 +329,21 @@ Or you can use extension for this plugin which allows you exclude not just singl
 Gradle Compatibility Tested
 ---------------------------
 
-Built with Oracle JDK7
+Built with Oracle JDK8
 Tested with Oracle JDK8
 
 | Gradle Version    | Works |
-| :---------------: | :---: |
-| < 4.0-milestone-2 | no    |
-| 4.0-milestone-2   | yes   |
+| 5.1   | yes   |
+| 5.2   | yes   |
+| 5.3   | yes   |
+| 5.4   | yes   |
+| 5.5   | yes   |
+| 5.6   | yes   |
 
 LICENSE
 =======
 
-Copyright 2014-2017 Netflix, Inc.
+Copyright 2014-2019 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
