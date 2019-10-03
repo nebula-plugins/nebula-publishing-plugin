@@ -7,7 +7,7 @@
 
 ## Usage
 
-__WARNING: Version 14.x.x requires at least Gradle 5.1__
+__WARNING: Version 14.x.x requires at least Gradle 5.4__
 
 To apply this plugin if using plugins block
 
