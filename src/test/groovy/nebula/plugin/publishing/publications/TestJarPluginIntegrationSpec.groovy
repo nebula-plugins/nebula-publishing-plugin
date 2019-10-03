@@ -71,7 +71,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         writeTest('src/test/java/', 'example', false)
 
         when:
-        runTasksSuccessfully('unzip')
+        runTasksSuccessfully('unzip', '--warning-mode', 'none')
 
         then:
         def exampleTest = new File(unzipDir, 'example/HelloWorldTest.class')
@@ -90,7 +90,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         """
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository')
+        runTasksSuccessfully('publishNebulaPublicationToTestLocalRepository', '--warning-mode', 'none')
 
         then:
         def dependencyList = new XmlSlurper().parse(new File(publishDir, 'testjartest-0.1.0.pom')).dependencies.dependency
@@ -126,7 +126,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository')
+        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository', '--warning-mode', 'none')
 
         def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
         def configurationList = root.configurations.conf
@@ -178,7 +178,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository')
+        runTasksSuccessfully('publishNebulaIvyPublicationToTestLocalRepository', '--warning-mode', 'none')
 
         def root = new XmlSlurper().parse(new File(publishDir, 'ivy-0.1.0.xml'))
         def configurationList = root.configurations.conf

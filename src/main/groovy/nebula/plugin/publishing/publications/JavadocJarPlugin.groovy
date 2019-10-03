@@ -35,8 +35,8 @@ class JavadocJarPlugin implements Plugin<Project> {
             project.tasks.create('javadocJar', Jar) {
                 dependsOn javadocTask
                 from javadocTask.destinationDir
-                classifier 'javadoc'
-                extension 'jar'
+                archiveClassifier.set 'javadoc'
+                archiveExtension.set 'jar'
                 group 'build'
             }
 

@@ -42,7 +42,7 @@ class TestJarPluginMultiprojectIntegrationSpec extends IntegrationSpec{
         def clientDir = addSubproject('client', """\
             apply plugin: 'java'
             dependencies {
-                testCompile project(path: ':common', configuration: 'test')
+                testImplementation project(path: ':common', configuration: 'test')
             }
         """.stripIndent())
 
@@ -58,7 +58,7 @@ class TestJarPluginMultiprojectIntegrationSpec extends IntegrationSpec{
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully(':client:compileTestJava')
+        runTasksSuccessfully(':client:compileTestJava', '--warning-mode', 'all')
 
         then:
         noExceptionThrown()
