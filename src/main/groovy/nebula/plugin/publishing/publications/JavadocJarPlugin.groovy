@@ -18,11 +18,13 @@ package nebula.plugin.publishing.publications
 import groovy.transform.CompileDynamic
 import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
 import nebula.plugin.publishing.maven.MavenBasePublishPlugin
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.javadoc.Javadoc
 
@@ -31,14 +33,18 @@ class JavadocJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.plugins.withType(JavaPlugin) {
-            Javadoc javadocTask = (Javadoc) project.tasks.getByName('javadoc')
-            project.tasks.create('javadocJar', Jar) {
-                dependsOn javadocTask
-                from javadocTask.destinationDir
-                archiveClassifier.set 'javadoc'
-                archiveExtension.set 'jar'
-                group 'build'
-            }
+            TaskProvider<Javadoc> javadocTask = project.tasks.named('javadoc', Javadoc)
+            TaskProvider<Jar> javaDocJarTask = project.tasks.register('javadocJar', Jar)
+            javaDocJarTask.configure(new Action<Jar>() {
+                @Override
+                void execute(Jar jar) {
+                    jar.dependsOn javadocTask
+                    jar.from javadocTask
+                    jar.archiveClassifier.set 'javadoc'
+                    jar.archiveExtension.set 'jar'
+                    jar.group 'build'
+                }
+            })
 
             project.plugins.withType(org.gradle.api.publish.maven.plugins.MavenPublishPlugin) {
                 project.plugins.apply(MavenBasePublishPlugin)
