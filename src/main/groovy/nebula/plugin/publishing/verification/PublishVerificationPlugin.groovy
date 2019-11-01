@@ -112,25 +112,15 @@ class PublishVerificationPlugin implements Plugin<Project> {
             task.dependsOn(reportTask)
         }
         project.plugins.withId('com.jfrog.artifactory') {
-            TaskProvider artifactoryPublishTask = project.tasks.named('artifactoryPublish')
+            def artifactoryPublishTask = project.tasks.findByName('artifactoryPublish')
             if (artifactoryPublishTask) {
-                artifactoryPublishTask.configure(new Action<Task>() {
-                    @Override
-                    void execute(Task task) {
-                        task.dependsOn(reportTask)
-                    }
-                })
+                artifactoryPublishTask.dependsOn(reportTask)
             }
             //newer version of artifactory plugin introduced this task to do actual publishing, so we have to
             //hook even for this one.
-            TaskProvider artifactoryDeployTask = project.tasks.named("artifactoryDeploy")
+            def artifactoryDeployTask = project.tasks.findByName("artifactoryDeploy")
             if (artifactoryDeployTask) {
-                artifactoryDeployTask.configure(new Action<Task>() {
-                    @Override
-                    void execute(Task task) {
-                        task.dependsOn(reportTask)
-                    }
-                })
+                artifactoryDeployTask.dependsOn(reportTask)
             }
         }
     }
