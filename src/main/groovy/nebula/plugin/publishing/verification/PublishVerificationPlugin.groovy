@@ -2,6 +2,7 @@ package nebula.plugin.publishing.verification
 
 import com.netflix.nebula.interop.GradleKt
 import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -15,6 +16,7 @@ import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskCollection
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.GradleVersion
 
 import java.util.concurrent.ConcurrentHashMap
@@ -34,7 +36,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private static boolean shouldApplyPlugin() {
-        GradleVersion minVersion = GradleVersion.version("4.8")
+        GradleVersion minVersion = GradleVersion.version("4.9")
         GradleVersion.current() >= minVersion
     }
 
@@ -45,12 +47,17 @@ class PublishVerificationPlugin implements Plugin<Project> {
         project.afterEvaluate {
             SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
             if (!sourceSet) return
-            VerifyPublicationTask verificationTask = project.tasks.create("verifyPublication", VerifyPublicationTask)
-            VerificationReportTask reportTask = getOrCreateReportTask(project, verificationTask)
+            TaskProvider<VerifyPublicationTask> verificationTask = project.tasks.register("verifyPublication", VerifyPublicationTask)
+            TaskProvider<VerificationReportTask> reportTask = getOrCreateReportTask(project, verificationTask)
+            verificationTask.configure(new Action<VerifyPublicationTask>() {
+                @Override
+                void execute(VerifyPublicationTask verifyPublicationTask) {
+                    verifyPublicationTask.ignore = extension.ignore
+                    verifyPublicationTask.ignoreGroups = extension.ignoreGroups
+                    verifyPublicationTask.sourceSet = sourceSet
+                }
+            })
 
-            verificationTask.ignore = extension.ignore
-            verificationTask.ignoreGroups = extension.ignoreGroups
-            verificationTask.sourceSet = sourceSet
             configureHooks(project, reportTask)
         }
     }
@@ -79,20 +86,25 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
 
-    private VerificationReportTask getOrCreateReportTask(Project project, VerifyPublicationTask verificationTask) {
+    private TaskProvider<VerificationReportTask> getOrCreateReportTask(Project project, TaskProvider<VerifyPublicationTask> verificationTask) {
         //root project doesn't have to fulfil condition for plugin setup so first submodule will create report task if it not created
         TaskCollection verificationReports = project.rootProject.tasks.withType(VerificationReportTask)
-        VerificationReportTask verificationReportTask
+        TaskProvider<VerificationReportTask> verificationReportTask
         if (verificationReports.isEmpty()) {
-            verificationReportTask = project.rootProject.tasks.create('verifyPublicationReport', VerificationReportTask)
+            verificationReportTask = project.rootProject.tasks.register('verifyPublicationReport', VerificationReportTask)
         } else {
-            verificationReportTask = verificationReports.first()
+            verificationReportTask = project.rootProject.tasks.named('verifyPublicationReport', VerificationReportTask)
         }
-        verificationReportTask.dependsOn(verificationTask)
+        verificationReportTask.configure(new Action<VerificationReportTask>() {
+            @Override
+            void execute(VerificationReportTask reportTask) {
+                reportTask.dependsOn(verificationTask)
+            }
+        })
         return verificationReportTask
     }
 
-    private void configureHooks(Project project, VerificationReportTask reportTask) {
+    private void configureHooks(Project project, TaskProvider<VerificationReportTask> reportTask) {
         project.tasks.withType(PublishToIvyRepository) { Task task ->
             task.dependsOn(reportTask)
         }
@@ -100,15 +112,25 @@ class PublishVerificationPlugin implements Plugin<Project> {
             task.dependsOn(reportTask)
         }
         project.plugins.withId('com.jfrog.artifactory') {
-            def artifactoryPublishTask = project.tasks.findByName('artifactoryPublish')
+            TaskProvider artifactoryPublishTask = project.tasks.named('artifactoryPublish')
             if (artifactoryPublishTask) {
-                artifactoryPublishTask.dependsOn(reportTask)
+                artifactoryPublishTask.configure(new Action<Task>() {
+                    @Override
+                    void execute(Task task) {
+                        task.dependsOn(reportTask)
+                    }
+                })
             }
             //newer version of artifactory plugin introduced this task to do actual publishing, so we have to
             //hook even for this one.
-            def artifactoryDeployTask = project.tasks.findByName("artifactoryDeploy")
+            TaskProvider artifactoryDeployTask = project.tasks.named("artifactoryDeploy")
             if (artifactoryDeployTask) {
-                artifactoryDeployTask.dependsOn(reportTask)
+                artifactoryDeployTask.configure(new Action<Task>() {
+                    @Override
+                    void execute(Task task) {
+                        task.dependsOn(reportTask)
+                    }
+                })
             }
         }
     }

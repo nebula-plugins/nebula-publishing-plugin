@@ -16,6 +16,7 @@
 package nebula.plugin.publishing.publications
 
 import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -23,6 +24,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.ivy.IvyPublication
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 
 /**
@@ -41,13 +43,17 @@ class TestJarPlugin implements Plugin<Project> {
         project.logger.warn('The testJar task is deprecated.  Please place common test harness code in its own project and publish separately.')
 
         project.plugins.withType(JavaPlugin) { // needed for source sets
-            def testJar = project.tasks.create('testJar', Jar) {
-                dependsOn project.tasks.getByName('testClasses')
-                archiveClassifier.set 'tests'
-                archiveExtension.set 'jar'
-                from project.sourceSets.test.output
-                group 'build'
-            }
+            TaskProvider<Jar> testJar = project.tasks.register('testJar', Jar)
+            testJar.configure(new Action<Jar>() {
+                @Override
+                void execute(Jar jar) {
+                    jar.dependsOn project.tasks.getByName('testClasses')
+                    jar.archiveClassifier.set 'tests'
+                    jar.archiveExtension.set 'jar'
+                    jar.from project.sourceSets.test.output
+                    jar.group 'build'
+                }
+            })
 
             def fixtureConf = project.configurations.maybeCreate(FIXTURE_CONF)
             Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
@@ -95,7 +101,7 @@ class TestJarPlugin implements Plugin<Project> {
                                 def root = xml.asNode()
 
                                 def confs = root.configurations[0]
-                                if(!confs.conf.find { it.@name == 'test' }) {
+                                if (!confs.conf.find { it.@name == 'test' }) {
                                     confs.appendNode('conf', [
                                             visibility: 'public',
                                             extends: 'runtime',
