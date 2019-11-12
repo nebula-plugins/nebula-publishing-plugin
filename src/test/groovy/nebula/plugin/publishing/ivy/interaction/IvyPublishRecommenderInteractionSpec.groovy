@@ -20,7 +20,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
             plugins {
                 id 'java-library'
                 id 'nebula.ivy-publish'
-                id 'nebula.dependency-recommender' version '5.0.0'
+                id 'nebula.dependency-recommender' version '9.0.1'
             }
             
             group = 'test.nebula'
@@ -74,7 +74,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
             plugins {
                 id 'java'
                 id 'nebula.ivy-publish'
-                id 'nebula.dependency-recommender' version '5.0.0'
+                id 'nebula.dependency-recommender' version '9.0.1'
             }
             
             group = 'test.nebula'

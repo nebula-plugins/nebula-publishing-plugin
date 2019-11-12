@@ -221,7 +221,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
                 id 'nebula.maven-resolved-dependencies'
                 id 'nebula.maven-nebula-publish'
                 id 'java-library'
-                id 'nebula.dependency-recommender' version '4.1.0'
+                id 'nebula.dependency-recommender' version '9.0.1'
             }
 
             version = '0.1.0'
