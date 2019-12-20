@@ -29,6 +29,7 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
+            apply MavenNebulaPublicationRemoverPlugin
         }
     }
 }
