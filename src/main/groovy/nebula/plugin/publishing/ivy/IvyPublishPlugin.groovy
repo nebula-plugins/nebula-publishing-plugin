@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.ivy
 
+import nebula.plugin.publishing.publications.SpringBootJarPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -29,5 +30,7 @@ class IvyPublishPlugin implements Plugin<Project> {
         project.plugins.apply IvyManifestPlugin
         project.plugins.apply IvyRemovePlatformDependenciesPlugin
         project.plugins.apply IvyRemoveInvalidDependenciesPlugin
+        project.plugins.apply SpringBootJarPlugin
+
     }
 }

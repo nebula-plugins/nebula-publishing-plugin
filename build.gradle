@@ -162,6 +162,11 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
         }
 
+        springBootJar {
+            id = 'nebula.spring-boot-jar'
+            implementationClass = 'nebula.plugin.publishing.publications.SpringBootJarPlugin'
+        }
+
         testJar {
             id = 'nebula.test-jar'
             implementationClass = 'nebula.plugin.publishing.publications.TestJarPlugin'
@@ -307,6 +312,13 @@ pluginBundle {
             displayName = 'Nebula Source Jar Publishing plugin'
             description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
             tags = ['nebula', 'publish', 'source']
+        }
+
+        springBootJar {
+            id = 'nebula.spring-boot-jar'
+            displayName = 'Nebula Spring Boot Jar Publishing plugin'
+            description = 'Configures project to use bootJar artifact instead of jar artifact'
+            tags = ['nebula', 'publish', 'spring-boot']
         }
 
         testJar {
