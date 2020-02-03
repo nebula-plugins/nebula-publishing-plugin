@@ -3,6 +3,7 @@ package nebula.plugin.publishing.publications
 import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.jvm.tasks.Jar
 
 @CompileDynamic
@@ -16,9 +17,10 @@ class ShadowJarPlugin implements Plugin<Project> {
                 if(!jarTaskEnabled) {
                     project.configurations {
                         [apiElements, runtimeElements].each {
-                            if(project.tasks.named('shadowJar', Jar).isPresent()) {
+                            Task shadowJarTask = project.tasks.findByName('shadowJar')
+                            if(shadowJarTask) {
                                 it.outgoing.artifacts.removeIf { it.buildDependencies.getDependencies(null).contains(project.tasks.named('jar', Jar).get()) }
-                                it.outgoing.artifact(project.tasks.named('shadowJar', Jar).get())
+                                it.outgoing.artifact(shadowJarTask)
                             }
                         }
                     }
