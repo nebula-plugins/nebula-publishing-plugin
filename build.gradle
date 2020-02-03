@@ -162,6 +162,11 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
         }
 
+        shadowJar {
+            id = 'nebula.shadow-jar'
+            implementationClass = 'nebula.plugin.publishing.publications.ShadowJarPlugin'
+        }
+
         springBootJar {
             id = 'nebula.spring-boot-jar'
             implementationClass = 'nebula.plugin.publishing.publications.SpringBootJarPlugin'
@@ -319,6 +324,13 @@ pluginBundle {
             displayName = 'Nebula Spring Boot Jar Publishing plugin'
             description = 'Configures project to use bootJar artifact instead of jar artifact'
             tags = ['nebula', 'publish', 'spring-boot']
+        }
+
+        shadowJar {
+            id = 'nebula.shadow-jar'
+            displayName = 'Nebula Shadow Jar Publishing plugin'
+            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
+            tags = ['nebula', 'publish', 'shadow']
         }
 
         testJar {
