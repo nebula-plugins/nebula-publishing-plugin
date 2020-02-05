@@ -97,6 +97,11 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.maven.MavenPublishPlugin'
         }
 
+        mavenShadowPublish {
+            id = 'nebula.maven-shadow-publish'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenShadowPublishPlugin'
+        }
+
         mavenResolvedDependencies {
             id = 'nebula.maven-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
@@ -132,6 +137,11 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.ivy.IvyPublishPlugin'
         }
 
+        ivyShadowPublish {
+            id = 'nebula.ivy-shadow-publish'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyShadowPublishPlugin'
+        }
+
         ivyResolvedDependencies {
             id = 'nebula.ivy-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
@@ -160,11 +170,6 @@ gradlePlugin {
         sourceJar {
             id = 'nebula.source-jar'
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
-        }
-
-        shadowJar {
-            id = 'nebula.shadow-jar'
-            implementationClass = 'nebula.plugin.publishing.publications.ShadowJarPlugin'
         }
 
         springBootJar {
@@ -228,6 +233,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+        mavenShadowPublish {
+            id = 'nebula.maven-shadow-publish'
+            displayName = 'Nebula Shadow Publishing plugin'
+            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
+            tags = ['nebula', 'publish', 'shadow']
+        }
+
         mavenResolvedDependencies {
             id = 'nebula.maven-resolved-dependencies'
             displayName = 'Nebula Maven Resolved Dependencies Plugin'
@@ -268,6 +280,13 @@ pluginBundle {
             displayName = 'Nebula Ivy Publish Plugin'
             description = 'Applies our opinions for ivy publications'
             tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyShadowPublish {
+            id = 'nebula.ivy-shadow-publish'
+            displayName = 'Nebula Shadow Publishing plugin'
+            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
+            tags = ['nebula', 'publish', 'shadow']
         }
 
         ivyNebulaPublish {
@@ -324,13 +343,6 @@ pluginBundle {
             displayName = 'Nebula Spring Boot Jar Publishing plugin'
             description = 'Configures project to use bootJar artifact instead of jar artifact'
             tags = ['nebula', 'publish', 'spring-boot']
-        }
-
-        shadowJar {
-            id = 'nebula.shadow-jar'
-            displayName = 'Nebula Shadow Jar Publishing plugin'
-            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
-            tags = ['nebula', 'publish', 'shadow']
         }
 
         testJar {

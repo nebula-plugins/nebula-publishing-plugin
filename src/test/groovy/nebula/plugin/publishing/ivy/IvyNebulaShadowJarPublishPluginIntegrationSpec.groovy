@@ -54,10 +54,6 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
                     }
                 }
             }
-            
-             jar {
-              enabled = false // this configuration is used to produce only the shadowed jar
-            }
 
             jar.dependsOn shadowJar // this configuration is used to produce only the shadowed jar            
         """.stripIndent()
@@ -70,6 +66,10 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
     def 'publish shadow jar with proper Ivy descriptor - no classifier'() {
         setup:
         buildFile << """
+            jar {
+              enabled = false // this configuration is used to produce only the shadowed jar
+            }
+            
             shadowJar {
                 classifier null // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
@@ -111,15 +111,35 @@ public class DemoApplication {
         assertDependency('com.google.guava', 'guava', '19.0', 'runtime->default')
 
         when:
-        def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0.jar")
+        and:
+        fileWasPublished('ivypublishingtest-0.1.0.jar')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha512')
 
-        then:
-        jar.exists()
+        !fileWasPublished('ivypublishingtest-0.1.0-all.jar')
+        !fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha1')
+        !fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha256')
+        !fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha512')
+
+        fileWasPublished('ivypublishingtest-0.1.0.module')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha512')
+
+        fileWasPublished('ivy-0.1.0.xml')
+        fileWasPublished('ivy-0.1.0.xml.sha1')
+        fileWasPublished('ivy-0.1.0.xml.sha256')
+        fileWasPublished('ivy-0.1.0.xml.sha512')
     }
 
     def 'publish shadow jar with proper Ivy descriptor - with classifier'() {
         setup:
         buildFile << """
+            jar {
+              enabled = false // this configuration is used to produce only the shadowed jar
+            }
+            
             shadowJar {
                classifier 'all' // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
@@ -160,16 +180,35 @@ public class DemoApplication {
         and:
         assertDependency('com.google.guava', 'guava', '19.0', 'runtime->default')
 
-        when:
-        def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0-all.jar")
+        and:
+        !fileWasPublished('ivypublishingtest-0.1.0.jar')
+        !fileWasPublished('ivypublishingtest-0.1.0.jar.sha1')
+        !fileWasPublished('ivypublishingtest-0.1.0.jar.sha256')
+        !fileWasPublished('ivypublishingtest-0.1.0.jar.sha512')
 
-        then:
-        jar.exists()
+        fileWasPublished('ivypublishingtest-0.1.0-all.jar')
+        fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0-all.jar.sha512')
+
+        fileWasPublished('ivypublishingtest-0.1.0.module')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha512')
+
+        fileWasPublished('ivy-0.1.0.xml')
+        fileWasPublished('ivy-0.1.0.xml.sha1')
+        fileWasPublished('ivy-0.1.0.xml.sha256')
+        fileWasPublished('ivy-0.1.0.xml.sha512')
     }
 
     def 'publish shadow jar with proper Ivy descriptor - no classifier - manipulate xml'() {
         setup:
         buildFile << """
+            jar {
+              enabled = false // this configuration is used to produce only the shadowed jar
+            }
+            
             shadowJar {
                 classifier null // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
@@ -242,11 +281,123 @@ public class DemoApplication {
         and:
         !findDependency('com.google.guava', 'guava')
 
+        and:
+        fileWasPublished('ivypublishingtest-0.1.0.jar')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha512')
+
+        !fileWasPublished('ivypublishingtest-0.1.0-shadow.jar')
+        !fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha1')
+        !fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha256')
+        !fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha512')
+
+        fileWasPublished('ivypublishingtest-0.1.0.module')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha512')
+
+        fileWasPublished('ivy-0.1.0.xml')
+        fileWasPublished('ivy-0.1.0.xml.sha1')
+        fileWasPublished('ivy-0.1.0.xml.sha256')
+        fileWasPublished('ivy-0.1.0.xml.sha512')
+    }
+
+    def 'publish shadow jar with proper Ivy descriptor - with classifier and jar enabled - manipulate xml'() {
+        setup:
+        buildFile << """
+            shadowJar {
+               classifier 'shadow' // this configuration is used to produce only the shadowed jar
+               relocate 'com.google', 'com.netflix.shading.google'
+            }
+
+            
+            afterEvaluate {
+             publishing {
+              publications {
+               // to remove shaded dependency from ivy.xml
+               withType(IvyPublication) {
+                descriptor.withXml {
+                 asNode()
+                   .dependencies
+                   .dependency
+                   .findAll {
+                    it.@name == "guava"
+                   }
+                   .each { it.parent().remove(it) }
+                }
+               }
+               // to remove shaded dependency from pom.xml
+               withType(MavenPublication) {
+                pom.withXml {
+                 asNode()
+                   .dependencies
+                   .dependency
+                   .findAll {
+                    it.artifactId.text() == "guava"
+                   }
+                   .each { it.parent().remove(it) }
+                }
+               }
+              }
+             }
+            } 
+"""
+
+        writeJavaSourceFile("""
+package demo;
+
+public class DemoApplication {
+    public static void main(String[] args) {
+        System.out.println(args);
+    }
+}
+
+""")
         when:
-        def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0.jar")
+        def result = runTasks('shadowJar', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        jar.exists()
+        def root = new XmlSlurper().parse(new File(projectDir, 'build/distIvy/test.nebula/ivypublishingtest/0.1.0/ivy-0.1.0.xml'))
+        root.info.@organisation == 'test.nebula'
+        root.info.@module == 'ivypublishingtest'
+        root.info.@revision == '0.1.0'
+        root.info.@status == 'integration'
+        def artifact = root.publications.artifact[0]
+        artifact.@name == 'ivypublishingtest'
+        artifact.@type == 'jar'
+
+        def desc = root
+                .declareNamespace([nebula: 'http://netflix.com/build'])
+                .info[0].description[0]
+        desc.children().size() > 1
+        desc.'nebula:Implementation_Version' == '0.1.0'
+        desc.'nebula:Implementation_Title' == 'test.nebula#ivypublishingtest;0.1.0'
+        desc.'nebula:Module_Email' == 'nebula@example.test'
+
+        and:
+        !findDependency('com.google.guava', 'guava')
+
+        and:
+        fileWasPublished('ivypublishingtest-0.1.0.jar')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.jar.sha512')
+
+        fileWasPublished('ivypublishingtest-0.1.0-shadow.jar')
+        fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0-shadow.jar.sha512')
+
+        fileWasPublished('ivypublishingtest-0.1.0.module')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha1')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha256')
+        fileWasPublished('ivypublishingtest-0.1.0.module.sha512')
+
+        fileWasPublished('ivy-0.1.0.xml')
+        fileWasPublished('ivy-0.1.0.xml.sha1')
+        fileWasPublished('ivy-0.1.0.xml.sha256')
+        fileWasPublished('ivy-0.1.0.xml.sha512')
     }
 
     def findDependency(String org, String name) {
@@ -260,5 +411,9 @@ public class DemoApplication {
         assert found.@rev == rev
         assert !conf || found.@conf == conf
         found
+    }
+
+    private boolean fileWasPublished(String fileName, String path = 'build/distIvy/test.nebula/ivypublishingtest/0.1.0/') {
+        return new File(projectDir, path + fileName).exists()
     }
 }
