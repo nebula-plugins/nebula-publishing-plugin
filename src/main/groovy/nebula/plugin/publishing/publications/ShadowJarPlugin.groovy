@@ -1,9 +1,14 @@
 package nebula.plugin.publishing.publications
 
 import groovy.transform.CompileDynamic
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.publish.PublicationContainer
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.ivy.IvyPublication
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.jvm.tasks.Jar
 
 @CompileDynamic
@@ -24,6 +29,19 @@ class ShadowJarPlugin implements Plugin<Project> {
                             }
                         }
                     }
+                } else {
+                    PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+                    publishing.publications(new Action<PublicationContainer>() {
+                        @Override
+                        void execute(PublicationContainer publications) {
+                            publications.withType(MavenPublication) { MavenPublication publication ->
+                                publication.artifact(project.tasks.findByName('shadowJar'))
+                            }
+                            publications.withType(IvyPublication) { IvyPublication publication ->
+                                publication.artifact(project.tasks.findByName('shadowJar'))
+                            }
+                        }
+                    })
                 }
             }
         }
