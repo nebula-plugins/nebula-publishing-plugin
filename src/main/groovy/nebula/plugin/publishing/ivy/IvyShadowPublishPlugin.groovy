@@ -1,4 +1,4 @@
-package nebula.plugin.publishing.publications
+package nebula.plugin.publishing.ivy
 
 import groovy.transform.CompileDynamic
 import org.gradle.api.Action
@@ -8,21 +8,20 @@ import org.gradle.api.Task
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.jvm.tasks.Jar
 
 @CompileDynamic
-class ShadowJarPlugin implements Plugin<Project> {
+class IvyShadowPublishPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
         project.afterEvaluate {
             project.plugins.withId('com.github.johnrengelman.shadow') {
+                Task shadowJarTask = project.tasks.findByName('shadowJar')
                 boolean jarTaskEnabled = project.tasks.findByName('jar').enabled
                 if(!jarTaskEnabled) {
                     project.configurations {
                         [apiElements, runtimeElements].each {
-                            Task shadowJarTask = project.tasks.findByName('shadowJar')
                             if(shadowJarTask) {
                                 it.outgoing.artifacts.removeIf { it.buildDependencies.getDependencies(null).contains(project.tasks.named('jar', Jar).get()) }
                                 it.outgoing.artifact(shadowJarTask)
@@ -34,11 +33,10 @@ class ShadowJarPlugin implements Plugin<Project> {
                     publishing.publications(new Action<PublicationContainer>() {
                         @Override
                         void execute(PublicationContainer publications) {
-                            publications.withType(MavenPublication) { MavenPublication publication ->
-                                publication.artifact(project.tasks.findByName('shadowJar'))
-                            }
-                            publications.withType(IvyPublication) { IvyPublication publication ->
-                                publication.artifact(project.tasks.findByName('shadowJar'))
+                            if(shadowJarTask) {
+                                publications.withType(IvyPublication) { IvyPublication publication ->
+                                    publication.artifact(shadowJarTask)
+                                }
                             }
                         }
                     })

@@ -15,7 +15,6 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.plugin.publishing.publications.ShadowJarPlugin
 import nebula.plugin.publishing.publications.SpringBootJarPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -31,8 +30,8 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
+            apply MavenShadowPublishPlugin
             apply SpringBootJarPlugin
-            apply ShadowJarPlugin
         }
     }
 }
