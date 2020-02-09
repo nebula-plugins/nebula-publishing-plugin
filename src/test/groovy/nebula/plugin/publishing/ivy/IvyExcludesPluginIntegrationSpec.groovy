@@ -67,11 +67,11 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                runtime('testjava:a:0.0.1') {
+                runtimeOnly('testjava:a:0.0.1') {
                     exclude group: 'testjava', module: 'ex1'
                     exclude module: 'ex2'
                 }
-                runtime('testjava:b:0.0.1') {
+                runtimeOnly('testjava:b:0.0.1') {
                     exclude group: 'testjava'
                 }
             }
