@@ -157,11 +157,6 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.verification.PublishVerificationPlugin'
         }
 
-        compileApi {
-            id = 'nebula.compile-api'
-            implementationClass = 'nebula.plugin.publishing.scopes.ApiScopePlugin'
-        }
-
         javadocJar {
             id = 'nebula.javadoc-jar'
             implementationClass = 'nebula.plugin.publishing.publications.JavadocJarPlugin'
@@ -315,13 +310,6 @@ pluginBundle {
             displayName = 'Nebula Publish Verification Plugin'
             description = 'Verifies a nebula publication'
             tags = ['nebula', 'publish']
-        }
-
-        compileApi {
-            id = 'nebula.compile-api'
-            displayName = 'Nebula compileApi Scope Plugin'
-            description = 'Adds a compileApi configuration, dependencies in this configuration will be put in compile conf/scope of ivy/maven'
-            tags = ['nebula', 'publish', 'api-scope', 'compileApi']
         }
 
         javadocJar {
