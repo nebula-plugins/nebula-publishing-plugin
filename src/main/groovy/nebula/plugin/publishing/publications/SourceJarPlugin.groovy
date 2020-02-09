@@ -15,14 +15,14 @@
  */
 package nebula.plugin.publishing.publications
 
-import groovy.transform.CompileDynamic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.TaskProvider
 
-@CompileDynamic
 class SourceJarPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -33,6 +33,17 @@ class SourceJarPlugin implements Plugin<Project> {
                     @Override
                     void execute(JavaPluginExtension extension) {
                         extension.withSourcesJar()
+                    }
+                })
+
+                TaskProvider sourceJarTask = project.tasks.register('sourceJar')
+                sourceJarTask.configure(new Action<Task>() {
+                    @Override
+                    void execute(Task task) {
+                        task.dependsOn(project.tasks.named('sourcesJar'))
+                        task.doLast {
+                            project.logger.info("sourceJar task has been replaced by sourcesJar")
+                        }
                     }
                 })
             }
