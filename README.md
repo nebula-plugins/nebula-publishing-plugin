@@ -213,10 +213,6 @@ Walk through all project dependencies and replace all dynamic dependencies with 
 
 ## Extra Publication Plugins
 
-### nebula.compile-api
-
-Add a `compileApi` dependency scope that will place those dependencies in the generated ivy or pom files compile conf/scope
-
 ### nebula.javadoc-jar
 
 Creates a javadocJar task to package up javadoc and add it to publications so it is published.
