@@ -9,10 +9,12 @@
 
 __WARNING: Version 14.x.x requires at least Gradle 5.4__
 
+__WARNING: Version 17.x.x requires at least Gradle 6.0 or newer for sources and javadoc plugins__
+
 To apply this plugin if using plugins block
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '14.0.0'
+      id 'nebula.<publishing plugin of your choice>' version '17.0.0'
     }
 
 If using an older version of Gradle
@@ -20,7 +22,7 @@ If using an older version of Gradle
     buildscript {
       repositories { jcenter() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:14.0.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:17.0.0'
       }
     }
 
@@ -335,11 +337,13 @@ Tested with Oracle JDK8
 | 5.4   | yes   |
 | 5.5   | yes   |
 | 5.6   | yes   |
+| 6.0   | yes   |
+| 6.1   | yes   |
 
 LICENSE
 =======
 
-Copyright 2014-2019 Netflix, Inc.
+Copyright 2014-2020 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
