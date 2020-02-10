@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2020 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         def ivyXml = new XmlSlurper().parse(ivyXmlFile)
 
         then:
-        ivyXml.publications[0].artifact.find { it.@type == 'javadoc' && it.@conf == 'javadoc' }
+        ivyXml.publications[0].artifact.find { it.@type == 'jar' && it.@conf == 'javadocElements' }
     }
 
     def 'javadoc jar has content for ivy'() {

@@ -56,7 +56,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         ivy.dependencies.dependency.first().@rev == '1.0.0'
 
         where:
-        scope << ['compile', 'implementation', 'api', 'runtimeOnly']
+        scope << ['implementation', 'api', 'runtimeOnly']
 
     }
 
@@ -110,7 +110,7 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         ivy.dependencies.dependency.first().@rev == '1.0.0'
 
         where:
-        scope << ['compile', 'implementation', 'runtimeOnly']
+        scope << ['implementation', 'runtimeOnly']
 
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Netflix, Inc.
+ * Copyright 2015-2020 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,21 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         ivyUnzipDir = new File(projectDir, 'unpackedIvy')
     }
 
+    def 'maintains backwards compatibility with sourceJar task'() {
+        buildFile << '''\
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        writeHelloWorld('example')
+
+        when:
+        def result = runTasksSuccessfully('sourceJar', '--info')
+
+        then:
+        result.standardOutput.contains('sourceJar task has been replaced by sourcesJar')
+        new File(buildFile.parentFile, 'build/libs/sourcetest-0.1.0-sources.jar').exists()
+    }
+
     def 'creates a source jar with maven publishing'() {
         buildFile << '''\
             apply plugin: 'java'
@@ -108,7 +123,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def ivyXml = new XmlSlurper().parse(ivyXmlFile)
 
         then:
-        ivyXml.publications[0].artifact.find { it.@type == 'sources' && it.@conf == 'sources' }
+        ivyXml.publications[0].artifact.find { it.@type == 'jar' && it.@conf == 'sourcesElements' }
     }
 
     def 'source jar contains java sources for maven publication'() {
