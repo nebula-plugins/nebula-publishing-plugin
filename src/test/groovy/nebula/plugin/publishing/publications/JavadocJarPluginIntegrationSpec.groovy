@@ -139,6 +139,32 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         new File(ivyUnzipDir, 'example/HelloWorld.html').exists()
     }
 
+    def 'creates a javadoc jar with maven/ivy publishing and jpi plugin'() {
+        buildFile << '''\
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.38.0"
+  }
+}
+
+apply plugin: "org.jenkins-ci.jpi"
+
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
+
+        then:
+        new File(mavenPublishDir, 'javadoctest-0.1.0-javadoc.jar').exists()
+        new File(ivyPublishDir, 'javadoctest-0.1.0-javadoc.jar').exists()
+    }
+
     private void createHelloWorld() {
         def src = new File(projectDir, 'src/main/java/example')
         src.mkdirs()

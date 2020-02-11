@@ -198,6 +198,32 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         helloWorld.text.contains 'class HelloWorld'
     }
 
+    def 'creates a source jar with maven/ivy publishing and jpi plugin'() {
+        buildFile << '''\
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.38.0"
+  }
+}
+
+apply plugin: "org.jenkins-ci.jpi"
+
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
+
+        then:
+        new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+        new File(ivyPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+    }
+
     private void writeHelloGroovy() {
         def dir = new File(projectDir, 'src/main/groovy/example')
         dir.mkdirs()
