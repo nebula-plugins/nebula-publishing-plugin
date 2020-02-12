@@ -89,7 +89,6 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksSuccessfully('sourceJar', '--info')
 
         then:
-        result.standardOutput.contains('sourceJar task has been replaced by sourcesJar')
         new File(buildFile.parentFile, 'build/libs/sourcetest-0.1.0-sources.jar').exists()
     }
 
@@ -123,7 +122,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def ivyXml = new XmlSlurper().parse(ivyXmlFile)
 
         then:
-        ivyXml.publications[0].artifact.find { it.@type == 'jar' && it.@conf == 'sourcesElements' }
+        ivyXml.publications[0].artifact.find { it.@type == 'sources' && it.@conf == 'sources' }
     }
 
     def 'source jar contains java sources for maven publication'() {
@@ -222,6 +221,21 @@ apply plugin: "org.jenkins-ci.jpi"
         then:
         new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
         new File(ivyPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+    }
+
+    def 'maintains backwards compatibility with sourceJar task - configure baseName'() {
+        buildFile << '''\
+            apply plugin: 'java'
+            sourceJar.archiveBaseName = 'some-jar-name'      
+        '''.stripIndent()
+
+        writeHelloWorld('example')
+
+        when:
+        runTasksSuccessfully('sourceJar', '--warning-mode', 'all')
+
+        then:
+        new File(buildFile.parentFile, 'build/libs/some-jar-name-0.1.0-sources.jar').exists()
     }
 
     private void writeHelloGroovy() {
