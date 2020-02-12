@@ -89,7 +89,6 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def result = runTasksSuccessfully('sourceJar', '--info')
 
         then:
-        result.standardOutput.contains('sourceJar task has been replaced by sourcesJar')
         new File(buildFile.parentFile, 'build/libs/sourcetest-0.1.0-sources.jar').exists()
     }
 
@@ -123,7 +122,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def ivyXml = new XmlSlurper().parse(ivyXmlFile)
 
         then:
-        ivyXml.publications[0].artifact.find { it.@type == 'jar' && it.@conf == 'sourcesElements' }
+        ivyXml.publications[0].artifact.find { it.@type == 'sources' && it.@conf == 'sources' }
     }
 
     def 'source jar contains java sources for maven publication'() {
