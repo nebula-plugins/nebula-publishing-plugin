@@ -46,21 +46,21 @@ class SourceJarPlugin implements Plugin<Project> {
                     configureSourcesJarTask(project)
                 }
             }
-
-            TaskProvider sourceJarTask = project.tasks.register('sourceJar')
-            sourceJarTask.configure(new Action<Task>() {
-                @Override
-                void execute(Task task) {
-                    Task sourcesJar = project.tasks.findByName('sourcesJar')
-                    if(sourcesJar) {
-                        task.dependsOn(project.tasks.named('sourcesJar'))
-                    }
-                    task.doLast {
-                        project.logger.info("sourceJar task has been replaced by sourcesJar")
-                    }
-                }
-            })
         }
+
+        TaskProvider sourceJarTask = project.tasks.register('sourceJar')
+        sourceJarTask.configure(new Action<Task>() {
+            @Override
+            void execute(Task task) {
+                Task sourcesJar = project.tasks.findByName('sourcesJar')
+                if(sourcesJar) {
+                    task.dependsOn(project.tasks.named('sourcesJar'))
+                }
+                task.doLast {
+                    project.logger.info("sourceJar task has been replaced by sourcesJar")
+                }
+            }
+        })
     }
 
     private boolean sourcesJarAlreadyExists(Project project) {
