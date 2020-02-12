@@ -48,17 +48,15 @@ class SourceJarPlugin implements Plugin<Project> {
             }
         }
 
-        TaskProvider sourceJarTask = project.tasks.register('sourceJar')
-        sourceJarTask.configure(new Action<Task>() {
+        TaskProvider<org.gradle.api.tasks.bundling.Jar> sourceJarTask = project.tasks.register('sourceJar', org.gradle.api.tasks.bundling.Jar)
+        sourceJarTask.configure(new Action<org.gradle.api.tasks.bundling.Jar>() {
             @Override
-            void execute(Task task) {
-                Task sourcesJar = project.tasks.findByName('sourcesJar')
-                if(sourcesJar) {
-                    task.dependsOn(project.tasks.named('sourcesJar'))
-                }
-                task.doLast {
-                    project.logger.info("sourceJar task has been replaced by sourcesJar")
-                }
+            void execute(org.gradle.api.tasks.bundling.Jar jar) {
+                jar.dependsOn project.tasks.named('classes')
+                jar.from project.sourceSets.main.allSource
+                jar.archiveClassifier.set 'sources'
+                jar.archiveExtension.set 'jar'
+                jar.group 'build'
             }
         })
     }

@@ -224,6 +224,21 @@ apply plugin: "org.jenkins-ci.jpi"
         new File(ivyPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
     }
 
+    def 'maintains backwards compatibility with sourceJar task - configure baseName'() {
+        buildFile << '''\
+            apply plugin: 'java'
+            sourceJar.archiveBaseName = 'some-jar-name'      
+        '''.stripIndent()
+
+        writeHelloWorld('example')
+
+        when:
+        runTasksSuccessfully('sourceJar', '--warning-mode', 'all')
+
+        then:
+        new File(buildFile.parentFile, 'build/libs/some-jar-name-0.1.0-sources.jar').exists()
+    }
+
     private void writeHelloGroovy() {
         def dir = new File(projectDir, 'src/main/groovy/example')
         dir.mkdirs()
