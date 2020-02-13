@@ -15,79 +15,19 @@
  */
 package nebula.plugin.publishing.publications
 
-import groovy.transform.CompileDynamic
-import nebula.plugin.publishing.ivy.IvyBasePublishPlugin
-import nebula.plugin.publishing.maven.MavenBasePublishPlugin
-import org.gradle.api.Action
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.jvm.tasks.Jar
 
-@CompileDynamic
 class JavadocJarPlugin implements Plugin<Project> {
-
-    private static final String JAVADOC_JAR_TASK = 'javadocJar'
 
     @Override
     void apply(Project project) {
-        project.afterEvaluate {
-            project.plugins.withType(JavaPlugin){
-                if(javadocJarAlreadyExists(project)) {
-                    configureExistingJavadocTask(project)
-                } else {
-                    configureJavadocTask(project)
-                }
-            }
+        project.plugins.withType(JavaPlugin){
+            JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
+            javaPluginExtension.withJavadocJar()
         }
-    }
-
-    private boolean javadocJarAlreadyExists(Project project) {
-        return project.tasks.getNames().contains(JAVADOC_JAR_TASK)
-    }
-
-    private void configureJavadocTask(Project project) {
-        JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
-        javaPluginExtension.withJavadocJar()
-    }
-
-    private void configureExistingJavadocTask(Project project) {
-        project.tasks.named(JAVADOC_JAR_TASK, Jar).configure(new Action<Jar>() {
-            @Override
-            void execute(Jar task) {
-                task.dependsOn project.tasks.named('javadoc')
-                project.plugins.withType(MavenPublishPlugin) {
-                    project.plugins.apply(MavenBasePublishPlugin)
-
-                    project.publishing {
-                        publications {
-                            nebula(MavenPublication) {
-                                artifact task
-                            }
-                        }
-                    }
-                }
-
-                project.plugins.withType(IvyPublishPlugin) {
-                    project.plugins.apply(IvyBasePublishPlugin)
-
-                    project.publishing {
-                        publications {
-                            nebulaIvy(IvyPublication) {
-                                artifact(task) {
-                                    type 'javadoc'
-                                    conf 'javadoc'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        })
     }
 }
