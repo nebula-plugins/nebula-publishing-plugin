@@ -107,6 +107,12 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
         }
 
+        mavenVerifyUnspecifiedVersionDependencies {
+            id = 'nebula.maven-verify-unspecified-version-dependencies'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenVerifyUnspecifiedVersionDependenciesPlugin'
+        }
+
+
         mavenScm {
             id = 'nebula.maven-scm'
             implementationClass = 'nebula.plugin.publishing.maven.MavenScmPlugin'
@@ -145,6 +151,11 @@ gradlePlugin {
         ivyResolvedDependencies {
             id = 'nebula.ivy-resolved-dependencies'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
+        }
+
+        ivyVerifyUnspecifiedVersionDependencies {
+            id = 'nebula.ivy-verify-unspecified-version-dependencies'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyVerifyUnspecifiedVersionDependenciesPlugin'
         }
 
         ivyRemovePlatformDependencies {
@@ -242,6 +253,13 @@ pluginBundle {
             tags = ['nebula', 'publish', 'maven']
         }
 
+        mavenVerifyUnspecifiedVersionDependencies {
+            id = 'nebula.maven-verify-unspecified-version-dependencies'
+            displayName = 'Nebula Maven Verify Unspecified Version Dependencies'
+            description = 'Verifies that ivy descriptor does not contain unspecified as version for dependencies'
+            tags = ['nebula', 'publish', 'maven']
+        }
+
         mavenScm {
             id = 'nebula.maven-scm'
             displayName = 'Nebula Maven SCM Plugin'
@@ -295,6 +313,13 @@ pluginBundle {
             id = 'nebula.ivy-resolved-dependencies'
             displayName = 'Nebula Ivy Resolved Dependencies Plugin'
             description = 'Built on top of nebula.ivy-dependencies, replacing dynamic versions with the actual resolved versions'
+            tags = ['nebula', 'publish', 'ivy']
+        }
+
+        ivyVerifyUnspecifiedVersionDependencies {
+            id = 'nebula.ivy-verify-unspecified-version-dependencies'
+            displayName = 'Nebula Ivy Verify Unspecified Version Dependencies'
+            description = 'Verifies that ivy descriptor does not contain unspecified as version for dependencies'
             tags = ['nebula', 'publish', 'ivy']
         }
 
