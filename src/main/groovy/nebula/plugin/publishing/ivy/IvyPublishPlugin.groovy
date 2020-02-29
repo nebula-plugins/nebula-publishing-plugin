@@ -30,6 +30,7 @@ class IvyPublishPlugin implements Plugin<Project> {
         project.plugins.apply IvyManifestPlugin
         project.plugins.apply IvyRemovePlatformDependenciesPlugin
         project.plugins.apply IvyRemoveInvalidDependenciesPlugin
+        project.plugins.apply IvyVerifyUnspecifiedVersionDependenciesPlugin
         project.plugins.apply IvyShadowPublishPlugin
         project.plugins.apply SpringBootJarPlugin
 
