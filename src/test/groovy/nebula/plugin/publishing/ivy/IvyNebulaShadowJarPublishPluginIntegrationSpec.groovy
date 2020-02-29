@@ -366,6 +366,12 @@ public class DemoApplication {
         def artifact = root.publications.artifact[0]
         artifact.@name == 'ivypublishingtest'
         artifact.@type == 'jar'
+        artifact.@conf == 'compile,runtime'
+
+        def shadowartifact = root.publications.artifact[1]
+        shadowartifact.@name == 'ivypublishingtest'
+        shadowartifact.@type == 'jar'
+        shadowartifact.@conf == 'shadow'
 
         def desc = root
                 .declareNamespace([nebula: 'http://netflix.com/build'])
