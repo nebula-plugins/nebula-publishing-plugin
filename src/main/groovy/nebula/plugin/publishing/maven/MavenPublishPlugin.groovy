@@ -27,7 +27,6 @@ class MavenPublishPlugin implements Plugin<Project> {
             apply MavenNebulaPublishPlugin
             apply MavenBasePublishPlugin
             apply MavenResolvedDependenciesPlugin
-            apply MavenVerifyUnspecifiedVersionDependenciesPlugin
             apply MavenDeveloperPlugin
             apply MavenManifestPlugin
             apply MavenScmPlugin
