@@ -71,7 +71,7 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
             }
             
             shadowJar {
-                classifier null // this configuration is used to produce only the shadowed jar
+               archiveClassifier.set(null) // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 """
