@@ -62,7 +62,7 @@ class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
             }
 
             dependencies {
-                compile('test:a:1.0.0') {
+                implementation('test:a:1.0.0') {
                     exclude group: 'test', module: 'b'
                 }
             }
