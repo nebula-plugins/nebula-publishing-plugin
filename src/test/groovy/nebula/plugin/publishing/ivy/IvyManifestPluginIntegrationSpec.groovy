@@ -61,7 +61,14 @@ class IvyManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
                 .declareNamespace([nebula: 'http://netflix.com/build'])
                 .info[0].description[0]
         desc.children().size() > 1
+
+        and:
+        String change = desc.'nebula:Change'
+        String fullChange = desc.'nebula:Full_Change'
         desc.'nebula:Implementation_Version' == '0.1.0'
         desc.'nebula:Implementation_Title' == 'test.nebula#ivytest;0.1.0'
+        fullChange
+        fullChange.startsWith(change)
+        fullChange.size() > change.size()
     }
 }

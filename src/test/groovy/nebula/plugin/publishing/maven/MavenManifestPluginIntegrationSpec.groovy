@@ -46,7 +46,14 @@ class MavenManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
         pom.properties.children().size() > 1
+
+        and:
+        String change = pom.properties.'nebula_Change'
+        String fullChange = pom.properties.'nebula_Full_Change'
         pom.properties.'nebula_Implementation_Version' == '0.1.0'
         pom.properties.'nebula_Implementation_Title' == 'test.nebula#manifestpomtest;0.1.0'
+        fullChange
+        fullChange.startsWith(change)
+        fullChange.size() > change.size()
     }
 }
