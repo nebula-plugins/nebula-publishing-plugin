@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '14.4.0'
+    id 'nebula.plugin-plugin' version '14.5.0'
     id 'org.ysb33r.gradletest' version '0.5.4'
     id 'java-gradle-plugin'
 }
@@ -379,3 +379,15 @@ gradleTest.doFirst {
 
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
+
+tasks.withType(Test) {
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+}
+
+tasks.withType(Test) { Test testTask ->
+    testTask.maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    testTask.doFirst {
+        // Add the execution data only if the task runs
+        jacocoTestReport.executionData.from = files("$buildDir/jacoco/${testTask.name}.exec")
+    }
+}
