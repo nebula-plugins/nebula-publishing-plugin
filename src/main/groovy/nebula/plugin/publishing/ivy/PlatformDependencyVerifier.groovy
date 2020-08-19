@@ -55,7 +55,6 @@ class PlatformDependencyVerifier {
         }
     }
 
-    @Memoized
     static Map<String, Set<? extends ComponentSelector>> findPlatformDependencies(Project project) {
         ConfigurationContainer configurations = project.configurations
         Map<String, Set<? extends ComponentSelector>> dependencyMap = [:]
