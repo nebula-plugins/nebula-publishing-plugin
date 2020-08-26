@@ -23,17 +23,21 @@ class MavenShadowPublishPlugin implements Plugin<Project> {
                 if (!jarTaskEnabled) {
                     ShadowJarPublicationConfigurer.configureForJarDisabled(project)
                 } else {
-                    PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-                    publishing.publications(new Action<PublicationContainer>() {
-                        @Override
-                        void execute(PublicationContainer publications) {
-                            if (shadowJarTask) {
-                                publications.withType(MavenPublication) { MavenPublication publication ->
-                                    publication.artifact(shadowJarTask)
+                    //presence of this configurations means that shadow jar plugin is version 6.+
+                    //all the configuration below is done for us there and we can skip
+                    if (project.configurations.findByName("shadowRuntimeElements") == null) {
+                        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+                        publishing.publications(new Action<PublicationContainer>() {
+                            @Override
+                            void execute(PublicationContainer publications) {
+                                if (shadowJarTask) {
+                                    publications.withType(MavenPublication) { MavenPublication publication ->
+                                        publication.artifact(shadowJarTask)
+                                    }
                                 }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
             }
         }

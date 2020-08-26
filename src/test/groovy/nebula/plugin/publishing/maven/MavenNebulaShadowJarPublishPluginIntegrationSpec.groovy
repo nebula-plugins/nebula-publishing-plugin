@@ -16,6 +16,7 @@
 package nebula.plugin.publishing.maven
 
 import nebula.test.IntegrationTestKitSpec
+import spock.lang.Unroll
 
 class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
@@ -24,7 +25,7 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKi
         buildFile << """\
             plugins {
                 id 'nebula.maven-publish'
-                id "com.github.johnrengelman.shadow" version "5.2.0"
+                id "com.github.johnrengelman.shadow" version "6.0.0"
                 id 'java'
                 id "nebula.info" version "5.2.0"
                 id "nebula.contacts" version "5.1.0"
@@ -297,8 +298,11 @@ public class DemoApplication {
         fileWasPublished('mavenpublishingtest-0.1.0.pom.sha512')
     }
 
-    def 'publish shadow jar with proper POM - with classifier and jar enabled - manipulate xml'() {
+    @Unroll
+    def 'publish shadow jar with proper POM - with classifier and jar enabled - manipulate xml, shadow-jar version: #shadowJar'() {
         setup:
+        buildFile.text = buildFile.text.replace("id \"com.github.johnrengelman.shadow\" version \"6.0.0\"",
+                "id \"com.github.johnrengelman.shadow\" version \"$shadowJar\"")
         buildFile << """
             shadowJar {
                 classifier 'shadow' 
@@ -389,6 +393,9 @@ public class DemoApplication {
         fileWasPublished('mavenpublishingtest-0.1.0.pom.sha1')
         fileWasPublished('mavenpublishingtest-0.1.0.pom.sha256')
         fileWasPublished('mavenpublishingtest-0.1.0.pom.sha512')
+
+        where:
+        shadowJar << ['5.2.0', '6.0.0']
     }
 
     private boolean fileWasPublished(String fileName, String path = 'testrepo/test/nebula/mavenpublishingtest/0.1.0/') {

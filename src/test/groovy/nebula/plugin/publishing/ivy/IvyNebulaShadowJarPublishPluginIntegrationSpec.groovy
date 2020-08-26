@@ -16,6 +16,7 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.test.IntegrationTestKitSpec
+import spock.lang.Unroll
 
 class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
@@ -24,7 +25,7 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
         buildFile << """\
             plugins {
                 id 'nebula.ivy-publish'
-                id "com.github.johnrengelman.shadow" version "5.2.0"
+                id "com.github.johnrengelman.shadow" version "6.0.0"
                 id 'java'
                 id "nebula.info" version "5.2.0"
                 id "nebula.contacts" version "5.1.0"
@@ -303,8 +304,11 @@ public class DemoApplication {
         fileWasPublished('ivy-0.1.0.xml.sha512')
     }
 
-    def 'publish shadow jar with proper Ivy descriptor - with classifier and jar enabled - manipulate xml'() {
+    @Unroll
+    def 'publish shadow jar with proper Ivy descriptor - with classifier and jar enabled - manipulate xml, shadow-jar version: #shadowJar'() {
         setup:
+        buildFile.text = buildFile.text.replace("id \"com.github.johnrengelman.shadow\" version \"6.0.0\"",
+                "id \"com.github.johnrengelman.shadow\" version \"$shadowJar\"")
         buildFile << """
             shadowJar {
                classifier 'shadow' // this configuration is used to produce only the shadowed jar
@@ -371,7 +375,7 @@ public class DemoApplication {
         def shadowartifact = root.publications.artifact[1]
         shadowartifact.@name == 'ivypublishingtest'
         shadowartifact.@type == 'jar'
-        shadowartifact.@conf == 'shadow'
+        shadowartifact.@conf == 'shadowRuntimeElements'
 
         def desc = root
                 .declareNamespace([nebula: 'http://netflix.com/build'])
@@ -404,6 +408,9 @@ public class DemoApplication {
         fileWasPublished('ivy-0.1.0.xml.sha1')
         fileWasPublished('ivy-0.1.0.xml.sha256')
         fileWasPublished('ivy-0.1.0.xml.sha512')
+        
+        where:
+        shadowJar << ['5.2.0', '6.0.0']
     }
 
     def findDependency(String org, String name) {
