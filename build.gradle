@@ -53,7 +53,7 @@ dependencies {
     implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release'
     implementation 'com.netflix.nebula:nebula-gradle-interop:latest.release'
 
-    implementation platform("com.fasterxml.jackson:jackson-bom:2.9.9.20190807")
+    testImplementation enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.9.10.+")
 
     testImplementation gradleTestKit()
     testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'

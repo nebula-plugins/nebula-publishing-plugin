@@ -1,7 +1,6 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-com.fasterxml.jackson:jackson-bom:2.9.9.20190807
 com.netflix.nebula:gradle-contacts-plugin:5.1.0
 com.netflix.nebula:gradle-info-plugin:8.2.0
 com.netflix.nebula:nebula-gradle-interop:1.0.11
