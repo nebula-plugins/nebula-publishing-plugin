@@ -6,7 +6,6 @@ import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
@@ -166,7 +165,7 @@ class VerifyPublicationTaskSpec extends Specification {
         project.repositories {
             ivy {
                 url generator.getIvyRepoUrl()
-                layout('pattern') {
+                patternLayout {
                     ivy '[organisation]/[module]/[revision]/[module]-[revision]-ivy.[ext]'
                     artifact '[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]'
                     m2compatible = true
