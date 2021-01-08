@@ -56,7 +56,7 @@ class TestJarPlugin implements Plugin<Project> {
             })
 
             def fixtureConf = project.configurations.maybeCreate(FIXTURE_CONF)
-            Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME)
+            Configuration testRuntimeConf = project.configurations.getByName(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
             fixtureConf.extendsFrom(testRuntimeConf)
 
             project.artifacts {
@@ -73,7 +73,7 @@ class TestJarPlugin implements Plugin<Project> {
                                 def root = xml.asNode()
                                 def dependencies = root.dependencies ? root.dependencies[0] : root.appendNode('dependencies')
 
-                                [project.configurations.testCompile, project.configurations.testRuntime].each {
+                                [project.configurations.testImplementation, project.configurations.testRuntimeOnly].each {
                                     it.dependencies.each { dep ->
                                         dependencies.appendNode('dependency').with {
                                             appendNode('groupId', dep.group)
@@ -116,7 +116,7 @@ class TestJarPlugin implements Plugin<Project> {
                                     dependencyList.remove(it)
                                 }
 
-                                [project.configurations.testCompile, project.configurations.testRuntime].each {
+                                [project.configurations.testImplementation, project.configurations.testRuntimeOnly].each {
                                     it.dependencies.each { dep ->
                                         dependencyList.appendNode('dependency', [
                                                 org: dep.group,

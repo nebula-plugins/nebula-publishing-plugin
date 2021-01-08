@@ -192,6 +192,10 @@ dependencies {
                 implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
+
+            tasks.withType(GenerateModuleMetadata).configureEach {
+                suppressedValidationErrors.add('enforced-platform')
+            }
             """.stripIndent()
 
         when:
@@ -243,6 +247,10 @@ dependencies {
                 implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
+
+            tasks.withType(GenerateModuleMetadata).configureEach {
+                suppressedValidationErrors.add('enforced-platform')
+            }
             """.stripIndent()
 
         when:
@@ -293,6 +301,10 @@ dependencies {
             dependencies {
                 implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
+            }
+
+            tasks.withType(GenerateModuleMetadata).configureEach {
+                suppressedValidationErrors.add('enforced-platform')
             }
             """.stripIndent()
 
