@@ -15,7 +15,6 @@
  */
 plugins {
     id 'nebula.plugin-plugin' version '14.5.0'
-    id 'org.ysb33r.gradletest' version '0.5.4'
     id 'java-gradle-plugin'
 }
 
@@ -366,16 +365,6 @@ pluginBundle {
         }
     }
 }
-
-gradleTest {
-    versions '2.13', '3.4', '3.5.1', '4.1'
-}
-
-gradleTest.dependsOn(jar)
-gradleTest.doFirst {
-    project.version = project.version.toString()
-}
-
 
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
