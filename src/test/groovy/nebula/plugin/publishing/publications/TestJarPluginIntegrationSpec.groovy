@@ -58,7 +58,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """
             ${applyPlugin(MavenPublishPlugin)}
             ${publishingBlock('maven')}
-            dependencies { testCompile 'junit:junit:4.11' }
+            dependencies { testImplementation 'junit:junit:4.11' }
             task unzip(type: Copy) {
                 def zipFile = file('testrepo/nebula/testjartest/0.1.0/testjartest-0.1.0-tests.jar')
                 def outputDir = file('unpacked')
@@ -84,8 +84,8 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
             ${applyPlugin(MavenPublishPlugin)}
             ${publishingBlock('maven')}
             dependencies {
-                testCompile 'test:compileDep:0.0.1'
-                testRuntime 'test:runtimeDep:0.0.1'
+                testImplementation 'test:compileDep:0.0.1'
+                testRuntimeOnly 'test:runtimeDep:0.0.1'
             }
         """
 
@@ -120,8 +120,8 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
             ${applyPlugin(IvyPublishPlugin)}
             ${publishingBlock('ivy')}
             dependencies {
-                testCompile 'test:compileDep:0.0.1'
-                testRuntime 'test:runtimeDep:0.0.1'
+                testImplementation 'test:compileDep:0.0.1'
+                testRuntimeOnly 'test:runtimeDep:0.0.1'
             }
         """.stripIndent()
 
@@ -172,8 +172,8 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
             }
 
             dependencies {
-                testCompile 'test:compileDep:0.0.1'
-                testRuntime 'test:runtimeDep:0.0.1'
+                testImplementation 'test:compileDep:0.0.1'
+                testRuntimeOnly 'test:runtimeDep:0.0.1'
             }
         """.stripIndent()
 

@@ -150,13 +150,17 @@ buildscript {
     }
   }
   dependencies {
-    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.38.0"
+    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.40.0"
   }
 }
 
 apply plugin: "org.jenkins-ci.jpi"
 
             apply plugin: 'java'
+            
+            jenkinsPlugin {
+                jenkinsVersion.set('2.249.3')
+            }
         '''.stripIndent()
 
         when:

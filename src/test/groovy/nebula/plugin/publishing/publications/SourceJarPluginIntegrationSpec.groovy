@@ -122,7 +122,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         def ivyXml = new XmlSlurper().parse(ivyXmlFile)
 
         then:
-        ivyXml.publications[0].artifact.find { it.@type == 'sources' && it.@conf == 'sources' }
+        ivyXml.publications[0].artifact.find { it.@type == 'jar' && it.@conf == 'sourcesElements' }
     }
 
     def 'source jar contains java sources for maven publication'() {
@@ -206,11 +206,15 @@ buildscript {
     }
   }
   dependencies {
-    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.38.0"
+    classpath "org.jenkins-ci.tools:gradle-jpi-plugin:0.40.0"
   }
 }
 
 apply plugin: "org.jenkins-ci.jpi"
+            
+            jenkinsPlugin {
+                jenkinsVersion.set('2.249.3')
+            }
 
             apply plugin: 'java'
         '''.stripIndent()
