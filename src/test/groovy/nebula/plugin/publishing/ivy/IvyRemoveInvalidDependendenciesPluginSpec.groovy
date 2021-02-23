@@ -47,7 +47,7 @@ class IvyRemoveInvalidDependendenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {

@@ -3,6 +3,7 @@ package nebula.plugin.publishing.ivy
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Ignore
 import spock.lang.Subject
 
 @Subject(IvyRemovePlatformDependenciesPlugin)
@@ -49,7 +50,7 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {
@@ -128,7 +129,7 @@ plugins {
 
 repositories {
     ${generator.ivyRepositoryBlock}
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -153,6 +154,7 @@ dependencies {
         !projectPlatform
     }
 
+    @Ignore
     def 'publishes ivy descriptor without enforced-platform dependency'() {
         buildFile << """\
             ${applyPlugin(IvyResolvedDependenciesPlugin)}
@@ -185,7 +187,7 @@ dependencies {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {
@@ -209,6 +211,7 @@ dependencies {
         !bom
     }
 
+    @Ignore
     def 'publishes ivy descriptor with platform dependency if plugin is not applied'() {
         buildFile << """\
             ${applyPlugin(IvyResolvedDependenciesPlugin)}
@@ -240,7 +243,7 @@ dependencies {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {
@@ -264,6 +267,7 @@ dependencies {
         bom != null
     }
 
+    @Ignore
     def 'publishes ivy descriptor with enforced-platform dependency if plugin is not applied'() {
         buildFile << """\
             ${applyPlugin(IvyResolvedDependenciesPlugin)}
@@ -295,7 +299,7 @@ dependencies {
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {

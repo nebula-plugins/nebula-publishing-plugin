@@ -199,7 +199,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
             apply plugin: 'java'
 
             repositories {
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {
@@ -236,7 +236,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
                 }
             }          
             
-            repositories { jcenter() }
+            repositories { mavenCentral() }
             dependencies {
                 api 'com.google.truth:truth'
                 implementation 'com.google.collections:google-collections'

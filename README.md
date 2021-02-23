@@ -20,7 +20,7 @@ To apply this plugin if using plugins block
 If using an older version of Gradle
 
     buildscript {
-      repositories { jcenter() }
+      repositories { mavenCentral() }
       dependencies {
         classpath 'com.netflix.nebula:nebula-publishing-plugin:17.0.0'
       }

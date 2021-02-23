@@ -1,5 +1,5 @@
 buildscript {
-    repositories { jcenter() }
+    repositories { mavenCentral() }
     dependencies {
         classpath ':nebula-publishing-plugin:%%VERSION%%'
         classpath 'com.netflix.nebula:nebula-core:2.2.0'
@@ -20,7 +20,7 @@ subprojects {
     version = '0.1.0'
 
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
     publishing {

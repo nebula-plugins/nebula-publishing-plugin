@@ -40,7 +40,7 @@ class TestJarPluginIntegrationSpec extends IntegrationSpec {
             version = '0.1.0'
             group = 'nebula'
             repositories {
-                jcenter()
+                mavenCentral()
                 maven { url '${mavenrepo.absolutePath}' }
             }
         """.stripIndent()

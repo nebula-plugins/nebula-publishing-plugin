@@ -45,7 +45,7 @@ class IvyVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpec 
 
             repositories {
                 ${generator.ivyRepositoryBlock}
-                jcenter()
+                mavenCentral()
             }
 
             dependencies {
