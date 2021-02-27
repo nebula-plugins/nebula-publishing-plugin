@@ -44,7 +44,6 @@ class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
-        pom.scm.url.text().endsWith('.git')
         pom.url.text().startsWith('https://github.com/')
         pom.url.text().endsWith('nebula-publishing-plugin')
     }
