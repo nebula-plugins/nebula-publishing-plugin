@@ -2,7 +2,6 @@ buildscript {
     repositories { mavenCentral() }
     dependencies {
         classpath ':nebula-publishing-plugin:%%VERSION%%'
-        classpath 'com.netflix.nebula:nebula-core:2.2.0'
         classpath 'com.netflix.nebula:gradle-info-plugin:2.2.2'
         classpath 'com.netflix.nebula:gradle-contacts-plugin:2.2.0'
     }
