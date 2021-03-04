@@ -74,6 +74,34 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         a.@rev == '1.1.0'
     }
 
+    def 'feature flag allow requested versions instead of resolved version'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule('test.resolved:a:1.1.0').build()
+        def generator = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen")
+        generator.generateTestIvyRepo()
+
+        new File(projectDir, "gradle.properties").text = '''nebula.publishing.use.requested.versions=true'''
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories {
+                ${generator.ivyRepositoryBlock}
+            }
+
+            dependencies {
+                implementation 'test.resolved:a:1.+'
+            }
+            """.stripIndent()
+
+        when:
+        runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+
+        then:
+        def a = findDependency('a')
+        a.@rev == '1.+'
+    }
+
     def 'latest.* versions are replaced by the resolved version and have a revConstraint'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()

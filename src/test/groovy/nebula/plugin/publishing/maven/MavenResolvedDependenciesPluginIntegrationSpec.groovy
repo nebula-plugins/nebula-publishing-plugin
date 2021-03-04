@@ -75,6 +75,31 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         a.version.text() == '1.1.0'
     }
 
+    def 'feature flag allow requested versions instead of resolved version'() {
+        def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
+                .addModule('test.resolved:a:1.1.0').build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        new File(projectDir, "gradle.properties").text = '''nebula.publishing.use.requested.versions=true'''
+
+        buildFile << """\
+            apply plugin: 'java'
+
+            repositories { maven { url '${mavenrepo.absolutePath}' } }
+
+            dependencies {
+                implementation 'test.resolved:a:1.+'
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('publishNebulaPublicationToTestLocalRepository')
+
+        then:
+        def a = findDependency('a')
+        a.version.text() == '1.+'
+    }
+
     def 'dynamic latest versions are replaced by the resolved version'() {
         def graph = new DependencyGraphBuilder().addModule('test.resolved:a:1.0.0')
                 .addModule('test.resolved:a:1.1.0').build()
