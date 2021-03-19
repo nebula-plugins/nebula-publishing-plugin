@@ -413,6 +413,83 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         result.standardOutput.contains(":publishNebulaIvyPublicationToDistIvyRepository")
     }
 
+    def 'ignored dependencies are not verified - all projects'() {
+        given:
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule('some.group:ignore-as-string:1.0-SNAPSHOT')
+        builder.addModule('some.group:ignore-as-map:1.0-SNAPSHOT')
+        builder.addModule('ignore.as.group:some-artifact:1.0-SNAPSHOT')
+        builder.addModule('ignore.as.group:some-artifact2:1.0-SNAPSHOT')
+        builder.addModule('some.group:ignore-from-extension:1.0-SNAPSHOT')
+        def dependencies = """
+             implementation nebulaPublishVerification.ignore('some.group:ignore-as-string:1.0-SNAPSHOT')
+             implementation nebulaPublishVerification.ignore(group: 'some.group', name: 'ignore-as-map', version: '1.0-SNAPSHOT')
+             implementation 'ignore.as.group:some-artifact:1.0-SNAPSHOT'
+             implementation 'ignore.as.group:some-artifact2:1.0-SNAPSHOT'
+             implementation 'some.group:ignore-from-extension:1.0-SNAPSHOT'
+        """
+
+        DependencyGraph graph = builder.build()
+        def generator = new GradleDependencyGenerator(graph, new File(projectDir, "testrepogen").canonicalPath)
+        File mavenRepoDir = generator.generateTestMavenRepo()
+
+        File jsonRulesFile = new File(projectDir, 'local-rules.json')
+        String rules = this.getClass().getResourceAsStream('/nebula/plugin/publishing/verification/recommendation-rules.json').text
+        jsonRulesFile.text = rules
+
+        addSubproject("lib")
+
+
+        buildFile << """
+            allprojects {
+                ${applyPlugin(IvyPublishPlugin)}
+                ${applyPlugin(MavenPublishPlugin)}
+                ${applyPlugin(PublishVerificationPlugin)}
+                ${applyPlugin(ResolutionRulesPlugin)}
+                ${applyPlugin(DependencyLockPlugin)}
+                ${applyPlugin(DependencyRecommendationsPlugin)}
+                ${applyPlugin(ArtifactoryPlugin)}          
+                apply plugin: 'java'
+    
+                group = 'test.nebula.netflix'                       
+                version = '1.0'
+                status = '${projectStatus}' 
+                
+                           
+                repositories {
+                    maven {
+                        url "file://$mavenRepoDir.canonicalPath"
+                    }
+                }
+               
+                dependencies {
+                    ${dependencies}
+                } 
+    
+                ${publishingRepos()}
+
+                nebulaPublishVerification {
+                    ignoreGroup 'ignore.as.group'
+                    ignore 'some.group:ignore-from-extension:1.0-SNAPSHOT'
+                }
+            }
+            
+            dependencies {
+                resolutionRules files('${jsonRulesFile}')
+            } 
+        """
+
+        when:
+        def result = runTasksSuccessfully('build', 'publishNebulaPublicationToDistMavenRepository')
+
+        then:
+        result.standardOutput.contains(":lib:verifyPublication")
+        result.standardOutput.contains(":lib:publishNebulaPublicationToDistMavenRepository")
+        result.standardOutput.contains(":verifyPublication")
+        result.standardOutput.contains(":publishNebulaPublicationToDistMavenRepository")
+    }
+
     def 'should work with multi project build'() {
         given:
         def projectStatus = 'release'
@@ -695,7 +772,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
     def 'should work with custom ComponentMetadataSupplier'() {
         given:
         writeHelloWorld('test.nebula.netflix')
-        buildFile <<  """           
+        buildFile << """           
             ${applyPlugin(PublishVerificationPlugin)}         
             apply plugin: 'java'
 
