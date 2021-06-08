@@ -12,13 +12,13 @@ com.jcraft:jsch.agentproxy.usocket-nc:0.0.7
 com.jcraft:jsch:0.1.55
 com.jcraft:jzlib:1.1.2
 com.netflix.nebula:gradle-contacts-plugin:5.1.0
-com.netflix.nebula:gradle-info-plugin:9.1.2
+com.netflix.nebula:gradle-info-plugin:9.3.0
 com.netflix.nebula:nebula-gradle-interop:1.0.11
 com.perforce:p4java:2015.2.1365273
 com.trilead:trilead-ssh2:1.0.0-build220
 de.regnis.q.sequence:sequence-library:1.0.3
-net.java.dev.jna:jna-platform:4.1.0
-net.java.dev.jna:jna:4.1.0
+net.java.dev.jna:jna-platform:5.7.0
+net.java.dev.jna:jna:5.7.0
 net.java.dev.jna:platform:3.4.0
 org.antlr:antlr-runtime:3.4
 org.bouncycastle:bcpg-jdk15on:1.64
