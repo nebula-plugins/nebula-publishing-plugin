@@ -24,11 +24,11 @@ class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends IntegrationTest
         buildFile << """\
             plugins {
                 id 'nebula.maven-publish'
-                id 'org.springframework.boot' version '2.2.4.RELEASE'
-                id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+                id 'org.springframework.boot' version '2.5.6'
+                id 'io.spring.dependency-management' version '1.0.11.RELEASE'
                 id 'java'
-                id "nebula.info" version "5.2.0"
-                id "nebula.contacts" version "5.1.0"
+                id "nebula.info" version "11.0.1"
+                id "nebula.contacts" version "6.0.0"
             }
 
             contacts {
@@ -99,7 +99,7 @@ public class DemoApplication {
         def spring = dependencies.find { it.artifactId == 'spring-boot-starter-web' }
 
         then:
-        spring.version == '2.2.4.RELEASE'
+        spring.version == '2.5.6'
 
         when:
         def jar = new File(projectDir, "build/libs/mavenpublishingtest-0.1.0.jar")
