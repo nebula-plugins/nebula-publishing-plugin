@@ -25,10 +25,10 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
         buildFile << """\
             plugins {
                 id 'nebula.ivy-publish'
-                id "com.github.johnrengelman.shadow" version "6.0.0"
+                id "com.github.johnrengelman.shadow" version "7.1.0"
                 id 'java'
-                id "nebula.info" version "5.2.0"
-                id "nebula.contacts" version "5.1.0"
+                id "nebula.info" version "11.0.1"
+                id "nebula.contacts" version "6.0.0"
             }
 
             contacts {
@@ -408,7 +408,7 @@ public class DemoApplication {
         fileWasPublished('ivy-0.1.0.xml.sha1')
         fileWasPublished('ivy-0.1.0.xml.sha256')
         fileWasPublished('ivy-0.1.0.xml.sha512')
-        
+
         where:
         shadowJar << ['5.2.0', '6.0.0']
     }

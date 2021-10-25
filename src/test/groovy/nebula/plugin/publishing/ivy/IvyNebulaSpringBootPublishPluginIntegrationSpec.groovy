@@ -24,11 +24,11 @@ class IvyNebulaSpringBootPublishPluginIntegrationSpec extends IntegrationTestKit
         buildFile << """\
             plugins {
                 id 'nebula.ivy-publish'
-                id 'org.springframework.boot' version '2.2.4.RELEASE'
-                id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+                id 'org.springframework.boot' version '2.5.6'
+                id 'io.spring.dependency-management' version '1.0.11.RELEASE'
                 id 'java'
-                id "nebula.info" version "5.2.0"
-                id "nebula.contacts" version "5.1.0"
+                id "nebula.info" version "11.0.1"
+                id "nebula.contacts" version "6.0.0"
             }
 
             contacts {
@@ -106,8 +106,8 @@ public class DemoApplication {
         desc.'nebula:Module_Email' == 'nebula@example.test'
 
         and:
-        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '2.2.4.RELEASE', 'runtime->default')
-        assertDependency('org.postgresql', 'postgresql', '42.2.9', 'runtime->default')
+        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '2.5.6', 'runtime->default')
+        assertDependency('org.postgresql', 'postgresql', '42.2.24', 'runtime->default')
 
         when:
         def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0.jar")
