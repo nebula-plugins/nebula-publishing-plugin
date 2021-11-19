@@ -21,7 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.internal.JvmPluginsHelper
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskContainer
@@ -43,8 +43,8 @@ class SourceJarPlugin implements Plugin<Project> {
         project.plugins.withType(JavaPlugin) {
             TaskContainer tasks = project.getTasks()
             ConfigurationContainer configurations = project.getConfigurations()
-            JavaPluginConvention convention = project.getConvention().getPlugin(JavaPluginConvention)
-            SourceSet main = (SourceSet) convention.getSourceSets().getByName("main")
+            JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
+            SourceSet main = (SourceSet) javaPluginExtension.getSourceSets().getByName("main")
             JvmPluginsHelper.configureDocumentationVariantWithArtifact(
                     "sourcesElements", (String)null, "sources", Collections.emptyList(),
                     "sourceJar", main.getAllSource(), project.components.java, configurations, tasks, this.objectFactory)
