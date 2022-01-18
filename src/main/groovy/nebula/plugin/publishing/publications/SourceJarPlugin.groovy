@@ -19,12 +19,15 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.internal.JvmPluginsHelper
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.util.GradleVersion
 
 import javax.inject.Inject
 
@@ -45,9 +48,16 @@ class SourceJarPlugin implements Plugin<Project> {
             ConfigurationContainer configurations = project.getConfigurations()
             JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
             SourceSet main = (SourceSet) javaPluginExtension.getSourceSets().getByName("main")
-            JvmPluginsHelper.configureDocumentationVariantWithArtifact(
-                    "sourcesElements", (String)null, "sources", Collections.emptyList(),
-                    "sourceJar", main.getAllSource(), project.components.java, configurations, tasks, this.objectFactory)
+            if(GradleVersion.current() >= GradleVersion.version("7.4-rc-1")) {
+                FileResolver resolver = ((ProjectInternal) project).getFileResolver()
+                JvmPluginsHelper.configureDocumentationVariantWithArtifact(
+                        "sourcesElements", (String)null, "sources", Collections.emptyList(),
+                        "sourceJar", main.getAllSource(), project.components.java, configurations, tasks, this.objectFactory, resolver)
+            } else {
+                JvmPluginsHelper.configureDocumentationVariantWithArtifact(
+                        "sourcesElements", (String)null, "sources", Collections.emptyList(),
+                        "sourceJar", main.getAllSource(), project.components.java, configurations, tasks, this.objectFactory)
+            }
         }
     }
 }
