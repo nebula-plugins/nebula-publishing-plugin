@@ -17,6 +17,7 @@ package nebula.plugin.publishing.maven
 
 import groovy.transform.CompileDynamic
 import nebula.plugin.info.scm.GitScmProvider
+import nebula.plugin.info.scm.ScmInfoExtension
 import nebula.plugin.info.scm.ScmInfoPlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -35,14 +36,15 @@ class MavenScmPlugin implements Plugin<Project> {
 
         try {
             Class.forName('nebula.plugin.info.scm.ScmInfoPlugin')
-        } catch (Throwable ex) {
+        } catch (Throwable ignored) {
             project.logger.info('Skipping adding extra scm elements from the info plugin as it has not been applied')
             return
         }
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
-            def publishing = project.extensions.getByType(PublishingExtension)
-            publishing.publications(new Action<PublicationContainer>() {
+            def publishingExtension = project.extensions.getByType(PublishingExtension)
+            def scmExtension = project.extensions.getByType(ScmInfoExtension)
+            publishingExtension.publications(new Action<PublicationContainer>() {
                 @Override
                 void execute(PublicationContainer publications) {
                     publications.withType(MavenPublication) { MavenPublication publication ->
@@ -50,7 +52,7 @@ class MavenScmPlugin implements Plugin<Project> {
                             publication.pom(new Action<MavenPom>() {
                                 @Override
                                 void execute(MavenPom pom) {
-                                    pom.url.set(calculateUrlFromOrigin(scmInfo.extension.origin, project))
+                                    pom.url.set(calculateUrlFromOrigin(scmExtension.origin, project))
                                 }
                             })
                         }
@@ -60,7 +62,7 @@ class MavenScmPlugin implements Plugin<Project> {
                                 pom.scm(new Action<MavenPomScm>() {
                                     @Override
                                     void execute(MavenPomScm scm) {
-                                        scm.url.set(scmInfo.extension.origin)
+                                        scm.url.set(scmExtension.origin)
                                     }
                                 })
                             }
