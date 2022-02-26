@@ -66,6 +66,70 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         assertStatusFailureMessage(result, expectedFailureDependency2, projectStatus)
     }
 
+    def 'should successful pass through when any transitive library status is less then published project status'() {
+        given:
+        def expectedSuccessDependency = 'test.nebula:example:1.0.0'
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(new ModuleBuilder(expectedSuccessDependency)
+            .addDependency(expectedFailureDependency)
+            .addDependency(expectedFailureDependency2)
+            .build()
+        )
+        builder.addModule(expectedFailureDependency)
+        builder.addModule(expectedFailureDependency2)
+        def dependencies = """
+             implementation '$expectedSuccessDependency'
+        """
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def result = runTasks('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        result.wasExecuted(":verifyPublication")
+        !result.standardOutput.contains("Following dependencies have incorrect status lower then your current project status")
+    }
+
+    def 'should successful pass through when any transitive library status is less then published project status - with core locking constraints'() {
+        given:
+        def expectedSuccessDependency = 'test.nebula:example:1.0.0'
+        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
+        def expectedFailureDependency2 = 'foo:bar2:1.0-SNAPSHOT'
+        def projectStatus = 'release'
+        DependencyGraphBuilder builder = new DependencyGraphBuilder()
+        builder.addModule(new ModuleBuilder(expectedSuccessDependency)
+            .addDependency(expectedFailureDependency)
+            .addDependency(expectedFailureDependency2)
+            .build()
+        )
+        builder.addModule(expectedFailureDependency)
+        builder.addModule(expectedFailureDependency2)
+        def dependencies = """
+             implementation '$expectedSuccessDependency'
+        """
+
+        def propertiesFile = new File(projectDir, "gradle.properties")
+        propertiesFile << "systemProp.nebula.features.coreLockingSupport=true"
+
+        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
+
+        when:
+        def lockingResult = runTasks('dependencies', '--write-locks')
+        def result = runTasks('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+
+        then:
+        lockingResult.wasExecuted(":dependencies")
+        lockingResult.standardOutput.contains("Persisted dependency lock state")
+        result.wasExecuted(":verifyPublication")
+        !result.standardOutput.contains("> Task :verifyPublicationReport FAILED")
+        !result.standardOutput.contains("Following dependencies have incorrect status lower then your current project status")
+        !result.standardOutput.contains("nebulaPublishVerification")
+    }
+
     def 'should fail when any library has incorrect version pattern'() {
         given:
         def expectedFailureDependency = 'foo:bar:1.1+'

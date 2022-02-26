@@ -36,6 +36,7 @@ class VerifyPublicationTask extends DefaultTask {
 
     private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
         Set<? extends DependencyResult> firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
+                .findAll { !it.constraint }
         List<UnresolvedDependencyResult> unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult } as List<UnresolvedDependencyResult>
         if (! unresolvedDependencies.isEmpty()) {
             UnresolvedDependencyResult unresolvedDependencyResult = (UnresolvedDependencyResult) unresolvedDependencies.first()
