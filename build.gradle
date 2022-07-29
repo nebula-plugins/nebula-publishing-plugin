@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '16.2.0'
+    id 'nebula.plugin-plugin' version '16.3.0'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
