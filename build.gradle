@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '16.3.0'
+    id 'nebula.plugin-plugin' version '17.0.0'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
@@ -188,177 +188,32 @@ pluginBundle {
     website = 'https://github.com/nebula-plugins/nebula-publishing-plugin'
     vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
     description = 'Plugins to ease maven-publish and ivy-publish configuration'
-
-    plugins {
-        mavenApacheLicense {
-            id = 'nebula.maven-apache-license'
-            displayName = 'Nebula Maven Apache License Plugin'
-            description = 'Add the Apache v2 license to the pom'
-            tags = ['nebula', 'publish', 'maven', 'apache', 'license']
-        }
-
-        mavenBasePublish {
-            id = 'nebula.maven-base-publish'
-            displayName = 'Nebula Maven Base Publish Plugin'
-            description = 'Setup nebula maven publication. Add a name and description element to the published POM'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenDeveloper {
-            id = 'nebula.maven-developer'
-            displayName = 'Nebula Maven Developer Plugin'
-            description = 'Configures contacts for maven publishing'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenManifest {
-            id = 'nebula.maven-manifest'
-            displayName = 'Nebula Maven Manifest Plugin'
-            description = 'Append additional information from our info plugin to the properties section of the pom'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenPublish {
-            id = 'nebula.maven-publish'
-            displayName = 'Nebula Maven Publish Plugin'
-            description = 'Applies our opinions for maven publications'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-
-        mavenNebulaPublish {
-            id = 'nebula.maven-nebula-publish'
-            displayName = 'Nebula Maven Publish Plugin'
-            description = 'Applies our opinions for maven publications'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenShadowPublish {
-            id = 'nebula.maven-shadow-publish'
-            displayName = 'Nebula Shadow Publishing plugin'
-            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
-            tags = ['nebula', 'publish', 'shadow']
-        }
-
-        mavenResolvedDependencies {
-            id = 'nebula.maven-resolved-dependencies'
-            displayName = 'Nebula Maven Resolved Dependencies Plugin'
-            description = 'Built on top of nebula.maven-dependencies, replacing dynamic versions with the actual resolved versions'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenVerifyUnspecifiedVersionDependencies {
-            id = 'nebula.maven-verify-unspecified-version-dependencies'
-            displayName = 'Nebula Maven Verify Unspecified Version Dependencies'
-            description = 'Verifies that ivy descriptor does not contain unspecified as version for dependencies'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        mavenScm {
-            id = 'nebula.maven-scm'
-            displayName = 'Nebula Maven SCM Plugin'
-            description = 'Adds SCM info to the pom'
-            tags = ['nebula', 'publish', 'maven']
-        }
-
-        ivyBasePublish {
-            id = 'nebula.ivy-base-publish'
-            displayName = 'Nebula Ivy Base Publish Plugin'
-            description = 'Setup nebulaIvy IvyPublication'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyCompileOnly {
-            id = 'nebula.ivy-compile-only'
-            displayName = 'Nebula Ivy CompileOnly Plugin'
-            description = 'Deal with compileOnly configuration'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyManifest {
-            id = 'nebula.ivy-manifest'
-            displayName = 'Nebula Ivy Manifest Plugin'
-            description = 'Append additional information from our info plugin to the info section of the ivy.xml'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyPublish {
-            id = 'nebula.ivy-publish'
-            displayName = 'Nebula Ivy Publish Plugin'
-            description = 'Applies our opinions for ivy publications'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyShadowPublish {
-            id = 'nebula.ivy-shadow-publish'
-            displayName = 'Nebula Shadow Publishing plugin'
-            description = 'Configures project to use shadowJar artifact instead of jar artifact when users want to replace the jar task'
-            tags = ['nebula', 'publish', 'shadow']
-        }
-
-        ivyNebulaPublish {
-            id = 'nebula.ivy-nebula-publish'
-            displayName = 'Nebula Ivy Publish Plugin'
-            description = 'Applies our opinions for ivy publications'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyResolvedDependencies {
-            id = 'nebula.ivy-resolved-dependencies'
-            displayName = 'Nebula Ivy Resolved Dependencies Plugin'
-            description = 'Built on top of nebula.ivy-dependencies, replacing dynamic versions with the actual resolved versions'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyVerifyUnspecifiedVersionDependencies {
-            id = 'nebula.ivy-verify-unspecified-version-dependencies'
-            displayName = 'Nebula Ivy Verify Unspecified Version Dependencies'
-            description = 'Verifies that ivy descriptor does not contain unspecified as version for dependencies'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        ivyRemovePlatformDependencies {
-            id = 'nebula.ivy-remove-platform-dependencies'
-            displayName = 'Nebula Ivy Remove Platform Dependencies Plugin'
-            description = 'Built on top of nebula.ivy-dependencies, removes dependencies with platform or enforced-platform category status'
-            tags = ['nebula', 'publish', 'ivy']
-        }
-
-        publishVerification {
-            id = 'nebula.publish-verification'
-            displayName = 'Nebula Publish Verification Plugin'
-            description = 'Verifies a nebula publication'
-            tags = ['nebula', 'publish']
-        }
-
-        javadocJar {
-            id = 'nebula.javadoc-jar'
-            displayName = 'Nebula Javadoc Jar Publishing plugin'
-            description = 'Create a javadocJar task to package up the javadoc and add it to the publications'
-            tags = ['nebula', 'publish', 'javadoc']
-        }
-
-        sourceJar {
-            id = 'nebula.source-jar'
-            displayName = 'Nebula Source Jar Publishing plugin'
-            description = 'Create a sourceJar task to package up the project\'s source code and add it to the publications'
-            tags = ['nebula', 'publish', 'source']
-        }
-
-        springBootJar {
-            id = 'nebula.spring-boot-jar'
-            displayName = 'Nebula Spring Boot Jar Publishing plugin'
-            description = 'Configures project to use bootJar artifact instead of jar artifact'
-            tags = ['nebula', 'publish', 'spring-boot']
-        }
-
-        testJar {
-            id = 'nebula.test-jar'
-            displayName = 'Nebula Test Jar Publishing plugin'
-            description = 'Create a testJar task to package up test classes and add it to the publications'
-            tags = ['nebula', 'publish', 'test']
-        }
-    }
+    pluginTags = [
+            mavenApacheLicense:  ['nebula', 'publish', 'maven', 'apache', 'license'],
+            mavenBasePublish:  ['nebula', 'publish', 'maven'],
+            mavenDeveloper: ['nebula', 'publish', 'maven'],
+            mavenManifest: ['nebula', 'publish', 'maven'],
+            mavenPublish: ['nebula', 'publish', 'maven'],
+            mavenNebulaPublish: ['nebula', 'publish', 'maven'],
+            mavenShadowPublish: ['nebula', 'publish', 'maven', 'shadow'],
+            mavenResolvedDependencies: ['nebula', 'publish', 'maven'],
+            mavenVerifyUnspecifiedVersionDependencies: ['nebula', 'publish', 'maven'],
+            mavenScm: ['nebula', 'publish', 'maven'],
+            ivyBasePublish: ['nebula', 'publish', 'ivy'],
+            ivyCompileOnly: ['nebula', 'publish', 'ivy'],
+            ivyManifest: ['nebula', 'publish', 'ivy'],
+            ivyPublish: ['nebula', 'publish', 'ivy'],
+            ivyShadowPublish: ['nebula', 'publish', 'ivy', 'shadow'],
+            ivyNebulaPublish: ['nebula', 'publish', 'ivy'],
+            ivyResolvedDependencies: ['nebula', 'publish', 'ivy'],
+            ivyVerifyUnspecifiedVersionDependencies: ['nebula', 'publish', 'ivy'],
+            ivyRemovePlatformDependencies: ['nebula', 'publish', 'ivy'],
+            publishVerification: ['nebula', 'publish'],
+            javadocJar: ['nebula', 'publish', 'javadoc'],
+            sourceJar: ['nebula', 'publish', 'source'],
+            springBootJar: ['nebula', 'publish', 'spring-boot'],
+            testJar: ['nebula', 'publish', 'test-jar']
+    ]
 }
 
 targetCompatibility = JavaVersion.VERSION_1_8
