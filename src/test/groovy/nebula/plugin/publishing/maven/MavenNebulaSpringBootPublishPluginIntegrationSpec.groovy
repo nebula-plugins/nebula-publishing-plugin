@@ -23,12 +23,12 @@ class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends IntegrationTest
         keepFiles = true
         buildFile << """\
             plugins {
-                id 'nebula.maven-publish'
+                id 'com.netflix.nebula.maven-publish'
                 id 'org.springframework.boot' version '2.5.6'
                 id 'io.spring.dependency-management' version '1.0.11.RELEASE'
                 id 'java'
-                id "nebula.info" version "11.0.1"
-                id "nebula.contacts" version "6.0.0"
+                id "com.netflix.nebula.info" version "12.0.0"
+                id "com.netflix.nebula.contacts" version "6.0.0"
             }
 
             contacts {

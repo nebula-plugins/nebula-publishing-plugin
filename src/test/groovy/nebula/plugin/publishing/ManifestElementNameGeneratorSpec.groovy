@@ -19,7 +19,7 @@ import nebula.test.PluginProjectSpec
 import spock.lang.Unroll
 
 class ManifestElementNameGeneratorSpec extends PluginProjectSpec {
-    String pluginName = 'nebula.ivy-manifest'
+    String pluginName = 'com.netflix.nebula.ivy-manifest'
 
     @Unroll
     def 'name conversions from #manifestName to #convertedName'() {

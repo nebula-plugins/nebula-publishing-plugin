@@ -15,7 +15,7 @@ __WARNING: Version 17.x.x requires at least Gradle 6.0 or newer for sources and 
 To apply this plugin if using plugins block
 
     plugins {
-      id 'nebula.<publishing plugin of your choice>' version '17.0.0'
+      id 'com.netflix.nebula.<publishing plugin of your choice>' version '17.0.0'
     }
 
 If using an older version of Gradle
@@ -121,7 +121,7 @@ When [Gradle Contacts](https://github.com/nebula-plugins/gradle-contacts-plugin)
 Example, given:
 
 ```
- apply plugin: 'nebula.contacts'
+ apply plugin: 'com.netflix.nebula.contacts'
 
 contacts {
     'nebula@example.test' {
@@ -274,7 +274,7 @@ Creates a task which runs before actual publication into repositories. It catche
 This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. You have to apply the plugin to all modules within the project.
 
     allprojects {
-        apply plugin: 'nebula.publish-verification'
+        apply plugin: 'com.netflix.nebula.publish-verification'
     }
 
 Plugin is integrated with Gradle publishing and with Artifactory plugin. The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 

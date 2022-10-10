@@ -21,8 +21,8 @@ class MavenManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-manifest'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-manifest'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
 
             version = '0.1.0'
@@ -37,7 +37,7 @@ class MavenManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
     def 'manifest created'() {
         buildFile << '''\
             apply plugin: 'java'
-            apply plugin: 'nebula.info'
+            apply plugin: 'com.netflix.nebula.info'
         '''
 
         when:

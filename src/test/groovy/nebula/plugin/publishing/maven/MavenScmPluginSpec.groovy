@@ -21,7 +21,7 @@ import org.gradle.api.logging.Logger
 import spock.lang.Unroll
 
 class MavenScmPluginSpec extends PluginProjectSpec {
-    String pluginName = 'nebula.maven-scm'
+    String pluginName = 'com.netflix.nebula.maven-scm'
 
     @Unroll
     def 'test scm pattern #scmOrigin'() {

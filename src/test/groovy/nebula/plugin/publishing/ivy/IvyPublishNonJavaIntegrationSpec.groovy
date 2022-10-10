@@ -28,7 +28,7 @@ class IvyPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
             """.stripIndent()
         buildFile << """\
             plugins {
-                id 'nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-publish'
             }
 
             group = 'test.nebula'

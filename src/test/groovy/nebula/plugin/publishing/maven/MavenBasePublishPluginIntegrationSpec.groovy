@@ -26,8 +26,8 @@ class MavenBasePublishPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-base-publish'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-base-publish'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
 
             version = '0.1.0'

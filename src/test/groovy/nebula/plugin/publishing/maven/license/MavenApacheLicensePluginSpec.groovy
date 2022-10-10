@@ -18,5 +18,5 @@ package nebula.plugin.publishing.maven.license
 import nebula.test.PluginProjectSpec
 
 class MavenApacheLicensePluginSpec extends PluginProjectSpec {
-    String pluginName = 'nebula.maven-apache-license'
+    String pluginName = 'com.netflix.nebula.maven-apache-license'
 }

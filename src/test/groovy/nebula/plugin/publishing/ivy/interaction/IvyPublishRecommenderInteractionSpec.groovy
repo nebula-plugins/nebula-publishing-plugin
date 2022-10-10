@@ -19,8 +19,8 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         buildFile << """\
             plugins {
                 id 'java-library'
-                id 'nebula.ivy-publish'
-                id 'nebula.dependency-recommender' version '9.0.1'
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.dependency-recommender' version '12.0.0'
             }
             
             group = 'test.nebula'
@@ -73,8 +73,8 @@ class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
         buildFile << """\
             plugins {
                 id 'java'
-                id 'nebula.ivy-publish'
-                id 'nebula.dependency-recommender' version '9.0.1'
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.dependency-recommender' version '12.0.0'
             }
             
             group = 'test.nebula'

@@ -21,8 +21,8 @@ class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-scm'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-scm'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
 
             version = '0.1.0'
@@ -36,7 +36,7 @@ class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
 
     def 'scm info is present in pom'() {
         buildFile << """
-            apply plugin: 'nebula.info'
+            apply plugin: 'com.netflix.nebula.info'
         """.stripIndent()
 
         when:

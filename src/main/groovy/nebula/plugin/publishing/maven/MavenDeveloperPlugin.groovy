@@ -29,25 +29,26 @@ class MavenDeveloperPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin
 
-        project.plugins.withId("nebula.contacts-base") { BaseContactsPlugin contactsPlugin ->
-            PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-            publishing.publications(new Action<PublicationContainer>() {
-                @Override
-                void execute(PublicationContainer publications) {
-                    publications.withType(MavenPublication) { MavenPublication publication ->
-                        if (!project.state.executed) {
-                            project.afterEvaluate(new Action<Project>() {
-                                @Override
-                                void execute(Project p) {
-                                    BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
-                                }
-                            })
-                        } else {
-                            BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
+        project.plugins.withType(BaseContactsPlugin).configureEach {
+            BaseContactsPlugin contactsPlugin ->
+                PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+                publishing.publications(new Action<PublicationContainer>() {
+                    @Override
+                    void execute(PublicationContainer publications) {
+                        publications.withType(MavenPublication) { MavenPublication publication ->
+                            if (!project.state.executed) {
+                                project.afterEvaluate(new Action<Project>() {
+                                    @Override
+                                    void execute(Project p) {
+                                        BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
+                                    }
+                                })
+                            } else {
+                                BaseContactPluginConfigurator.configureContacts(contactsPlugin, publication)
+                            }
                         }
                     }
-                }
-            })
+                })
         }
     }
 }

@@ -27,7 +27,7 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
         keepFiles = true
         buildFile << """\
             plugins {
-                id 'nebula.maven-publish'
+                id 'com.netflix.nebula.maven-publish'
             }
 
             version = '0.1.0'
@@ -63,8 +63,8 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         buildFile << """\
             apply plugin: 'java'
-            apply plugin: 'nebula.contacts'
-            apply plugin: 'nebula.info'
+            apply plugin: 'com.netflix.nebula.contacts'
+            apply plugin: 'com.netflix.nebula.info'
 
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }
@@ -115,8 +115,8 @@ class MavenPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
 
         buildFile << """\
             apply plugin: 'java'
-            apply plugin: 'nebula.contacts'
-            apply plugin: 'nebula.info'
+            apply plugin: 'com.netflix.nebula.contacts'
+            apply plugin: 'com.netflix.nebula.info'
 
             repositories {
                 maven { url '${mavenrepo.absolutePath}' }

@@ -23,7 +23,7 @@ class IvyNebulaSpringBootPublishPluginIntegrationSpec extends IntegrationTestKit
         keepFiles = true
         buildFile << """\
             plugins {
-                id 'nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-publish'
                 id 'org.springframework.boot' version '2.5.6'
                 id 'io.spring.dependency-management' version '1.0.11.RELEASE'
                 id 'java'

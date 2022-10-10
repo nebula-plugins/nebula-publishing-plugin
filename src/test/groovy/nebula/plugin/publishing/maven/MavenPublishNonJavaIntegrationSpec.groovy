@@ -28,7 +28,7 @@ class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
             """.stripIndent()
         buildFile << """\
             plugins {
-                id 'nebula.maven-publish'
+                id 'com.netflix.nebula.maven-publish'
             }
 
             group = 'test.nebula'

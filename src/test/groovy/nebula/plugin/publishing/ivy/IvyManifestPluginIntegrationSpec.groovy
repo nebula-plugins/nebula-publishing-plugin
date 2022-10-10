@@ -23,8 +23,8 @@ class IvyManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.ivy-manifest'
-                id 'nebula.ivy-nebula-publish'
+                id 'com.netflix.nebula.ivy-manifest'
+                id 'com.netflix.nebula.ivy-nebula-publish'
             }
 
             version = '0.1.0'
@@ -50,7 +50,7 @@ class IvyManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
     def 'manifest created'() {
         buildFile << '''\
             apply plugin: 'java'
-            apply plugin: 'nebula.info'
+            apply plugin: 'com.netflix.nebula.info'
             '''
 
         when:

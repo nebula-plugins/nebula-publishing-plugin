@@ -24,7 +24,7 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKi
         keepFiles = true
         buildFile << """\
             plugins {
-                id 'nebula.maven-publish'
+                id 'com.netflix.nebula.maven-publish'
                 id "com.github.johnrengelman.shadow" version "7.1.0"
                 id 'java'
                 id "nebula.info" version "11.0.1"

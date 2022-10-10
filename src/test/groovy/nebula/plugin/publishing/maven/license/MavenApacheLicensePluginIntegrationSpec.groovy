@@ -23,7 +23,7 @@ class MavenApacheLicensePluginIntegrationSpec extends IntegrationTestKitSpec {
         keepFiles = true
         buildFile << """
 plugins {
-    id 'nebula.maven-apache-license'
+    id 'com.netflix.nebula.maven-apache-license'
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version "0.10.0"
     id 'maven-publish'

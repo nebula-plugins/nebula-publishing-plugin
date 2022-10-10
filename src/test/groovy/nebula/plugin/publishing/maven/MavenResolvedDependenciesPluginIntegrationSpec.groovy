@@ -28,8 +28,8 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
         debug = true
         buildFile << """\
             plugins {
-                id 'nebula.maven-resolved-dependencies'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-resolved-dependencies'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
 
             version = '0.1.0'
@@ -154,12 +154,12 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
 
         buildFile.text = """\
             plugins {
-                id 'nebula.maven-resolved-dependencies'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-resolved-dependencies'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
             allprojects {
                 apply plugin: 'java'
-                apply plugin: 'nebula.maven-resolved-dependencies'
+                apply plugin: 'com.netflix.nebula.maven-resolved-dependencies'
                 
                 version = '0.1.0'
                 group = 'test.nebula'
@@ -218,10 +218,10 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitS
     def 'works with java-library plugin and dependency-recommender'() {
         buildFile.text = '''\
             plugins {
-                id 'nebula.maven-resolved-dependencies'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-resolved-dependencies'
+                id 'com.netflix.nebula.maven-nebula-publish'
                 id 'java-library'
-                id 'nebula.dependency-recommender' version '9.0.1'
+                id 'com.netflix.nebula.dependency-recommender' version '12.0.0'
             }
 
             version = '0.1.0'

@@ -62,123 +62,171 @@ dependencies {
 gradlePlugin {
     plugins {
         mavenApacheLicense {
-            id = 'nebula.maven-apache-license'
+            id = 'com.netflix.nebula.maven-apache-license'
+            displayName = 'com.netflix.nebula.maven-apache-license'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.license.MavenApacheLicensePlugin'
         }
 
         mavenBasePublish {
-            id = 'nebula.maven-base-publish'
+            id = 'com.netflix.nebula.maven-base-publish'
+            displayName = 'com.netflix.nebula.maven-base-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
         }
 
         mavenDeveloper {
-            id = 'nebula.maven-developer'
+            id = 'com.netflix.nebula.maven-developer'
+            displayName = 'com.netflix.nebula.maven-developer'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
         }
 
         mavenManifest {
-            id = 'nebula.maven-manifest'
+            id = 'com.netflix.nebula.maven-manifest'
+            displayName = 'com.netflix.nebula.maven-manifest'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenManifestPlugin'
         }
 
         mavenNebulaPublish {
-            id = 'nebula.maven-nebula-publish'
+            id = 'com.netflix.nebula.maven-nebula-publish'
+            displayName = 'com.netflix.nebula.maven-nebula-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenNebulaPublishPlugin'
         }
 
         mavenPublish {
-            id = 'nebula.maven-publish'
+            id = 'com.netflix.nebula.maven-publish'
+            displayName = 'com.netflix.nebula.maven-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenPublishPlugin'
         }
 
         mavenShadowPublish {
-            id = 'nebula.maven-shadow-publish'
+            id = 'com.netflix.nebula.maven-shadow-publish'
+            displayName = 'com.netflix.nebula.maven-shadow-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenShadowPublishPlugin'
         }
 
         mavenResolvedDependencies {
-            id = 'nebula.maven-resolved-dependencies'
+            id = 'com.netflix.nebula.maven-resolved-dependencies'
+            displayName = 'com.netflix.nebula.maven-resolved-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
         }
 
         mavenVerifyUnspecifiedVersionDependencies {
-            id = 'nebula.maven-verify-unspecified-version-dependencies'
+            id = 'com.netflix.nebula.maven-verify-unspecified-version-dependencies'
+            displayName = 'com.netflix.nebula.maven-verify-unspecified-version-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenVerifyUnspecifiedVersionDependenciesPlugin'
         }
 
 
         mavenScm {
-            id = 'nebula.maven-scm'
+            id = 'com.netflix.nebula.maven-scm'
+            displayName = 'com.netflix.nebula.maven-scm'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenScmPlugin'
         }
 
         ivyBasePublish {
-            id = 'nebula.ivy-base-publish'
+            id = 'com.netflix.nebula.ivy-base-publish'
+            displayName = 'com.netflix.nebula.ivy-base-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyBasePublishPlugin'
         }
 
         ivyCompileOnly {
-            id = 'nebula.ivy-compile-only'
+            id = 'com.netflix.nebula.ivy-compile-only'
+            displayName = 'com.netflix.nebula.ivy-compile-only'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
         }
 
         ivyManifest {
-            id = 'nebula.ivy-manifest'
+            id = 'com.netflix.nebula.ivy-manifest'
+            displayName = 'com.netflix.nebula.ivy-manifest'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyManifestPlugin'
         }
 
         ivyNebulaPublish {
-            id = 'nebula.ivy-nebula-publish'
+            id = 'com.netflix.nebula.ivy-nebula-publish'
+            displayName = 'com.netflix.nebula.ivy-nebula-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyNebulaPublishPlugin'
         }
 
         ivyPublish {
-            id = 'nebula.ivy-publish'
+            id = 'com.netflix.nebula.ivy-publish'
+            displayName = 'com.netflix.nebula.ivy-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyPublishPlugin'
         }
 
         ivyShadowPublish {
-            id = 'nebula.ivy-shadow-publish'
+            id = 'com.netflix.nebula.ivy-shadow-publish'
+            displayName = 'com.netflix.nebula.ivy-shadow-publish'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyShadowPublishPlugin'
         }
 
         ivyResolvedDependencies {
-            id = 'nebula.ivy-resolved-dependencies'
+            id = 'com.netflix.nebula.ivy-resolved-dependencies'
+            displayName = 'com.netflix.nebula.ivy-resolved-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
         }
 
         ivyVerifyUnspecifiedVersionDependencies {
-            id = 'nebula.ivy-verify-unspecified-version-dependencies'
+            id = 'com.netflix.nebula.ivy-verify-unspecified-version-dependencies'
+            displayName = 'com.netflix.nebula.ivy-verify-unspecified-version-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyVerifyUnspecifiedVersionDependenciesPlugin'
         }
 
         ivyRemovePlatformDependencies {
-            id = 'nebula.ivy-remove-platform-dependencies'
+            id = 'com.netflix.nebula.ivy-remove-platform-dependencies'
+            displayName = 'com.netflix.nebula.ivy-remove-platform-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyRemovePlatformDependenciesPlugin'
         }
 
         publishVerification {
-            id = 'nebula.publish-verification'
+            id = 'com.netflix.nebula.publish-verification'
+            displayName = 'com.netflix.nebula.publish-verification'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.verification.PublishVerificationPlugin'
         }
 
         javadocJar {
-            id = 'nebula.javadoc-jar'
+            id = 'com.netflix.nebula.javadoc-jar'
+            displayName = 'com.netflix.nebula.javadoc-jar'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.JavadocJarPlugin'
         }
 
         sourceJar {
-            id = 'nebula.source-jar'
+            id = 'com.netflix.nebula.source-jar'
+            displayName = 'com.netflix.nebula.source-jar'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
         }
 
         springBootJar {
-            id = 'nebula.spring-boot-jar'
+            id = 'com.netflix.nebula.spring-boot-jar'
+            displayName = 'com.netflix.nebula.spring-boot-jar'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.SpringBootJarPlugin'
         }
 
         testJar {
-            id = 'nebula.test-jar'
+            id = 'com.netflix.nebula.test-jar'
+            displayName = 'com.netflix.nebula.test-jar'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.TestJarPlugin'
         }
     }

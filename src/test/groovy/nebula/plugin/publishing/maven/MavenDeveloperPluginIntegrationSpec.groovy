@@ -22,8 +22,8 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.maven-developer'
-                id 'nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-developer'
+                id 'com.netflix.nebula.maven-nebula-publish'
             }
 
             version = '0.1.0'
@@ -37,7 +37,7 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
     def 'take info from contacts plugin and place in pom'() {
         buildFile << '''\
-            apply plugin: 'nebula.contacts'
+            apply plugin: 'com.netflix.nebula.contacts'
 
             contacts {
                 'nebula@example.test' {
@@ -65,7 +65,7 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
     def 'multiple contacts'() {
         buildFile << '''\
-            apply plugin: 'nebula.contacts'
+            apply plugin: 'com.netflix.nebula.contacts'
 
             contacts {
                 'nebula1@example.test' {
@@ -91,7 +91,7 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
     def 'single role is found in pom'() {
         buildFile << '''\
-            apply plugin: 'nebula.contacts'
+            apply plugin: 'com.netflix.nebula.contacts'
 
             contacts {
                 'nebula@example.test' {
@@ -112,7 +112,7 @@ class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
 
     def 'multiple roles found in pom for singular developer'() {
         buildFile << '''\
-            apply plugin: 'nebula.contacts'
+            apply plugin: 'com.netflix.nebula.contacts'
 
             contacts {
                 'nebula@example.test' {

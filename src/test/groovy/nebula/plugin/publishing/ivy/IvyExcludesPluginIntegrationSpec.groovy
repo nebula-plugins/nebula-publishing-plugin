@@ -26,7 +26,7 @@ class IvyExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
-                id 'nebula.ivy-nebula-publish'
+                id 'com.netflix.nebula.ivy-nebula-publish'
             }
 
             version = '0.1.0'
