@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'nebula.plugin-plugin' version '17.0.0'
+    id 'com.netflix.nebula.plugin-plugin' version '19.0.1'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
