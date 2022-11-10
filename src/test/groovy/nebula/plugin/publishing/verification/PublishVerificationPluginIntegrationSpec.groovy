@@ -731,34 +731,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         noExceptionThrown()
     }
 
-    def 'plugin should be applied when gradle 4.8 and higher'() {
-        given:
-        gradleVersion = version
-
-        buildFile << """           
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-            ${applyPlugin(PublishVerificationPlugin)}
-            apply plugin: 'java'
-         
-            group = 'test.nebula.netflix'
-            status = 'integration'            
-            version = '1.0'
-
-            ${publishingRepos()}
-        """
-
-        when:
-        def result = runTasksSuccessfully("publishNebulaIvyPublicationToDistIvyRepository", "--dry-run")
-
-        then:
-        result.standardOutput.contains("verifyPublication") == taskPresent
-
-        where:
-        version | taskPresent
-        "4.8"   | false
-        "4.9"   | true
-    }
-
     def 'unresolved dependencies should fail fast with clear message'() {
         given:
         def unresolvableDependency = 'unknown:unknown:1.0-SNAPSHOT'

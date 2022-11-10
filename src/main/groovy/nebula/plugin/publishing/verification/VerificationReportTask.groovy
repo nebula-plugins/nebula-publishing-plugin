@@ -4,7 +4,9 @@ import org.gradle.api.BuildCancelledException
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault
 class VerificationReportTask extends DefaultTask {
 
     protected VerificationReportGenerator verificationReportGenerator = new VerificationReportGenerator()
