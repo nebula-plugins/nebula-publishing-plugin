@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '19.0.1'
+    id 'com.netflix.nebula.plugin-plugin' version '20.0.0'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
@@ -66,6 +66,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-apache-license'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.license.MavenApacheLicensePlugin'
+            tags.set(['nebula', 'publish', 'maven', 'apache', 'license'])
         }
 
         mavenBasePublish {
@@ -73,6 +74,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-base-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenDeveloper {
@@ -80,6 +82,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-developer'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenManifest {
@@ -87,6 +90,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-manifest'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenManifestPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenNebulaPublish {
@@ -94,6 +98,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-nebula-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenNebulaPublishPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenPublish {
@@ -101,6 +106,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenPublishPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenShadowPublish {
@@ -108,6 +114,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-shadow-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenShadowPublishPlugin'
+            tags.set(['nebula', 'publish', 'maven', 'shadow'])
         }
 
         mavenResolvedDependencies {
@@ -115,6 +122,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-resolved-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         mavenVerifyUnspecifiedVersionDependencies {
@@ -122,6 +130,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-verify-unspecified-version-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenVerifyUnspecifiedVersionDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
 
@@ -130,6 +139,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.maven-scm'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenScmPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
         }
 
         ivyBasePublish {
@@ -137,6 +147,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-base-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyBasePublishPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyCompileOnly {
@@ -144,6 +155,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-compile-only'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyManifest {
@@ -151,6 +163,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-manifest'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyManifestPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyNebulaPublish {
@@ -158,6 +171,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-nebula-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyNebulaPublishPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyPublish {
@@ -165,6 +179,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyPublishPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyShadowPublish {
@@ -172,6 +187,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-shadow-publish'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyShadowPublishPlugin'
+            tags.set(['nebula', 'publish', 'ivy', 'shadow'])
         }
 
         ivyResolvedDependencies {
@@ -179,6 +195,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-resolved-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyVerifyUnspecifiedVersionDependencies {
@@ -186,6 +203,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-verify-unspecified-version-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyVerifyUnspecifiedVersionDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         ivyRemovePlatformDependencies {
@@ -193,6 +211,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-remove-platform-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyRemovePlatformDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
         }
 
         publishVerification {
@@ -200,6 +219,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.publish-verification'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.verification.PublishVerificationPlugin'
+            tags.set(['nebula', 'publish'])
         }
 
         javadocJar {
@@ -207,6 +227,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.javadoc-jar'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.JavadocJarPlugin'
+            tags.set(['nebula', 'publish', 'javadoc'])
         }
 
         sourceJar {
@@ -214,6 +235,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.source-jar'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
+            tags.set(['nebula', 'publish', 'source'])
         }
 
         springBootJar {
@@ -221,6 +243,7 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.spring-boot-jar'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.SpringBootJarPlugin'
+            tags.set(['nebula', 'publish', 'spring-boot'])
         }
 
         testJar {
@@ -228,40 +251,9 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.test-jar'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.TestJarPlugin'
+            tags.set(['nebula', 'publish', 'test-jar'])
         }
     }
-}
-
-pluginBundle {
-    website = 'https://github.com/nebula-plugins/nebula-publishing-plugin'
-    vcsUrl = 'https://github.com/nebula-plugins/nebula-publishing-plugin.git'
-    description = 'Plugins to ease maven-publish and ivy-publish configuration'
-    pluginTags = [
-            mavenApacheLicense:  ['nebula', 'publish', 'maven', 'apache', 'license'],
-            mavenBasePublish:  ['nebula', 'publish', 'maven'],
-            mavenDeveloper: ['nebula', 'publish', 'maven'],
-            mavenManifest: ['nebula', 'publish', 'maven'],
-            mavenPublish: ['nebula', 'publish', 'maven'],
-            mavenNebulaPublish: ['nebula', 'publish', 'maven'],
-            mavenShadowPublish: ['nebula', 'publish', 'maven', 'shadow'],
-            mavenResolvedDependencies: ['nebula', 'publish', 'maven'],
-            mavenVerifyUnspecifiedVersionDependencies: ['nebula', 'publish', 'maven'],
-            mavenScm: ['nebula', 'publish', 'maven'],
-            ivyBasePublish: ['nebula', 'publish', 'ivy'],
-            ivyCompileOnly: ['nebula', 'publish', 'ivy'],
-            ivyManifest: ['nebula', 'publish', 'ivy'],
-            ivyPublish: ['nebula', 'publish', 'ivy'],
-            ivyShadowPublish: ['nebula', 'publish', 'ivy', 'shadow'],
-            ivyNebulaPublish: ['nebula', 'publish', 'ivy'],
-            ivyResolvedDependencies: ['nebula', 'publish', 'ivy'],
-            ivyVerifyUnspecifiedVersionDependencies: ['nebula', 'publish', 'ivy'],
-            ivyRemovePlatformDependencies: ['nebula', 'publish', 'ivy'],
-            publishVerification: ['nebula', 'publish'],
-            javadocJar: ['nebula', 'publish', 'javadoc'],
-            sourceJar: ['nebula', 'publish', 'source'],
-            springBootJar: ['nebula', 'publish', 'spring-boot'],
-            testJar: ['nebula', 'publish', 'test-jar']
-    ]
 }
 
 targetCompatibility = JavaVersion.VERSION_1_8
