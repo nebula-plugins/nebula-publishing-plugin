@@ -48,7 +48,13 @@ class SourceJarPlugin implements Plugin<Project> {
             ConfigurationContainer configurations = project.getConfigurations()
             JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
             SourceSet main = (SourceSet) javaPluginExtension.getSourceSets().getByName("main")
-            if(GradleVersion.current() >= GradleVersion.version("7.4-rc-1")) {
+            if(GradleVersion.current() >= GradleVersion.version("8.0-milestone-4")) {
+                FileResolver resolver = ((ProjectInternal) project).getFileResolver()
+                def taskDependencyFactory = project.getTaskDependencyFactory()
+                JvmPluginsHelper.configureDocumentationVariantWithArtifact(
+                        "sourcesElements", (String)null, "sources", Collections.emptyList(),
+                        "sourceJar", main.getAllSource(), project.components.java, configurations, tasks, this.objectFactory, resolver, taskDependencyFactory)
+            } else if(GradleVersion.current() >= GradleVersion.version("7.4-rc-1")) {
                 FileResolver resolver = ((ProjectInternal) project).getFileResolver()
                 JvmPluginsHelper.configureDocumentationVariantWithArtifact(
                         "sourcesElements", (String)null, "sources", Collections.emptyList(),

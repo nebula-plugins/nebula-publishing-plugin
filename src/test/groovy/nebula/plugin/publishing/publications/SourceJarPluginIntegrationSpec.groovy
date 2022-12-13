@@ -104,6 +104,19 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
     }
 
+    def 'creates a source jar with maven publishing with Gradle 8'() {
+        gradleVersion = '8.0-milestone-5'
+        buildFile << '''\
+            apply plugin: 'java'
+        '''.stripIndent()
+
+        when:
+        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository')
+
+        then:
+        new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
+    }
+
     def 'creates a source jar with ivy publishing'() {
         buildFile << '''\
             apply plugin: 'java'
