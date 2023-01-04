@@ -72,7 +72,7 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitS
             }
             
             shadowJar {
-                classifier null // this configuration is used to produce only the shadowed jar
+                archiveClassifier.set(null) // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 """
@@ -142,7 +142,7 @@ public class DemoApplication {
             }
             
             shadowJar {
-               classifier 'all' // this configuration is used to produce only the shadowed jar
+               archiveClassifier.set('all') // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 """
@@ -211,7 +211,7 @@ public class DemoApplication {
             }
             
             shadowJar {
-                classifier null // this configuration is used to produce only the shadowed jar
+                archiveClassifier.set(null) // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 
@@ -311,7 +311,7 @@ public class DemoApplication {
                 "id \"com.github.johnrengelman.shadow\" version \"$shadowJar\"")
         buildFile << """
             shadowJar {
-               classifier 'shadow' // this configuration is used to produce only the shadowed jar
+               archiveClassifier.set('shadow') // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 

@@ -73,7 +73,7 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKi
             }
 
             shadowJar {
-                classifier null // this configuration is used to produce only the shadowed jar
+                archiveClassifier.set(null) // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
 """
@@ -141,7 +141,7 @@ public class DemoApplication {
             }
 
             shadowJar {
-                classifier 'all' 
+                archiveClassifier.set('all') 
                relocate 'com.google', 'com.netflix.shading.google'
             }
 """
@@ -208,7 +208,7 @@ public class DemoApplication {
             }
 
             shadowJar {
-                classifier null // this configuration is used to produce only the shadowed jar
+                archiveClassifier.set(null) // this configuration is used to produce only the shadowed jar
                relocate 'com.google', 'com.netflix.shading.google'
             }
             
@@ -305,7 +305,7 @@ public class DemoApplication {
                 "id \"com.github.johnrengelman.shadow\" version \"$shadowJar\"")
         buildFile << """
             shadowJar {
-                classifier 'shadow' 
+                archiveClassifier.set('shadow')
                relocate 'com.google', 'com.netflix.shading.google'
             }
             

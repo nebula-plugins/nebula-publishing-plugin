@@ -25,7 +25,7 @@ class MavenApacheLicensePluginIntegrationSpec extends IntegrationTestKitSpec {
 plugins {
     id 'com.netflix.nebula.maven-apache-license'
     id 'java-gradle-plugin'
-    id 'com.gradle.plugin-publish' version "0.10.0"
+    id 'com.gradle.plugin-publish' version "1.0.0"
     id 'maven-publish'
 }
 
@@ -35,16 +35,14 @@ group = 'test.nebula'
 gradlePlugin {
     plugins {
         samplePlugin {
-            id = 'example.sample-plugin'
+            tags.set(['sample'])
+
+            id = 'examplesample-plugin'
             displayName = 'Sample plugin'
             description = "Plugin that is a sample"
             implementationClass = 'SamplePlugin'
         }
     }
-}
-
-pluginBundle {
-    tags = ['sample']
 }
 
 publishing {

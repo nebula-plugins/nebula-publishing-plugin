@@ -36,7 +36,7 @@ class IvyPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
 
             task createZip(type: Zip) {
                 destinationDirectory = project.buildDir
-                classifier = 'testzip'
+                archiveClassifier.set('testzip')
                 from 'zip'
             }
 

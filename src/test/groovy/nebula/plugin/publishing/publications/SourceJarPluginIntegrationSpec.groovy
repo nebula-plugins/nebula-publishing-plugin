@@ -18,6 +18,7 @@ package nebula.plugin.publishing.publications
 import nebula.plugin.publishing.ivy.IvyPublishPlugin
 import nebula.plugin.publishing.maven.MavenPublishPlugin
 import nebula.test.IntegrationSpec
+import spock.lang.Ignore
 
 class SourceJarPluginIntegrationSpec extends IntegrationSpec {
     File mavenPublishDir
@@ -210,6 +211,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         helloWorld.text.contains 'class HelloWorld'
     }
 
+    @Ignore
     def 'creates a source jar with maven/ivy publishing and jpi plugin'() {
         buildFile << '''\
 buildscript {

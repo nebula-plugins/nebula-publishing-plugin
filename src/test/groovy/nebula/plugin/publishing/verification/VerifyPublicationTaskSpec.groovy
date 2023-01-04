@@ -75,7 +75,7 @@ class VerifyPublicationTaskSpec extends Specification {
         Project project = ProjectBuilder.builder().build()
         def task = setupProjectAndTask(project, 'integration', 'release')
         project.dependencies {
-            runtimeClasspath 'foo:bar:1.0+'
+            runtimeOnly 'foo:bar:1.0+'
         }
         task.configure {
             ignore = [DefaultModuleIdentifier.newId('foo', 'bar')] as Set
@@ -98,7 +98,7 @@ class VerifyPublicationTaskSpec extends Specification {
         Project project = ProjectBuilder.builder().build()
         def task = setupProjectAndTask(project, 'integration', 'release')
         project.dependencies {
-            runtimeClasspath 'foo:bar:1.0+'
+            runtimeOnly 'foo:bar:1.0+'
         }
         task.configure {
             ignoreGroups = ['foo'] as Set
@@ -121,7 +121,7 @@ class VerifyPublicationTaskSpec extends Specification {
         Project project = ProjectBuilder.builder().build()
         def task = setupProjectAndTask(project, 'release', 'release')
         project.dependencies {
-            runtimeClasspath 'foo:bar:1.0+'
+            runtimeOnly 'foo:bar:1.0+'
         }
 
         when:
@@ -176,7 +176,7 @@ class VerifyPublicationTaskSpec extends Specification {
 
     private void createConfigurations(Project project) {
         project.dependencies {
-            runtimeClasspath DUMMY_LIBRARY
+            runtimeOnly DUMMY_LIBRARY
         }
         project.dependencies.components.all(StatusSchemaAttributeRule)
     }

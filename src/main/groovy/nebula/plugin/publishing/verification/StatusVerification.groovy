@@ -42,16 +42,17 @@ class StatusVerification {
     }
 
     private String getStatus(ResolvedDependencyResult resolvedDependencyResult) {
-        resolvedDependencyResult.selected.variant.attributes.getAttribute(STATUS)
+        resolvedDependencyResult.selected.variants.first().attributes.getAttribute(STATUS)
     }
 
     private boolean hasStatusScheme(ResolvedDependencyResult resolvedDependencyResult) {
         //some dependencies can miss setting status scheme because gradle dont invoke metadata rules for
         //dependencies which are also defined in buildscript classpath
-        resolvedDependencyResult.selected.variant.attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME) != null
+        if(!resolvedDependencyResult.selected.variants) return false
+        resolvedDependencyResult.selected.variants.first().attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME) != null
     }
 
     private List<String> getStatusScheme(ResolvedDependencyResult resolvedDependencyResult) {
-        resolvedDependencyResult.selected.variant.attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME).split(',').toList()
+        resolvedDependencyResult.selected.variants.first().attributes.getAttribute(PublishVerificationPlugin.STATUS_SCHEME).split(',').toList()
     }
 }
