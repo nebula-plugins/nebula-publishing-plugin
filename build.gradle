@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '20.3.0'
+    id 'com.netflix.nebula.plugin-plugin' version '20.4.0'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
@@ -257,8 +257,6 @@ gradlePlugin {
     }
 }
 
-targetCompatibility = JavaVersion.VERSION_1_8
-sourceCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(Test).configureEach {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
