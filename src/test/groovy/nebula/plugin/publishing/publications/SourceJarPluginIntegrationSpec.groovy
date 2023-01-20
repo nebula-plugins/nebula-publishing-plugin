@@ -245,7 +245,7 @@ apply plugin: "org.jenkins-ci.jpi"
     def 'maintains backwards compatibility with sourceJar task - configure baseName'() {
         buildFile << '''\
             apply plugin: 'java'
-            sourceJar.archiveBaseName = 'some-jar-name'      
+            sourcesJar.archiveBaseName = 'some-jar-name'      
         '''.stripIndent()
 
         writeHelloWorld('example')
