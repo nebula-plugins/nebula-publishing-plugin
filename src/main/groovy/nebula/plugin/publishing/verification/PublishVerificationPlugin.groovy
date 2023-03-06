@@ -10,6 +10,8 @@ import org.gradle.api.artifacts.CacheableRule
 import org.gradle.api.artifacts.ComponentMetadataContext
 import org.gradle.api.artifacts.ComponentMetadataDetails
 import org.gradle.api.artifacts.ComponentMetadataRule
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
@@ -49,12 +51,20 @@ class PublishVerificationPlugin implements Plugin<Project> {
             if (!sourceSet) return
             TaskProvider<VerifyPublicationTask> verificationTask = project.tasks.register("verifyPublication", VerifyPublicationTask)
             TaskProvider<VerificationReportTask> reportTask = getOrCreateReportTask(project, verificationTask)
+            VerificationViolationsCollectorHolderExtension verificationViolationsCollectorHolderExtension = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
             verificationTask.configure(new Action<VerifyPublicationTask>() {
                 @Override
                 void execute(VerifyPublicationTask verifyPublicationTask) {
-                    verifyPublicationTask.ignore = extension.ignore
-                    verifyPublicationTask.ignoreGroups = extension.ignoreGroups
-                    verifyPublicationTask.sourceSet = sourceSet
+                    verifyPublicationTask.projectName.set(project.name)
+                    verifyPublicationTask.targetStatus.set(project.status.toString())
+                    verifyPublicationTask.runtimeClasspath.set(project.configurations.named(sourceSet.getRuntimeClasspathConfigurationName()))
+                    verifyPublicationTask.ignore.set(extension.ignore)
+                    verifyPublicationTask.ignoreGroups.set(extension.ignoreGroups)
+                    verifyPublicationTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
+                    verifyPublicationTask.definedDependencies.set(project.configurations.collect { Configuration configuration ->
+                        configuration.dependencies
+                    }.flatten() as List<Dependency>)
+
                 }
             })
 
@@ -95,9 +105,12 @@ class PublishVerificationPlugin implements Plugin<Project> {
         } else {
             verificationReportTask = project.rootProject.tasks.named('verifyPublicationReport', VerificationReportTask)
         }
+        VerificationViolationsCollectorHolderExtension verificationViolationsCollectorHolderExtension = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
         verificationReportTask.configure(new Action<VerificationReportTask>() {
             @Override
             void execute(VerificationReportTask reportTask) {
+                reportTask.targetStatus.set(project.status.toString())
+                reportTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
                 reportTask.dependsOn(verificationTask)
             }
         })
@@ -105,27 +118,15 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
     private void configureHooks(Project project, TaskProvider<VerificationReportTask> reportTask) {
-        project.tasks.withType(PublishToIvyRepository) { Task task ->
+        project.tasks.withType(PublishToIvyRepository).configureEach { Task task ->
             task.dependsOn(reportTask)
         }
-        project.tasks.withType(PublishToMavenRepository) { Task task ->
+        project.tasks.withType(PublishToMavenRepository).configureEach { Task task ->
             task.dependsOn(reportTask)
-        }
-        project.plugins.withId('com.jfrog.artifactory') {
-            def artifactoryPublishTask = project.tasks.findByName('artifactoryPublish')
-            if (artifactoryPublishTask) {
-                artifactoryPublishTask.dependsOn(reportTask)
-            }
-            //newer version of artifactory plugin introduced this task to do actual publishing, so we have to
-            //hook even for this one.
-            def artifactoryDeployTask = project.tasks.findByName("artifactoryDeploy")
-            if (artifactoryDeployTask) {
-                artifactoryDeployTask.dependsOn(reportTask)
-            }
         }
     }
 
     static class VerificationViolationsCollectorHolderExtension {
-        Map<Project, ViolationsContainer> collector = new ConcurrentHashMap<>()
+        Map<String, ViolationsContainer> collector = new ConcurrentHashMap<>()
     }
 }

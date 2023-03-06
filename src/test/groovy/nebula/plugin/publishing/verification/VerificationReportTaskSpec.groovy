@@ -12,10 +12,12 @@ class VerificationReportTaskSpec extends Specification {
     def 'build is unaffected when there is no violation'() {
         given:
         Project project = ProjectBuilder.builder().build()
-        project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension extension = project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         VerificationReportTask task = project.tasks.create('report', VerificationReportTask)
         def generator = Mock(VerificationReportGenerator)
         task.verificationReportGenerator = generator
+        task.targetStatus.set(project.status.toString())
+        task.verificationViolationsCollectorHolderExtension.set(extension)
 
         when:
         task.reportViolatingDependencies()
@@ -37,6 +39,8 @@ class VerificationReportTaskSpec extends Specification {
         VerificationReportTask task = project.tasks.create('report', VerificationReportTask)
         def generator = Mock(VerificationReportGenerator)
         task.verificationReportGenerator = generator
+        task.targetStatus.set(project.status.toString())
+        task.verificationViolationsCollectorHolderExtension.set(extension)
 
         when:
         task.reportViolatingDependencies()

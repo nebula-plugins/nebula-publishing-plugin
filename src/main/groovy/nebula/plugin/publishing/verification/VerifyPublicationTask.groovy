@@ -1,42 +1,57 @@
 package nebula.plugin.publishing.verification
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.artifacts.result.UnresolvedDependencyResult
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault
-class VerifyPublicationTask extends DefaultTask {
+abstract class VerifyPublicationTask extends DefaultTask {
 
     @Input
-    Set<ModuleIdentifier> ignore
+    abstract SetProperty<ModuleIdentifier> getIgnore()
+
     @Input
-    Set<String> ignoreGroups
+    abstract SetProperty<String> getIgnoreGroups()
+
     @Input
-    SourceSet sourceSet
+    abstract Property<String> getTargetStatus()
+
+    @InputFiles
+    @Classpath
+    abstract Property<Configuration> getRuntimeClasspath()
+
+    @Input
+    abstract Property<String> getProjectName()
+
+    @Input
+    abstract ListProperty<Dependency> getDefinedDependencies()
+
+    @Internal
+    abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
 
     @TaskAction
     void verifyDependencies() {
-        if (sourceSet == null) throw new IllegalStateException('sourceSet must be configured')
-        Configuration runtimeClasspath = project.configurations.getByName(sourceSet.getRuntimeClasspathConfigurationName())
-        Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath)
-        List<StatusVerificationViolation> violations = new StatusVerification(ignore, ignoreGroups, project.status).verify(firstLevel)
+        Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath.get())
+        List<StatusVerificationViolation> violations = new StatusVerification(ignore.get(), ignoreGroups.get(), targetStatus.get()).verify(firstLevel)
 
-        List<Dependency> definedDependencies = getDefinedDependencies()
-        List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore, ignoreGroups).verify(definedDependencies)
+        List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore.get(), ignoreGroups.get()).verify(definedDependencies.get())
 
-        getViolations().put(project,
-                new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
+        verificationViolationsCollectorHolderExtension.get().collector.put(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
     }
 
-    private Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
+    private static Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
         Set<? extends DependencyResult> firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
                 .findAll { !it.constraint }
         List<UnresolvedDependencyResult> unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult } as List<UnresolvedDependencyResult>
@@ -47,17 +62,5 @@ class VerifyPublicationTask extends DefaultTask {
         firstLevelDependencies.findAll { DependencyResult result ->
             result instanceof ResolvedDependencyResult && ! (result.selected.id instanceof ProjectComponentIdentifier)
         } as Set<ResolvedDependencyResult>
-    }
-
-    private Map<Project, ViolationsContainer> getViolations() {
-        PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension extension = project.rootProject.extensions
-                .findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
-        extension.collector
-    }
-
-    private List<Dependency> getDefinedDependencies() {
-        project.configurations.collect { Configuration configuration ->
-            configuration.dependencies
-        }.flatten() as List<Dependency>
     }
 }

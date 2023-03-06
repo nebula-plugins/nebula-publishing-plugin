@@ -329,39 +329,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
     }
 
-    def 'should work with artifactoryPublish'() {
-        given:
-        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
-        def projectStatus = 'release'
-        DependencyGraphBuilder builder = new DependencyGraphBuilder()
-        builder.addModule(expectedFailureDependency)
-        def dependencies = "implementation '$expectedFailureDependency'"
-
-        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
-
-        when:
-        def result = runTasksWithFailure('build', 'artifactoryPublish')
-
-        then:
-        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
-    }
-
-    def 'should work with artifactoryDeploy'() {
-        given:
-        def expectedFailureDependency = 'foo:bar:1.0-SNAPSHOT'
-        def projectStatus = 'release'
-        DependencyGraphBuilder builder = new DependencyGraphBuilder()
-        builder.addModule(expectedFailureDependency)
-        def dependencies = "implementation '$expectedFailureDependency'"
-
-        buildFile << createBuildFileFromTemplate(projectStatus, dependencies, builder)
-
-        when:
-        def result = runTasksWithFailure('build', 'artifactoryDeploy')
-
-        then:
-        assertStatusFailureMessage(result, expectedFailureDependency, projectStatus)
-    }
 
     def 'should work with forced dependency'() {
         given:
