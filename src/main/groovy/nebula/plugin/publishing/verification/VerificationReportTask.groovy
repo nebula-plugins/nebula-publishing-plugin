@@ -2,36 +2,38 @@ package nebula.plugin.publishing.verification
 
 import org.gradle.api.BuildCancelledException
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault
-class VerificationReportTask extends DefaultTask {
+abstract class VerificationReportTask extends DefaultTask {
 
     protected VerificationReportGenerator verificationReportGenerator = new VerificationReportGenerator()
+
+    @Internal
+    abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
+
+    @Input
+    abstract Property<String> getTargetStatus()
 
     @TaskAction
     void reportViolatingDependencies() {
         if (project.rootProject == project) {
-            reportErrors(getViolations())
+            reportErrors(verificationViolationsCollectorHolderExtension.get().collector)
         }
     }
 
-    private Map<Project, ViolationsContainer> getViolations() {
-        PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension extension = project.rootProject.extensions
-                .findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
-        extension.collector
-    }
-
-    void reportErrors(Map<Project, ViolationsContainer> violationsPerProject) {
+    void reportErrors(Map<String, ViolationsContainer> violationsPerProject) {
         if (violationsPerProject.any { it.value.hasViolations() } ) {
             throw new BuildCancelledException(generateReportMessage(violationsPerProject))
         }
     }
 
 
-    private String generateReportMessage(Map<Project, ViolationsContainer> violationsPerProject){
-        verificationReportGenerator.generateReport(violationsPerProject.collectEntries { [it.key.toString(), it.value] } as Map<String, ViolationsContainer> , project.status.toString())
+    private String generateReportMessage(Map<String, ViolationsContainer> violationsPerProject){
+        verificationReportGenerator.generateReport(violationsPerProject.collectEntries { [it.key, it.value] } as Map<String, ViolationsContainer> , targetStatus.get())
     }
 }

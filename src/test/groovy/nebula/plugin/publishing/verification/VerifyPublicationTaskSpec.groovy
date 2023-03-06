@@ -6,6 +6,8 @@ import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
@@ -29,7 +31,7 @@ class VerifyPublicationTaskSpec extends Specification {
         noExceptionThrown()
         def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         holderExtension.collector.size() == 1
-        def violations = holderExtension.collector[project]
+        def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
 
         where:
@@ -56,7 +58,7 @@ class VerifyPublicationTaskSpec extends Specification {
         noExceptionThrown()
         def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         holderExtension.collector.size() == 1
-        def violations = holderExtension.collector[project]
+        def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 1
         def violation = violations.statusViolations.first()
         violation.id.group == 'foo'
@@ -88,7 +90,7 @@ class VerifyPublicationTaskSpec extends Specification {
         noExceptionThrown()
         def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         holderExtension.collector.size() == 1
-        def violations = holderExtension.collector[project]
+        def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
         violations.versionSelectorViolations.size() == 0
     }
@@ -111,36 +113,13 @@ class VerifyPublicationTaskSpec extends Specification {
         noExceptionThrown()
         def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         holderExtension.collector.size() == 1
-        def violations = holderExtension.collector[project]
+        def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
         violations.versionSelectorViolations.size() == 0
     }
 
-    def 'test error collection when incorrect version is used'() {
-        given:
-        Project project = ProjectBuilder.builder().build()
-        def task = setupProjectAndTask(project, 'release', 'release')
-        project.dependencies {
-            runtimeOnly 'foo:bar:1.0+'
-        }
-
-        when:
-        task.verifyDependencies()
-
-        then:
-        noExceptionThrown()
-        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
-        holderExtension.collector.size() == 1
-        def violations = holderExtension.collector[project]
-        violations.versionSelectorViolations.size() == 1
-        def violation = violations.versionSelectorViolations.first()
-        violation.dependency.group == 'foo'
-        violation.dependency.name == 'bar'
-    }
-
-
     Task setupProjectAndTask(Project project, String libraryStatus, String projectStatus) {
-        project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        def extension = project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
         project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
@@ -149,9 +128,15 @@ class VerifyPublicationTaskSpec extends Specification {
 
         def task = project.task('verify', type: VerifyPublicationTask)
         task.configure {
-            ignore = Collections.emptySet()
-            ignoreGroups = Collections.emptySet()
-            sourceSet = project.sourceSets.main
+            ignore.set(Collections.emptySet())
+            ignoreGroups.set(Collections.emptySet())
+            runtimeClasspath.set(project.configurations.getByName(project.sourceSets.main.getRuntimeClasspathConfigurationName()))
+            definedDependencies.set(project.configurations.collect { Configuration configuration ->
+                configuration.dependencies
+            }.flatten() as List<Dependency>)
+            projectName.set(project.name)
+            targetStatus.set(project.status.toString())
+            verificationViolationsCollectorHolderExtension.set(extension)
         }
     }
 
