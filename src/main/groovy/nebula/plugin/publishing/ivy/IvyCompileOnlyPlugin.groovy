@@ -21,6 +21,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
@@ -39,7 +40,7 @@ class IvyCompileOnlyPlugin implements Plugin<Project> {
         project.plugins.apply IvyBasePublishPlugin
 
         PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-        project.plugins.withType(JavaBasePlugin) { JavaBasePlugin javaBasePlugin ->
+        project.plugins.withType(JavaPlugin) { JavaPlugin javaBasePlugin ->
 
             publishing.publications(new Action<PublicationContainer>() {
                 @Override
