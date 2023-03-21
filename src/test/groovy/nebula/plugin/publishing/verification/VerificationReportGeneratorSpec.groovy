@@ -122,11 +122,7 @@ class VerificationReportGeneratorSpec extends Specification {
     }
 
     VersionSelectorVerificationViolation createVersionViolation(String group, String name, String version) {
-        new VersionSelectorVerificationViolation(dependency: Mock(Dependency) {
-            getName() >> name
-            getGroup() >> group
-            getVersion() >> version
-        })
+        new VersionSelectorVerificationViolation(dependency: new DeclaredDependency(group, name, version))
     }
 
     void assertStatusViolationsForProjects(String report, Map<String, ViolationsContainer> violationsPerProject, String targetStatus) {

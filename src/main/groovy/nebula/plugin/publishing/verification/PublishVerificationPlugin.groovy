@@ -63,7 +63,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
                     verifyPublicationTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
                     verifyPublicationTask.definedDependencies.set(project.configurations.collect { Configuration configuration ->
                         configuration.dependencies
-                    }.flatten() as List<Dependency>)
+                    }.flatten().collect { Dependency dependency -> new DeclaredDependency(dependency.group, dependency.name, dependency.version) } as List<DeclaredDependency>)
 
                 }
             })

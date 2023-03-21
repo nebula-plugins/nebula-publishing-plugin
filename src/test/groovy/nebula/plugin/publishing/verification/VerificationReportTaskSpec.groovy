@@ -63,7 +63,7 @@ class VerificationReportTaskSpec extends Specification {
                         ]),
                 new ViolationsContainer(
                         versionSelectorViolations: [
-                                new VersionSelectorVerificationViolation(dependency: Mock(Dependency))
+                                new VersionSelectorVerificationViolation(dependency: GroovyMock(DeclaredDependency))
                         ])
         ]
     }

@@ -19,7 +19,7 @@ class VersionSelectorVerification {
         this.ignore = ignore
     }
 
-    List<VersionSelectorVerificationViolation> verify(List<Dependency> dependencies) {
+    List<VersionSelectorVerificationViolation> verify(List<DeclaredDependency> dependencies) {
         dependencies.findAll { it.version != null }
                 .findAll { ! ignoreGroups.contains(it.group) }
                 .findAll { ! ignore.contains(DefaultModuleIdentifier.newId(it.group, it.name)) }
@@ -27,7 +27,7 @@ class VersionSelectorVerification {
                 .collect { dependency -> new VersionSelectorVerificationViolation(dependency: dependency) }
     }
 
-    private boolean verifySubVersion(Dependency dependency) {
+    private boolean verifySubVersion(DeclaredDependency dependency) {
         VersionSelector selector = parseSelector(dependency.version)
         selector instanceof SubVersionSelector && !selector.selector.endsWith(".+")
     }

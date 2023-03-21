@@ -11,9 +11,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
-import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -37,14 +35,10 @@ abstract class VerifyPublicationTask extends DefaultTask {
     Provider<ResolvedComponentResult> resolvedComponentResultProvider
 
     @Input
-    abstract ListProperty<Dependency> getDefinedDependencies()
+    abstract ListProperty<DeclaredDependency> getDefinedDependencies()
 
     @Internal
     abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
-
-    VerifyPublicationTask() {
-        this.notCompatibleWithConfigurationCache("VerifyPublicationTask uses disallowed types")
-    }
 
     @TaskAction
     void verifyDependencies() {
@@ -59,6 +53,7 @@ abstract class VerifyPublicationTask extends DefaultTask {
     private static Set<ResolvedDependencyResult> getNonProjectDependencies(ResolvedComponentResult resolvedComponentResult) {
         Set<? extends DependencyResult> firstLevelDependencies = resolvedComponentResult.dependencies
                 .findAll { !it.constraint }
+
         List<UnresolvedDependencyResult> unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult } as List<UnresolvedDependencyResult>
         if (! unresolvedDependencies.isEmpty()) {
             UnresolvedDependencyResult unresolvedDependencyResult = (UnresolvedDependencyResult) unresolvedDependencies.first()
