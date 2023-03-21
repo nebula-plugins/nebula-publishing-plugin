@@ -4,10 +4,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.*
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.DependencyResult
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.artifacts.result.UnresolvedDependencyResult
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
@@ -28,12 +30,11 @@ abstract class VerifyPublicationTask extends DefaultTask {
     @Input
     abstract Property<String> getTargetStatus()
 
-    @InputFiles
-    @Classpath
-    abstract Property<Configuration> getRuntimeClasspath()
-
     @Input
     abstract Property<String> getProjectName()
+
+    @Internal
+    Provider<ResolvedComponentResult> resolvedComponentResultProvider
 
     @Input
     abstract ListProperty<Dependency> getDefinedDependencies()
@@ -47,7 +48,7 @@ abstract class VerifyPublicationTask extends DefaultTask {
 
     @TaskAction
     void verifyDependencies() {
-        Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath.get())
+        Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(resolvedComponentResultProvider.get())
         List<StatusVerificationViolation> violations = new StatusVerification(ignore.get(), ignoreGroups.get(), targetStatus.get()).verify(firstLevel)
 
         List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore.get(), ignoreGroups.get()).verify(definedDependencies.get())
@@ -55,8 +56,8 @@ abstract class VerifyPublicationTask extends DefaultTask {
         verificationViolationsCollectorHolderExtension.get().collector.put(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
     }
 
-    private static Set<ResolvedDependencyResult> getNonProjectDependencies(Configuration runtimeClasspath) {
-        Set<? extends DependencyResult> firstLevelDependencies = runtimeClasspath.incoming.resolutionResult.root.getDependencies()
+    private static Set<ResolvedDependencyResult> getNonProjectDependencies(ResolvedComponentResult resolvedComponentResult) {
+        Set<? extends DependencyResult> firstLevelDependencies = resolvedComponentResult.dependencies
                 .findAll { !it.constraint }
         List<UnresolvedDependencyResult> unresolvedDependencies = firstLevelDependencies.findAll { it instanceof UnresolvedDependencyResult } as List<UnresolvedDependencyResult>
         if (! unresolvedDependencies.isEmpty()) {
