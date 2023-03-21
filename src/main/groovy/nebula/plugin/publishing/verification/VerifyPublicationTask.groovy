@@ -41,6 +41,10 @@ abstract class VerifyPublicationTask extends DefaultTask {
     @Internal
     abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
 
+    VerifyPublicationTask() {
+        this.notCompatibleWithConfigurationCache("VerifyPublicationTask uses disallowed types")
+    }
+
     @TaskAction
     void verifyDependencies() {
         Set<ResolvedDependencyResult> firstLevel = getNonProjectDependencies(runtimeClasspath.get())
