@@ -130,10 +130,10 @@ class VerifyPublicationTaskSpec extends Specification {
         task.configure {
             ignore.set(Collections.emptySet())
             ignoreGroups.set(Collections.emptySet())
-            runtimeClasspath.set(project.configurations.getByName(project.sourceSets.main.getRuntimeClasspathConfigurationName()))
+            resolvedComponentResultProvider = project.configurations.named(project.sourceSets.main.getRuntimeClasspathConfigurationName()).get().incoming.resolutionResult.rootComponent
             definedDependencies.set(project.configurations.collect { Configuration configuration ->
                 configuration.dependencies
-            }.flatten() as List<Dependency>)
+            }.flatten().collect { Dependency dependency -> new DeclaredDependency(dependency.group, dependency.name, dependency.version) } as List<DeclaredDependency>)
             projectName.set(project.name)
             targetStatus.set(project.status.toString())
             verificationViolationsCollectorHolderExtension.set(extension)

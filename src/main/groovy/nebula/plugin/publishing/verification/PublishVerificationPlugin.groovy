@@ -57,13 +57,13 @@ class PublishVerificationPlugin implements Plugin<Project> {
                 void execute(VerifyPublicationTask verifyPublicationTask) {
                     verifyPublicationTask.projectName.set(project.name)
                     verifyPublicationTask.targetStatus.set(project.status.toString())
-                    verifyPublicationTask.runtimeClasspath.set(project.configurations.named(sourceSet.getRuntimeClasspathConfigurationName()))
+                    verifyPublicationTask.resolvedComponentResultProvider = project.configurations.named(sourceSet.getRuntimeClasspathConfigurationName()).get().incoming.resolutionResult.rootComponent
                     verifyPublicationTask.ignore.set(extension.ignore)
                     verifyPublicationTask.ignoreGroups.set(extension.ignoreGroups)
                     verifyPublicationTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
                     verifyPublicationTask.definedDependencies.set(project.configurations.collect { Configuration configuration ->
                         configuration.dependencies
-                    }.flatten() as List<Dependency>)
+                    }.flatten().collect { Dependency dependency -> new DeclaredDependency(dependency.group, dependency.name, dependency.version) } as List<DeclaredDependency>)
 
                 }
             })
