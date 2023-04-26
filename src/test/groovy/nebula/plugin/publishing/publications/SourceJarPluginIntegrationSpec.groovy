@@ -106,7 +106,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
     }
 
     def 'creates a source jar with maven publishing with Gradle 8'() {
-        gradleVersion = '8.0-milestone-5'
+        gradleVersion = '8.1.1'
         buildFile << '''\
             apply plugin: 'java'
         '''.stripIndent()

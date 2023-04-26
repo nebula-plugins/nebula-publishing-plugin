@@ -25,10 +25,10 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKi
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.maven-publish'
-                id "com.github.johnrengelman.shadow" version "7.1.0"
+                id "com.github.johnrengelman.shadow" version "8.1.1"
                 id 'java'
-                id "nebula.info" version "11.0.1"
-                id "nebula.contacts" version "6.0.0"
+                id "com.netflix.nebula.info" version "12.1.3"
+                id "com.netflix.nebula.contacts" version "7.0.0"
             }
             
             contacts {
