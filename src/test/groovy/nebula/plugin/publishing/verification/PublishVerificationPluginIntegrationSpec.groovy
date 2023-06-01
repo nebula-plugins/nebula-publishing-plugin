@@ -480,7 +480,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                 ${applyPlugin(ResolutionRulesPlugin)}
                 ${applyPlugin(DependencyLockPlugin)}
                 ${applyPlugin(DependencyRecommendationsPlugin)}
-                ${applyPlugin(ArtifactoryPlugin)}          
                 apply plugin: 'java'
     
                 group = 'test.nebula.netflix'                       
@@ -841,7 +840,6 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             ${applyPlugin(ResolutionRulesPlugin)}
             ${applyPlugin(DependencyLockPlugin)}
             ${applyPlugin(DependencyRecommendationsPlugin)}
-            ${applyPlugin(ArtifactoryPlugin)}          
             apply plugin: 'java'
 
             group = 'test.nebula.netflix'                       

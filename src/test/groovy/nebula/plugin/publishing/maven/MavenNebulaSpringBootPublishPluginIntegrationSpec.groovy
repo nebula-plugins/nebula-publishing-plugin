@@ -21,6 +21,9 @@ class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends IntegrationTest
     def setup() {
         debug = true
         keepFiles = true
+
+        // Because Spring Boot 2.x uses project.conventions
+        System.setProperty('ignoreDeprecations', 'true')
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.maven-publish'
