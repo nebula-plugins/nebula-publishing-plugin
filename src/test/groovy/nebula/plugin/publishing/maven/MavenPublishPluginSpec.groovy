@@ -18,7 +18,7 @@ class MavenPublishPluginSpec extends IntegrationSpec {
                 repositories {
                     maven {
                         name 'distMaven'
-                        url project.file("\${project.buildDir}/distMaven").toURI().toURL()
+                        url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
                     }
                 }
             }
