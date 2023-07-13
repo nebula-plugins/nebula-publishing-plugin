@@ -868,11 +868,11 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             repositories {
                 ivy {
                     name 'distIvy'
-                    url project.file("\${project.buildDir}/distIvy").toURI().toURL()
+                    url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distIvy").toURI().toURL()
                 }
                 maven {
                     name 'distMaven'
-                    url project.file("\${project.buildDir}/distMaven").toURI().toURL()
+                    url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
                 }
             }
         }
