@@ -23,6 +23,17 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKi
         debug = true
         keepFiles = true
         buildFile << """\
+        buildscript {
+               configurations.named('classpath').configure {
+                  resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                       if (details.requested.group == 'org.ow2.asm') {
+                            details.useVersion '9.5'
+                            details.because "Asm 9.5 is required for JDK 21 support"
+                      }
+                  }
+                }
+            }
+            
             plugins {
                 id 'com.netflix.nebula.maven-publish'
                 id "com.github.johnrengelman.shadow" version "8.1.1"
