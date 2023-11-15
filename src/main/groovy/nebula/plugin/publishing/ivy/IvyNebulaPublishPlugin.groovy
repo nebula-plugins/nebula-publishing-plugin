@@ -27,14 +27,26 @@ class IvyNebulaPublishPlugin implements Plugin<Project> {
         }
 
         project.afterEvaluate { p ->
-            def component = p.ext.get(IVY_WAR) ? p.components.web : p.components.java
+            def component = getComponent(p)
             project.publishing {
                 publications {
                     nebulaIvy(IvyPublication) { publication ->
-                        publication.from component
+                        if(component) {
+                            publication.from component
+                        }
                     }
                 }
             }
+        }
+    }
+
+    private getComponent(Project p) {
+        if(p.ext.get(IVY_WAR)) {
+            return p.components.web
+        } else if(p.ext.get(IVY_JAR)) {
+            return p.components.java
+        } else {
+            return null
         }
     }
 }

@@ -13,7 +13,6 @@ import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 import nebula.test.functional.ExecutionResult
 import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
-import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
 import spock.lang.IgnoreIf
 
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
