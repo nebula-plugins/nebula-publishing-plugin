@@ -43,6 +43,10 @@ class IvyBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
                     }
                 }
             }
+            
+            repositories {
+               mavenCentral()
+            }
             """.stripIndent()
 
         settingsFile << '''\
@@ -139,6 +143,7 @@ class IvyBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def 'creates a jar publication for scala projects'() {
         buildFile << '''\
             apply plugin: 'scala'
+            
             '''.stripIndent()
 
         when:
@@ -204,19 +209,13 @@ class IvyBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     }
 
     def 'verify ivy.xml contains implementation and runtimeOnly dependencies'() {
-        def graph = new DependencyGraphBuilder().addModule('testjava:a:0.0.1').addModule('testjava:b:0.0.1').build()
-        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
-
         buildFile << """\
             apply plugin: 'java'
 
-            repositories {
-                ivy { url '${ivyrepo.absolutePath}' }
-            }
 
             dependencies {
-                implementation 'testjava:a:0.0.1'
-                runtimeOnly'testjava:b:0.0.1'
+                implementation 'com.google.guava:guava:19.0'
+                runtimeOnly 'org.apache.commons:commons-lang3:3.13.0'
             }
             """.stripIndent()
 
@@ -224,8 +223,8 @@ class IvyBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        assertDependency('testjava', 'a', '0.0.1', 'runtime->default')
-        assertDependency('testjava', 'b', '0.0.1', 'runtime->default')
+        assertDependency('com.google.guava', 'guava', '19.0', 'runtime->default')
+        assertDependency('org.apache.commons', 'commons-lang3', '3.13.0', 'runtime->default')
     }
 
     boolean assertDependency(String org, String name, String rev, String conf = null) {
