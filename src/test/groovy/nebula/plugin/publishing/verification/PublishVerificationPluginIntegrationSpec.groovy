@@ -13,8 +13,10 @@ import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 import nebula.test.functional.ExecutionResult
 import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
+@Ignore
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {

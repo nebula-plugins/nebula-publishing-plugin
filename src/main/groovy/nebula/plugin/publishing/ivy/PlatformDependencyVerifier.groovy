@@ -35,18 +35,17 @@ class PlatformDependencyVerifier {
     private static final String REGULAR_PLATFORM = "platform"
     private static final  String ENFORCED_PLATFORM = "enforced-platform"
 
-    static boolean isPlatformDependency(Project project, String scope, String group, String name) {
-        Boolean result = checkIfPlatformDependency(project, scope, group, name)
+    static boolean isPlatformDependency(def platformDependencies, String scope, String group, String name) {
+        Boolean result = checkIfPlatformDependency(platformDependencies, scope, group, name)
         Map<String, String> scoping = [compile: 'runtime', provided: 'compileOnly']
         if (!result && scoping[scope]) {
-            result = checkIfPlatformDependency(project, scoping[scope], group, name)
+            result = checkIfPlatformDependency(platformDependencies, scoping[scope], group, name)
         }
         result
     }
 
-    private static boolean checkIfPlatformDependency(Project project, String scope, String group, String name) {
-        def platformDependencies = findPlatformDependencies(project)[scope]
-        return platformDependencies.find { ComponentSelector componentSelector ->
+    private static boolean checkIfPlatformDependency(def platformDependencies, String scope, String group, String name) {
+        return platformDependencies.values().flatten().find { ComponentSelector componentSelector ->
             if(componentSelector instanceof ModuleComponentSelector) {
                 return componentSelector.moduleIdentifier.group == group && componentSelector.moduleIdentifier.name == name
             } else if(componentSelector instanceof ProjectComponentSelector) {

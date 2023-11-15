@@ -5,7 +5,7 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class IvyNebulaPublishPluginSpec extends BaseIntegrationTestKitSpec {
 
-    def 'should successful publish with stable publishing feature flag'() {
+    def 'should successful publish'() {
         given:
         buildFile << """     
             plugins {
