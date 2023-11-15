@@ -18,7 +18,9 @@ package nebula.plugin.publishing.ivy
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Subject
 
+@Subject(IvyCompileOnlyPlugin)
 class IvyCompileOnlyPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
@@ -32,6 +34,10 @@ class IvyCompileOnlyPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             version = '0.1.0'
             group = 'test.nebula'
 
+            repositories {
+                mavenCentral()
+            }
+            
             publishing {
                 repositories {
                     ivy {
@@ -51,18 +57,10 @@ class IvyCompileOnlyPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
 
     def 'verify ivy contains compileOnly dependencies'() {
         keepFiles = true
-        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
-        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
-
         buildFile << """\
             apply plugin: 'java'
-
-            repositories {
-                ivy { url '${ivyrepo.toURI().toURL()}' }
-            }
-
             dependencies {
-                compileOnly 'testjava:c:0.0.1'
+                compileOnly 'com.google.guava:guava:19.0'
             }
         """.stripIndent()
 
@@ -72,30 +70,23 @@ class IvyCompileOnlyPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.@org == 'testjava'
-        dependency.@name == 'c'
-        dependency.@rev == '0.0.1'
+        dependency.@org == 'com.google.guava'
+        dependency.@name == 'guava'
+        dependency.@rev == '19.0'
         dependency.@conf == 'provided'
     }
 
     def 'verify ivy contains compileOnly dependencies together with global excludes'() {
         keepFiles = true
-        def graph = new DependencyGraphBuilder().addModule('testjava:c:0.0.1').build()
-        File ivyrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestIvyRepo()
 
         buildFile << """\
             apply plugin: 'java'
-
-            repositories {
-                ivy { url '${ivyrepo.toURI().toURL()}' }
-            }
-            
             configurations.all {
                 exclude group: 'org.slf4j', module: 'slf4j-api'
             }
 
             dependencies {
-                compileOnly 'testjava:c:0.0.1'
+                compileOnly 'com.google.guava:guava:19.0'
             }
         """.stripIndent()
 
@@ -105,9 +96,9 @@ class IvyCompileOnlyPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         then:
         def root = new XmlSlurper().parseText(new File(publishDir, 'ivy-0.1.0.xml').text)
         def dependency = root.dependencies.dependency[0]
-        dependency.@org == 'testjava'
-        dependency.@name == 'c'
-        dependency.@rev == '0.0.1'
+        dependency.@org == 'com.google.guava'
+        dependency.@name == 'guava'
+        dependency.@rev == '19.0'
         dependency.@conf == 'provided'
     }
 }
