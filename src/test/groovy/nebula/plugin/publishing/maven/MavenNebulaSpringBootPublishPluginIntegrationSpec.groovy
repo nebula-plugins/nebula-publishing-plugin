@@ -16,21 +16,26 @@
 package nebula.plugin.publishing.maven
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import nebula.plugin.publishing.publications.SpringBootJarPlugin
+import spock.lang.Subject
 
+@Subject(SpringBootJarPlugin)
 class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
 
         // Because Spring Boot 2.x uses project.conventions
         System.setProperty('ignoreDeprecations', 'true')
+        // spring dependency management does not support config cache. More in https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/312
+        disableConfigurationCache()
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.maven-publish'
-                id 'org.springframework.boot' version '2.7.11'
-                id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+                id 'org.springframework.boot' version '2.7.17'
+                id 'io.spring.dependency-management' version '1.1.4'
                 id 'java'
-                id "com.netflix.nebula.info" version "12.1.3"
-                id "com.netflix.nebula.contacts" version "7.0.0"
+                id "com.netflix.nebula.info" version "12.1.6"
+                id "com.netflix.nebula.contacts" version "7.0.1"
             }
 
             contacts {
@@ -101,7 +106,7 @@ public class DemoApplication {
         def spring = dependencies.find { it.artifactId == 'spring-boot-starter-web' }
 
         then:
-        spring.version == '2.7.11'
+        spring.version == '2.7.17'
 
         when:
         def jar = new File(projectDir, "build/libs/mavenpublishingtest-0.1.0.jar")
