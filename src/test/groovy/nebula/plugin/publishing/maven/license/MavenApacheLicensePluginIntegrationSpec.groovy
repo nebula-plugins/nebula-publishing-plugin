@@ -15,9 +15,9 @@
  */
 package nebula.plugin.publishing.maven.license
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenApacheLicensePluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenApacheLicensePluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def 'add license works for maven plugin publication'() {
         given:
         keepFiles = true

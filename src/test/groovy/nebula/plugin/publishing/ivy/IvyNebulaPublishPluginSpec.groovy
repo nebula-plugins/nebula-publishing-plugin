@@ -1,15 +1,17 @@
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
-import spock.lang.Ignore
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import org.gradle.testkit.runner.TaskOutcome
 
-class IvyNebulaPublishPluginSpec extends IntegrationSpec {
+class IvyNebulaPublishPluginSpec extends BaseIntegrationTestKitSpec {
 
     def 'should successful publish with stable publishing feature flag'() {
         given:
-        buildFile << """           
-            ${applyPlugin(IvyPublishPlugin)}          
-            apply plugin: 'java'
+        buildFile << """     
+            plugins {
+               id 'com.netflix.nebula.ivy-publish'
+               id 'java'
+            }      
 
             group = 'test.nebula.netflix'                       
             version = '1.0'
@@ -30,10 +32,10 @@ class IvyNebulaPublishPluginSpec extends IntegrationSpec {
         '''
 
         when:
-        def result = runTasksSuccessfully('build', 'publishNebulaIvyPublicationToDistIvyRepository')
+        def result = runTasks('build', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
-        result.standardOutput.contains(":publishNebulaIvyPublicationToDistIvyRepository")
+        result.task(":publishNebulaIvyPublicationToDistIvyRepository").outcome == TaskOutcome.SUCCESS
 
         def root = new XmlSlurper().parse(new File(projectDir, 'build/distIvy/test.nebula.netflix/test/1.0/ivy-1.0.xml'))
         def artifact = root.publications.artifact[0]

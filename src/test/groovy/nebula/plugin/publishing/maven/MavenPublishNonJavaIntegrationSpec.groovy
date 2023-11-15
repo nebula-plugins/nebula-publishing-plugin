@@ -15,9 +15,9 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenPublishNonJavaIntegrationSpec extends IntegrationTestKitSpec {
+class MavenPublishNonJavaIntegrationSpec extends BaseIntegrationTestKitSpec {
     def 'when applied to non java project do not break'() {
         setup:
         def dir = new File(projectDir, 'zip')

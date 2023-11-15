@@ -15,11 +15,10 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends IntegrationTestKitSpec {
+class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends BaseIntegrationTestKitSpec {
     def setup() {
-        debug = true
         keepFiles = true
 
         // Because Spring Boot 2.x uses project.conventions

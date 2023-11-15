@@ -1,11 +1,10 @@
 package nebula.plugin.publishing.maven
 
-
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class MavenVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpec {
+class MavenVerifyUnspecifiedVersionDependenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
@@ -18,10 +17,12 @@ class MavenVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpe
 
     def 'Fails build if maven dependency version is unespecified'() {
         buildFile << """\
-            ${applyPlugin(MavenResolvedDependenciesPlugin)}
-            ${applyPlugin(MavenNebulaPublishPlugin)}
-            ${applyPlugin(MavenVerifyUnspecifiedVersionDependenciesPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.maven-resolved-dependencies'
+                id 'com.netflix.nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-verify-unspecified-version-dependencies'
+            }
+    
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -51,9 +52,9 @@ class MavenVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpe
             """.stripIndent()
 
         when:
-        def result = runTasks('publishNebulaPublicationToTestLocalRepository')
+        def result = runTasksAndFail('publishNebulaPublicationToTestLocalRepository')
 
         then:
-        result.standardError.contains('Dependency test.resolved:b has an invalid version: unspecified. This publication is invalid')
+        result.output.contains('Dependency test.resolved:b has an invalid version: unspecified. This publication is invalid')
     }
 }

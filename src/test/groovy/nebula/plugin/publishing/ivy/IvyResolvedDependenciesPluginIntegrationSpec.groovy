@@ -15,19 +15,21 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 
-class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
+class IvyResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+            } 
+            
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -196,11 +198,11 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        def result = runTasksWithFailure('publishNebulaIvyPublicationToTestLocalRepository')
+        def result = runTasksAndFail('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
         def expectedMessage = 'Direct dependency "test.resolved:a" is excluded, delete direct dependency or stop excluding it'
-        result.standardError.contains(expectedMessage) || result.standardOutput.contains(expectedMessage)
+        result.output.contains(expectedMessage)
     }
 
     def 'project dependency is not affected by version resolving plugin'() {
@@ -213,7 +215,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends IntegrationSpec {
         buildFile << """
             allprojects {
                 apply plugin: 'java'
-                ${applyPlugin(IvyResolvedDependenciesPlugin)}
+                apply plugin: 'com.netflix.nebula.ivy-resolved-dependencies'
 
                 repositories {
                     ${generator.ivyRepositoryBlock}

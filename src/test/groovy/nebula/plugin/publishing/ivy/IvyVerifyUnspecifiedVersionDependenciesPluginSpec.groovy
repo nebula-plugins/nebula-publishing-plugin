@@ -1,10 +1,10 @@
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class IvyVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpec {
+class IvyVerifyUnspecifiedVersionDependenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
@@ -17,9 +17,11 @@ class IvyVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpec 
 
     def 'Fails build if ivy dependency version is unespecified'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-            ${applyPlugin(IvyVerifyUnspecifiedVersionDependenciesPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+                id 'com.netflix.nebula.ivy-nebula-publish'
+                id 'com.netflix.nebula.ivy-verify-unspecified-version-dependencies'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -55,9 +57,9 @@ class IvyVerifyUnspecifiedVersionDependenciesPluginSpec extends IntegrationSpec 
             """.stripIndent()
 
         when:
-        def result = runTasks('publishNebulaIvyPublicationToTestLocalRepository')
+        def result = runTasksAndFail('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
-        result.standardError.contains('Dependency test.resolved:b has an invalid version: unspecified. This publication is invalid')
+        result.output.contains('Dependency test.resolved:b has an invalid version: unspecified. This publication is invalid')
     }
 }

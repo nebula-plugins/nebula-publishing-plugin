@@ -15,9 +15,9 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class IvyManifestPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {

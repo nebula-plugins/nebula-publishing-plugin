@@ -15,10 +15,9 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
-import spock.lang.Unroll
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenDeveloperPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenDeveloperPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {

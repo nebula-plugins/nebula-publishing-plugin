@@ -15,12 +15,11 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Unroll
 
-class MavenNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenNebulaShadowJarPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
-        debug = true
         keepFiles = true
         buildFile << """\
         buildscript {

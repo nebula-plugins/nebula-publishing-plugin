@@ -15,9 +15,9 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenScmPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenScmPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {
