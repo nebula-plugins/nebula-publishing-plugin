@@ -16,7 +16,9 @@
 package nebula.plugin.publishing.maven
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import spock.lang.Subject
 
+@Subject(MavenDeveloperPlugin)
 class MavenDeveloperPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         buildFile << """\
