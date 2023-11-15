@@ -15,12 +15,12 @@
  */
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
 
-class MavenExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenExcludesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         buildFile << """\
             plugins {

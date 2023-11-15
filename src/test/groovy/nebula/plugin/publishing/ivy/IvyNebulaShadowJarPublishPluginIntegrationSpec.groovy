@@ -15,12 +15,11 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Unroll
 
-class IvyNebulaShadowJarPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
-        debug = true
         keepFiles = true
         buildFile << """\
             buildscript {

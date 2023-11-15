@@ -15,17 +15,16 @@
  */
 package nebula.plugin.publishing.maven
 
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.IntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
-import org.gradle.testkit.runner.UnexpectedBuildFailure
 
-class MavenResolvedDependenciesPluginIntegrationSpec extends IntegrationTestKitSpec {
+class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
-        debug = true
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.maven-resolved-dependencies'

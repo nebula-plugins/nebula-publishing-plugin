@@ -1,10 +1,10 @@
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class IvyRemoveInvalidDependendenciesPluginSpec extends IntegrationSpec {
+class IvyRemoveInvalidDependendenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
@@ -17,9 +17,11 @@ class IvyRemoveInvalidDependendenciesPluginSpec extends IntegrationSpec {
 
     def 'publishes ivy descriptor without platform dependency'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-            ${applyPlugin(IvyRemoveInvalidDependenciesPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+                id 'com.netflix.nebula.ivy-remove-invalid-dependencies'
+            }    
 
             version = '0.1.0'
             group = 'test.nebula'

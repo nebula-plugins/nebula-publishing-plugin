@@ -1,11 +1,10 @@
 package nebula.plugin.publishing.maven
 
-
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 
-class MavenRemoveInvalidDependenciesPluginSpec extends IntegrationSpec {
+class MavenRemoveInvalidDependenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
@@ -18,10 +17,12 @@ class MavenRemoveInvalidDependenciesPluginSpec extends IntegrationSpec {
 
     def 'publishes maven descriptor without platform dependency'() {
         buildFile << """\
-            ${applyPlugin(MavenResolvedDependenciesPlugin)}
-            ${applyPlugin(MavenNebulaPublishPlugin)}
-            ${applyPlugin(MavenRemoveInvalidDependenciesPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.maven-resolved-dependencies'
+                id 'com.netflix.nebula.maven-nebula-publish'
+                id 'com.netflix.nebula.maven-remove-invalid-dependencies'
+            }
+    
             version = '0.1.0'
             group = 'test.nebula'
 

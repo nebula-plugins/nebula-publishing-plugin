@@ -15,11 +15,10 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class IvyNebulaSpringBootPublishPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyNebulaSpringBootPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
-        debug = true
         keepFiles = true
         // Because Spring Boot 2.x uses project.conventions
         System.setProperty('ignoreDeprecations', 'true')

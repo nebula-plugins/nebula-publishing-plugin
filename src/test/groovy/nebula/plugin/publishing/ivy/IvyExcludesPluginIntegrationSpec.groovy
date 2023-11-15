@@ -15,12 +15,12 @@
  */
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.gradle.testkit.runner.BuildResult
 
-class IvyExcludesPluginIntegrationSpec extends IntegrationTestKitSpec {
+class IvyExcludesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {

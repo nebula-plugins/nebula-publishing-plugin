@@ -15,12 +15,10 @@
  */
 package nebula.plugin.publishing.publications
 
-import nebula.plugin.publishing.ivy.IvyPublishPlugin
-import nebula.plugin.publishing.maven.MavenPublishPlugin
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Ignore
 
-class SourceJarPluginIntegrationSpec extends IntegrationSpec {
+class SourceJarPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File mavenPublishDir
     File ivyPublishDir
     File mavenUnzipDir
@@ -28,9 +26,12 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishPlugin)}
-            ${applyPlugin(IvyPublishPlugin)}
-            ${applyPlugin(SourceJarPlugin)}
+            plugins {
+                id 'java'
+                id 'com.netflix.nebula.maven-publish'
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.source-jar'
+            }
 
             version = '0.1.0'
             group = 'test.nebula'
@@ -87,7 +88,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloWorld('example')
 
         when:
-        def result = runTasksSuccessfully('sourceJar', '--info')
+        def result = runTasks('sourceJar', '--info')
 
         then:
         new File(buildFile.parentFile, 'build/libs/sourcetest-0.1.0-sources.jar').exists()
@@ -99,7 +100,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository')
+        runTasks('publishNebulaPublicationToTestMavenRepository')
 
         then:
         new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
@@ -112,7 +113,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository')
+        runTasks('publishNebulaPublicationToTestMavenRepository')
 
         then:
         new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
@@ -124,7 +125,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestIvyRepository')
+        runTasks('publishNebulaIvyPublicationToTestIvyRepository')
 
         def ivyXmlFile = new File(ivyPublishDir, 'ivy-0.1.0.xml')
 
@@ -147,7 +148,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloWorld('example')
 
         when:
-        runTasksSuccessfully('unzipMaven')
+        runTasks('unzipMaven')
 
         then:
         def helloWorld = new File(mavenUnzipDir, 'example/HelloWorld.java')
@@ -163,7 +164,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloWorld('example')
 
         when:
-        runTasksSuccessfully('unzipIvy')
+        runTasks('unzipIvy')
 
         then:
         def helloWorld = new File(ivyUnzipDir, 'example/HelloWorld.java')
@@ -183,7 +184,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloGroovy()
 
         when:
-        runTasksSuccessfully('unzipMaven')
+        runTasks('unzipMaven')
 
         then:
         def helloWorld = new File(mavenUnzipDir, 'example/HelloWorld.groovy')
@@ -203,7 +204,7 @@ class SourceJarPluginIntegrationSpec extends IntegrationSpec {
         writeHelloGroovy()
 
         when:
-        runTasksSuccessfully('unzipIvy')
+        runTasks('unzipIvy')
 
         then:
         def helloWorld = new File(ivyUnzipDir, 'example/HelloWorld.groovy')
@@ -235,7 +236,7 @@ apply plugin: "org.jenkins-ci.jpi"
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
+        runTasks('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
 
         then:
         new File(mavenPublishDir, 'sourcetest-0.1.0-sources.jar').exists()
@@ -251,7 +252,7 @@ apply plugin: "org.jenkins-ci.jpi"
         writeHelloWorld('example')
 
         when:
-        runTasksSuccessfully('sourceJar', '--warning-mode', 'all')
+        runTasks('sourceJar', '--warning-mode', 'all')
 
         then:
         new File(buildFile.parentFile, 'build/libs/some-jar-name-0.1.0-sources.jar').exists()

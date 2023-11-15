@@ -15,12 +15,10 @@
  */
 package nebula.plugin.publishing.publications
 
-import nebula.plugin.publishing.ivy.IvyPublishPlugin
-import nebula.plugin.publishing.maven.MavenPublishPlugin
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Ignore
 
-class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
+class JavadocJarPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File mavenPublishDir
     File ivyPublishDir
     File mavenUnzipDir
@@ -28,10 +26,13 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
         buildFile << """\
-            ${applyPlugin(MavenPublishPlugin)}
-            ${applyPlugin(IvyPublishPlugin)}
-            ${applyPlugin(JavadocJarPlugin)}
-
+            plugins {
+                id 'java'
+                id 'com.netflix.nebula.maven-publish'
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.javadoc-jar'
+            }
+            
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -85,7 +86,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository')
+        runTasks('publishNebulaPublicationToTestMavenRepository')
 
         then:
         new File(mavenPublishDir, 'javadoctest-0.1.0-javadoc.jar').exists()
@@ -99,7 +100,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         createHelloWorld()
 
         when:
-        runTasksSuccessfully('unzipMaven')
+        runTasks('unzipMaven')
 
         then:
         new File(mavenUnzipDir, 'example/HelloWorld.html').exists()
@@ -111,7 +112,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaIvyPublicationToTestIvyRepository')
+        runTasks('publishNebulaIvyPublicationToTestIvyRepository')
 
         def ivyXmlFile = new File(ivyPublishDir, 'ivy-0.1.0.xml')
 
@@ -134,7 +135,7 @@ class JavadocJarPluginIntegrationSpec extends IntegrationSpec {
         createHelloWorld()
 
         when:
-        runTasksSuccessfully('unzipIvy')
+        runTasks('unzipIvy')
 
         then:
         new File(ivyUnzipDir, 'example/HelloWorld.html').exists()
@@ -164,7 +165,7 @@ apply plugin: "org.jenkins-ci.jpi"
         '''.stripIndent()
 
         when:
-        runTasksSuccessfully('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
+        runTasks('publishNebulaPublicationToTestMavenRepository', 'publishNebulaIvyPublicationToTestIvyRepository', '--warning-mode', 'none')
 
         then:
         new File(mavenPublishDir, 'javadoctest-0.1.0-javadoc.jar').exists()

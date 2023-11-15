@@ -1,14 +1,16 @@
 package nebula.plugin.publishing.maven
 
-import nebula.test.IntegrationSpec
-import spock.lang.Ignore
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
-class MavenPublishPluginSpec extends IntegrationSpec {
+
+class MavenPublishPluginSpec extends BaseIntegrationTestKitSpec {
 
     def 'should successful publish with stable publishing feature flag'() {
-        buildFile << """           
-            ${applyPlugin(MavenPublishPlugin)}          
-            apply plugin: 'java'
+        buildFile << """     
+            plugins {
+                id 'com.netflix.nebula.maven-publish'
+                id 'java'
+            }      
 
             group = 'test.nebula.netflix'                       
             version = '1.0'
@@ -32,7 +34,7 @@ class MavenPublishPluginSpec extends IntegrationSpec {
         def result = runTasks('publishNebulaPublicationToDistMavenRepository')
 
         then:
-        result.standardOutput.contains(":publishNebulaPublicationToDistMavenRepository")
+        result.output.contains(":publishNebulaPublicationToDistMavenRepository")
         new File(projectDir, 'build/distMaven/test/nebula/netflix/test/1.0/test-1.0.jar').exists()
     }
 }

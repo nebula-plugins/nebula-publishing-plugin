@@ -1,11 +1,11 @@
 package nebula.plugin.publishing.ivy.interaction
 
-import nebula.test.IntegrationTestKitSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import spock.lang.Unroll
 
-class IvyPublishRecommenderInteractionSpec extends IntegrationTestKitSpec {
+class IvyPublishRecommenderInteractionSpec extends BaseIntegrationTestKitSpec {
     @Unroll
     def 'dependencies from recommendation plugin in #scope scope should be in ivy file - java-library plugin'() {
         def graph = new DependencyGraphBuilder().addModule('test:foo:1.0.0').build()

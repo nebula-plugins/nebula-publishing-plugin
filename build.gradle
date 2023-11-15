@@ -134,6 +134,22 @@ gradlePlugin {
             tags.set(['nebula', 'publish', 'maven'])
         }
 
+        mavenRemoveInvalidDependencies {
+            id = 'com.netflix.nebula.maven-remove-invalid-dependencies'
+            displayName = 'com.netflix.nebula.maven-remove-invalid-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
+            implementationClass = 'nebula.plugin.publishing.maven.MavenRemoveInvalidDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'maven'])
+        }
+
+        ivyRemoveInvalidDependencies {
+            id = 'com.netflix.nebula.ivy-remove-invalid-dependencies'
+            displayName = 'com.netflix.nebula.ivy-remove-invalid-dependencies'
+            description = 'Plugins to ease maven-publish and ivy-publish configuration'
+            implementationClass = 'nebula.plugin.publishing.ivy.IvyRemoveInvalidDependenciesPlugin'
+            tags.set(['nebula', 'publish', 'ivy'])
+        }
+
 
         mavenScm {
             id = 'com.netflix.nebula.maven-scm'

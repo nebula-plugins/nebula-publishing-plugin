@@ -1,13 +1,13 @@
 package nebula.plugin.publishing.ivy
 
-import nebula.test.IntegrationSpec
+import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import spock.lang.Ignore
 import spock.lang.Subject
 
 @Subject(IvyRemovePlatformDependenciesPlugin)
-class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
+class IvyRemovePlatformDependenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
     def setup() {
@@ -20,10 +20,12 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
     def 'publishes ivy descriptor without platform dependency'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-            ${applyPlugin(IvyRemovePlatformDependenciesPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+                id 'com.netflix.nebula.ivy-remove-platform-dependencies'
+            } 
+            
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -72,10 +74,15 @@ class IvyRemovePlatformDependenciesPluginSpec extends IntegrationSpec {
 
     def 'publishes ivy descriptor without platform dependency - platform is a subproject'() {
         buildFile << """\
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+                id 'com.netflix.nebula.ivy-remove-platform-dependencies'
+            } 
             allprojects {
-                ${applyPlugin(IvyResolvedDependenciesPlugin)}
-                ${applyPlugin(IvyNebulaPublishPlugin)}
-                ${applyPlugin(IvyRemovePlatformDependenciesPlugin)}
+                apply plugin: 'com.netflix.nebula.ivy-publish'
+                apply plugin: 'com.netflix.nebula.ivy-resolved-dependencies'
+                apply plugin: 'com.netflix.nebula.ivy-remove-platform-dependencies'
     
                 version = '0.1.0'
                 group = 'test.nebula'
@@ -157,10 +164,11 @@ dependencies {
     @Ignore
     def 'publishes ivy descriptor without enforced-platform dependency'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-            ${applyPlugin(IvyRemovePlatformDependenciesPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+                id 'com.netflix.nebula.ivy-remove-platform-dependencies'
+            } 
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -214,9 +222,11 @@ dependencies {
     @Ignore
     def 'publishes ivy descriptor with platform dependency if plugin is not applied'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+            } 
+          
             version = '0.1.0'
             group = 'test.nebula'
 
@@ -270,9 +280,11 @@ dependencies {
     @Ignore
     def 'publishes ivy descriptor with enforced-platform dependency if plugin is not applied'() {
         buildFile << """\
-            ${applyPlugin(IvyResolvedDependenciesPlugin)}
-            ${applyPlugin(IvyNebulaPublishPlugin)}
-
+            plugins {
+                id 'com.netflix.nebula.ivy-publish'
+                id 'com.netflix.nebula.ivy-resolved-dependencies'
+            } 
+            
             version = '0.1.0'
             group = 'test.nebula'
 
