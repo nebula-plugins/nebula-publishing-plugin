@@ -16,8 +16,10 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import spock.lang.Subject
 import spock.lang.Unroll
 
+@Subject(IvyShadowPublishPlugin)
 class IvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
