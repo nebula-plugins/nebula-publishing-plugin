@@ -21,6 +21,7 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
@@ -30,58 +31,63 @@ import org.gradle.api.publish.ivy.IvyPublication
 /**
  * Removes from descriptor dependencies that have category status of platform or enhanced-platform
  */
+@CompileDynamic
 class IvyRemovePlatformDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-        publishing.publications(new Action<PublicationContainer>() {
+        project.afterEvaluate(new Action<Project>() {
             @Override
-            void execute(PublicationContainer publications) {
-                publications.withType(IvyPublication) { IvyPublication publication ->
-                    publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+            void execute(Project p) {
+                p.plugins.withType(JavaPlugin) {
+                    def platformDependencies = PlatformDependencyVerifier.findPlatformDependencies(p)
+                    publishing.publications(new Action<PublicationContainer>() {
                         @Override
-                        void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
-                            ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
-                                @Override
-                                void execute(XmlProvider xml) {
-                                    configureXml(project, xml)
-                                }
-                            })
+                        void execute(PublicationContainer publications) {
+                            publications.withType(IvyPublication) { IvyPublication publication ->
+                                publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+                                    @Override
+                                    void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
+                                        ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
+                                            @Override
+                                            void execute(XmlProvider xml) {
+                                                xml.asNode().dependencies.dependency.findAll() { Node dep ->
+                                                    String scope = dep.@conf
+                                                    String group = dep.@org
+                                                    String name = dep.@name
+
+                                                    if (scope == 'compile->default') {
+                                                        scope = 'compile'
+                                                    }
+
+                                                    if (scope == 'provided->default' || scope == 'runtime->default') {
+                                                        scope = 'runtime'
+                                                    }
+
+                                                    if (scope == 'test->default') {
+                                                        scope = 'test'
+                                                    }
+
+                                                    if (scope.contains('->')) {
+                                                        scope = scope.split('->')[0]
+                                                    }
+
+                                                    boolean isPlatformDependency = PlatformDependencyVerifier.isPlatformDependency(platformDependencies, scope, group, name)
+
+                                                    if(isPlatformDependency) {
+                                                        dep.parent().remove(dep)
+                                                    }
+                                                }
+                                            }
+                                        })
+                                    }
+                                })
+                            }
                         }
                     })
                 }
+
             }
         })
-    }
-
-    @CompileDynamic
-    private void configureXml(Project project, XmlProvider xml) {
-        xml.asNode().dependencies.dependency.findAll() { Node dep ->
-            String scope = dep.@conf
-            String group = dep.@org
-            String name = dep.@name
-
-            if (scope == 'compile->default') {
-                scope = 'compile'
-            }
-
-            if (scope == 'provided->default' || scope == 'runtime->default') {
-                scope = 'runtime'
-            }
-
-            if (scope == 'test->default') {
-                scope = 'test'
-            }
-
-            if (scope.contains('->')) {
-                scope = scope.split('->')[0]
-            }
-
-            boolean isPlatformDependency = PlatformDependencyVerifier.isPlatformDependency(project, scope, group, name)
-
-            if(isPlatformDependency) {
-                dep.parent().remove(dep)
-            }
-        }
     }
 }

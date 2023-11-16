@@ -29,6 +29,7 @@ import org.gradle.api.publish.maven.MavenPublication
  * Removes from descriptor dependencies that are invalid:
  * 1) No version available
  */
+@CompileDynamic
 class MavenRemoveInvalidDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -52,7 +53,14 @@ class MavenRemoveInvalidDependenciesPlugin implements Plugin<Project> {
 
                                         @Override
                                         void execute(XmlProvider xml) {
-                                            removeDependencies(xml)
+                                            def dependencies = xml.asNode()?.dependencies?.dependency
+                                            dependencies?.each { Node dep ->
+                                                String version = dep.version.text()
+                                                if (!version) {
+                                                    dep.parent().remove(dep)
+                                                }
+
+                                            }
                                         }
                                     })
                                 }
@@ -62,18 +70,6 @@ class MavenRemoveInvalidDependenciesPlugin implements Plugin<Project> {
                 })
             }
         })
-    }
-
-    @CompileDynamic
-    private void removeDependencies(XmlProvider xml) {
-        def dependencies = xml.asNode()?.dependencies?.dependency
-        dependencies?.each { Node dep ->
-            String version = dep.version.text()
-            if (!version) {
-                dep.parent().remove(dep)
-            }
-
-        }
     }
 }
 

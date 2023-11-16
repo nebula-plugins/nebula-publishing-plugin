@@ -3,7 +3,9 @@ package nebula.plugin.publishing.maven
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Subject
 
+@Subject(MavenRemoveInvalidDependenciesPlugin)
 class MavenRemoveInvalidDependenciesPluginSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 

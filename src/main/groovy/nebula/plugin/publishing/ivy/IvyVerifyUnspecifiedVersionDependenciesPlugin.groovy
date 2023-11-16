@@ -27,6 +27,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
 import org.gradle.api.publish.ivy.IvyPublication
 
+@CompileDynamic
 class IvyVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -41,7 +42,14 @@ class IvyVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project> {
                             ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
                                 @Override
                                 void execute(XmlProvider xml) {
-                                    verifyVersionsInDependencies(xml)
+                                    xml.asNode().dependencies.dependency.findAll() { Node dep ->
+                                        String revision = dep.@rev
+                                        if(revision == 'unspecified') {
+                                            String group = dep.@org
+                                            String name = dep.@name
+                                            throw new GradleException("Dependency $group:$name has an invalid version: $revision. This publication is invalid")
+                                        }
+                                    }
                                 }
                             })
                         }
@@ -51,15 +59,5 @@ class IvyVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project> {
         })
     }
 
-    @CompileDynamic
-    private void verifyVersionsInDependencies(XmlProvider xml) {
-        xml.asNode().dependencies.dependency.findAll() { Node dep ->
-            String revision = dep.@rev
-            if(revision == 'unspecified') {
-                String group = dep.@org
-                String name = dep.@name
-                throw new GradleException("Dependency $group:$name has an invalid version: $revision. This publication is invalid")
-            }
-        }
-    }
+
 }

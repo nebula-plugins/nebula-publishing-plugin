@@ -26,27 +26,27 @@ class IvyNebulaPublishPlugin implements Plugin<Project> {
             project.ext.set(IVY_JAR, true)
         }
 
-        project.publishing {
-            publications {
-                nebulaIvy(IvyPublication) {
-                    if (! project.state.executed) {
-                        //configuration when STABLE_PUBLISHING is enabled
-                        project.afterEvaluate { p ->
-                            configurePublication(it, p)
+        project.afterEvaluate { p ->
+            def component = getComponent(p)
+            project.publishing {
+                publications {
+                    nebulaIvy(IvyPublication) { publication ->
+                        if(component) {
+                            publication.from component
                         }
-                    } else {
-                        configurePublication(it, project)
                     }
                 }
             }
         }
     }
 
-    private void configurePublication(IvyPublication publication, Project p) {
-        if (p.ext.get(IVY_WAR)) {
-            publication.from p.components.web
-        } else if (p.ext.get(IVY_JAR)) {
-            publication.from p.components.java
+    private getComponent(Project p) {
+        if(p.ext.get(IVY_WAR)) {
+            return p.components.web
+        } else if(p.ext.get(IVY_JAR)) {
+            return p.components.java
+        } else {
+            return null
         }
     }
 }

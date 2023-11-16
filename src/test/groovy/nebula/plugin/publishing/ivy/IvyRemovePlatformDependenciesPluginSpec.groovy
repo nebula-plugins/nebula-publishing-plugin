@@ -51,12 +51,15 @@ class IvyRemovePlatformDependenciesPluginSpec extends BaseIntegrationTestKitSpec
             apply plugin: 'java'
 
             repositories {
-                ${generator.ivyRepositoryBlock}
                 mavenCentral()
+                ${generator.ivyRepositoryBlock}
+                maven {
+                    url = 'https://repo.jenkins-ci.org/releases/'
+                }
             }
 
             dependencies {
-                implementation platform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation platform('org.jenkins-ci.main:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
             """.stripIndent()
@@ -87,6 +90,12 @@ class IvyRemovePlatformDependenciesPluginSpec extends BaseIntegrationTestKitSpec
                 version = '0.1.0'
                 group = 'test.nebula'
     
+                repositories {
+                            mavenCentral()
+                            maven {
+                                url = 'https://repo.jenkins-ci.org/releases/'
+                            }
+                        }
                 publishing {
                     repositories {
                         ivy {
@@ -140,7 +149,7 @@ repositories {
 }
 
 dependencies {
-    implementation platform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+    implementation platform('org.jenkins-ci.main:jenkins-bom:latest.release')
     implementation platform(project(":platform"))
     implementation 'test.resolved:a:1.+'
 }
@@ -192,14 +201,16 @@ dependencies {
 
         buildFile << """\
             apply plugin: 'java'
-
             repositories {
                 ${generator.ivyRepositoryBlock}
                 mavenCentral()
+                maven {
+                     url = 'https://repo.jenkins-ci.org/releases/'
+                }
             }
 
             dependencies {
-                implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation enforcedPlatform('org.jenkins-ci.main:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
 
@@ -254,10 +265,13 @@ dependencies {
             repositories {
                 ${generator.ivyRepositoryBlock}
                 mavenCentral()
+                maven {
+                     url = 'https://repo.jenkins-ci.org/releases/'
+                }
             }
 
             dependencies {
-                implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation enforcedPlatform('org.jenkins-ci.main:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
 
@@ -312,10 +326,13 @@ dependencies {
             repositories {
                 ${generator.ivyRepositoryBlock}
                 mavenCentral()
+                maven {
+                     url = 'https://repo.jenkins-ci.org/releases/'
+                }
             }
 
             dependencies {
-                implementation enforcedPlatform('com.github.sghill.jenkins:jenkins-bom:latest.release')
+                implementation enforcedPlatform('org.jenkins-ci.main:jenkins-bom:latest.release')
                 implementation 'test.resolved:a:1.+'
             }
 

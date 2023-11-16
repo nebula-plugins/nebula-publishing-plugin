@@ -16,7 +16,9 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import spock.lang.Subject
 
+@Subject(IvyManifestPlugin)
 class IvyManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 

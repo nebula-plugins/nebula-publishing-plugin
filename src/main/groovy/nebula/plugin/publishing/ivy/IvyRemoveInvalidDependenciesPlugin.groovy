@@ -31,6 +31,7 @@ import org.gradle.api.publish.ivy.IvyPublication
  * Removes from descriptor dependencies that are invalid:
  * 1) No revision available
  */
+@CompileDynamic
 class IvyRemoveInvalidDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -45,7 +46,12 @@ class IvyRemoveInvalidDependenciesPlugin implements Plugin<Project> {
                             ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
                                 @Override
                                 void execute(XmlProvider xml) {
-                                    configureXml(xml)
+                                    xml.asNode().dependencies.dependency.findAll() { Node dep ->
+                                        String revision = dep.@rev
+                                        if(!revision) {
+                                            dep.parent().remove(dep)
+                                        }
+                                    }
                                 }
                             })
                         }
@@ -53,15 +59,5 @@ class IvyRemoveInvalidDependenciesPlugin implements Plugin<Project> {
                 }
             }
         })
-    }
-
-    @CompileDynamic
-    private void configureXml(XmlProvider xml) {
-        xml.asNode().dependencies.dependency.findAll() { Node dep ->
-            String revision = dep.@rev
-            if(!revision) {
-                dep.parent().remove(dep)
-            }
-        }
     }
 }

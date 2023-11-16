@@ -27,6 +27,7 @@ import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import static nebula.plugin.publishing.ManifestElementNameGenerator.*
 
+@CompileDynamic
 class MavenManifestPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -51,7 +52,13 @@ class MavenManifestPlugin implements Plugin<Project> {
                                 pom.withXml(new Action<XmlProvider>() {
                                     @Override
                                     void execute(XmlProvider xml) {
-                                        appendManifest(xml, infoBroker.buildManifest())
+                                        def propertiesNode = xml.asNode()?.properties
+                                        if (!propertiesNode) {
+                                            propertiesNode = xml.asNode().appendNode('properties')
+                                        }
+                                        infoBroker.buildManifest().each { String key, String value ->
+                                            propertiesNode.appendNode(elementName("nebula_$key"), value)
+                                        }
                                     }
                                 })
                             }
@@ -59,17 +66,6 @@ class MavenManifestPlugin implements Plugin<Project> {
                     }
                 }
             })
-        }
-    }
-
-    @CompileDynamic
-    private void appendManifest(XmlProvider xml, Map<String, String> manifest) {
-        def propertiesNode = xml.asNode()?.properties
-        if (!propertiesNode) {
-            propertiesNode = xml.asNode().appendNode('properties')
-        }
-        manifest.each { String key, String value ->
-            propertiesNode.appendNode(elementName("nebula_$key"), value)
         }
     }
 }

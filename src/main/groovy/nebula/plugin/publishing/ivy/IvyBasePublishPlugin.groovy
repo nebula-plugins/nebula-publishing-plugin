@@ -26,6 +26,7 @@ import org.gradle.api.publish.ivy.IvyModuleDescriptorDescription
 import org.gradle.api.publish.ivy.IvyModuleDescriptorSpec
 import org.gradle.api.publish.ivy.IvyPublication
 
+@CompileDynamic
 class IvyBasePublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -55,73 +56,62 @@ class IvyBasePublishPlugin implements Plugin<Project> {
          */
 
         PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-        publishing.publications(new Action<PublicationContainer>() {
+        project.afterEvaluate(new Action<Project>() {
             @Override
-            void execute(PublicationContainer publications) {
-                publications.withType(IvyPublication) { IvyPublication publication ->
-                    if (! project.state.executed) {
-                        project.afterEvaluate(new Action<Project>() {
-                            @Override
-                            void execute(Project p) {
-                                configureDescription(publication, project)
-                            }
-                        })
-                    } else {
-                        configureDescription(publication, project)
-                    }
-
-                    publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
-                        @Override
-                        void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
-                            ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
+            void execute(Project p) {
+                String status = p.status
+                String description = p.description ?: ''
+                publishing.publications(new Action<PublicationContainer>() {
+                    @Override
+                    void execute(PublicationContainer publications) {
+                        publications.withType(IvyPublication) { IvyPublication publication ->
+                            publication.descriptor.status = status
+                            publication.descriptor.description(new Action<IvyModuleDescriptorDescription>() {
                                 @Override
-                                void execute(XmlProvider xml) {
-                                    configureXml(xml)
+                                void execute(IvyModuleDescriptorDescription ivyModuleDescriptorDescription) {
+                                    ivyModuleDescriptorDescription.text.set(description)
+                                }
+                            })
+                            publication.descriptor(new Action<IvyModuleDescriptorSpec>() {
+                                @Override
+                                void execute(IvyModuleDescriptorSpec ivyModuleDescriptorSpec) {
+                                    ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
+                                        @Override
+                                        void execute(XmlProvider xml) {
+                                            def root = xml.asNode()
+                                            def configurationsNode = root?.configurations
+                                            if (!configurationsNode) {
+                                                configurationsNode = root.appendNode('configurations')
+                                            } else {
+                                                configurationsNode = configurationsNode[0]
+                                            }
+
+                                            def minimalConfs = [
+                                                    compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
+                                                    runtime: ['compile'], sources: [], test: ['runtime']
+                                            ]
+
+                                            minimalConfs.each { minimal ->
+                                                def conf = configurationsNode.conf.find { it.@name == minimal.key }
+                                                if (!conf) {
+                                                    conf = configurationsNode.appendNode('conf')
+                                                }
+                                                conf.@name = minimal.key
+                                                conf.@visibility = 'public'
+
+                                                if (!minimal.value.empty)
+                                                    conf.@extends = minimal.value.join(',')
+                                            }
+                                        }
+                                    })
                                 }
                             })
                         }
-                    })
-                }
+                    }
+                })
+
             }
         })
-    }
 
-    @CompileDynamic
-    private void configureXml(XmlProvider xml) {
-        def root = xml.asNode()
-        def configurationsNode = root?.configurations
-        if(!configurationsNode) {
-            configurationsNode = root.appendNode('configurations')
-        }
-        else {
-            configurationsNode = configurationsNode[0]
-        }
-
-        def minimalConfs = [
-                compile: [], default: ['runtime', 'master'], javadoc: [], master: [],
-                runtime: ['compile'], sources: [], test: ['runtime']
-        ]
-
-        minimalConfs.each { minimal ->
-            def conf = configurationsNode.conf.find { it.@name == minimal.key }
-            if(!conf) {
-                conf = configurationsNode.appendNode('conf')
-            }
-            conf.@name = minimal.key
-            conf.@visibility = 'public'
-
-            if(!minimal.value.empty)
-                conf.@extends = minimal.value.join(',')
-        }
-    }
-
-    private void configureDescription(IvyPublication publication, Project p) {
-        publication.descriptor.status = p.status
-        publication.descriptor.description(new Action<IvyModuleDescriptorDescription>() {
-            @Override
-            void execute(IvyModuleDescriptorDescription ivyModuleDescriptorDescription) {
-                ivyModuleDescriptorDescription.text.set(p.description ?: '')
-            }
-        })
     }
 }

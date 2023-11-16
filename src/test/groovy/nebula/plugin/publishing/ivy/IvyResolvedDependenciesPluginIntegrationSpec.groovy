@@ -19,7 +19,9 @@ import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
 import nebula.test.dependencies.ModuleBuilder
+import spock.lang.Subject
 
+@Subject(IvyResolvedDependenciesPlugin)
 class IvyResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 

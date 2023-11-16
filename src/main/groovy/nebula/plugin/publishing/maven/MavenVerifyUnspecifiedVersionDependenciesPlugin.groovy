@@ -26,6 +26,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 
+@CompileDynamic
 class MavenVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -39,17 +40,22 @@ class MavenVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project>
                     @Override
                     void execute(PublicationContainer publications) {
                         publications.withType(MavenPublication) { MavenPublication publication ->
-
                             publication.pom(new Action<MavenPom>() {
-
                                 @Override
                                 void execute(MavenPom pom) {
-
                                     pom.withXml(new Action<XmlProvider>() {
-
                                         @Override
                                         void execute(XmlProvider xml) {
-                                            verifyVersionsInDependencies(xml)
+                                            def dependencies = xml.asNode()?.dependencies?.dependency
+                                            dependencies?.each { Node dep ->
+                                                String version = dep.version.text()
+                                                if(version == 'unspecified') {
+                                                    String group = dep.groupId.text()
+                                                    String name = dep.artifactId.text()
+                                                    throw new GradleException("Dependency $group:$name has an invalid version: $version. This publication is invalid")
+                                                }
+
+                                            }
                                         }
                                     })
                                 }
@@ -59,20 +65,6 @@ class MavenVerifyUnspecifiedVersionDependenciesPlugin implements Plugin<Project>
                 })
             }
         })
-    }
-
-    @CompileDynamic
-    private void verifyVersionsInDependencies(XmlProvider xml) {
-        def dependencies = xml.asNode()?.dependencies?.dependency
-        dependencies?.each { Node dep ->
-            String version = dep.version.text()
-            if(version == 'unspecified') {
-                String group = dep.groupId.text()
-                String name = dep.artifactId.text()
-                throw new GradleException("Dependency $group:$name has an invalid version: $version. This publication is invalid")
-            }
-
-        }
     }
 }
 

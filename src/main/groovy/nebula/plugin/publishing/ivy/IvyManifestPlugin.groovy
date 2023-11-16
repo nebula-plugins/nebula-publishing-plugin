@@ -14,6 +14,7 @@ import org.gradle.api.publish.ivy.IvyPublication
 
 import static nebula.plugin.publishing.ManifestElementNameGenerator.*
 
+@CompileDynamic
 class IvyManifestPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
@@ -38,7 +39,12 @@ class IvyManifestPlugin implements Plugin<Project> {
                                 ivyModuleDescriptorSpec.withXml(new Action<XmlProvider>() {
                                     @Override
                                     void execute(XmlProvider xml) {
-                                        configureXml(infoBroker, xml)
+                                        def desc = xml.asNode()?.info[0].description[0]
+                                        desc.'@xmlns:nebula' = 'http://netflix.com/build'
+
+                                        infoBroker.buildManifest().each { key, value ->
+                                            desc.appendNode("nebula:${elementName(key)}", value)
+                                        }
                                     }
                                 })
                             }
@@ -46,18 +52,6 @@ class IvyManifestPlugin implements Plugin<Project> {
                     }
                 }
             })
-        }
-    }
-
-    @CompileDynamic
-    private void configureXml(InfoBrokerPlugin infoBroker, XmlProvider xml) {
-        // the ivy info>description tag is the only one which can contain free
-        // text, including arbitrary xml
-        def desc = xml.asNode()?.info[0].description[0]
-        desc.'@xmlns:nebula' = 'http://netflix.com/build'
-
-        infoBroker.buildManifest().each { key, value ->
-            desc.appendNode("nebula:${elementName(key)}", value)
         }
     }
 }

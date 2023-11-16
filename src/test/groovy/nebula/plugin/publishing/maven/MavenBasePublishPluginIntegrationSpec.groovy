@@ -18,7 +18,9 @@ package nebula.plugin.publishing.maven
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder
 import nebula.test.dependencies.GradleDependencyGenerator
+import spock.lang.Subject
 
+@Subject(MavenBasePublishPlugin)
 class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     File publishDir
 
@@ -32,6 +34,10 @@ class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             version = '0.1.0'
             group = 'test.nebula'
 
+            repositories {
+                mavenCentral()
+            }
+            
             publishing {
                 repositories {
                     maven {
