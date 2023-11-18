@@ -23,6 +23,8 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             rootProject.name='testhello'
         '''
         gradleVersion = null
+        // Enable configuration cache :)
+    //    new File(projectDir, 'gradle.properties') << '''org.gradle.configuration-cache=true'''.stripIndent()
     }
 
     def 'should successful pass through verification'() {
