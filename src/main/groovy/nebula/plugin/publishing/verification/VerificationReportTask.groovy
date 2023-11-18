@@ -13,17 +13,16 @@ abstract class VerificationReportTask extends DefaultTask {
 
     protected VerificationReportGenerator verificationReportGenerator = new VerificationReportGenerator()
 
-    @Internal
-    abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
-
     @Input
     abstract Property<String> getTargetStatus()
 
+    @Internal
+    abstract Property<VerificationViolationsCollectorService> getVerificationViolationsCollectorService()
+
     @TaskAction
     void reportViolatingDependencies() {
-        if (project.rootProject == project) {
-            reportErrors(verificationViolationsCollectorHolderExtension.get().collector)
-        }
+        reportErrors(verificationViolationsCollectorService.get().collector)
+
     }
 
     void reportErrors(Map<String, ViolationsContainer> violationsPerProject) {

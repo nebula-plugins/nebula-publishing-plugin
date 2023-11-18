@@ -10,6 +10,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.provider.Provider
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -29,7 +30,8 @@ class VerifyPublicationTaskSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        def holderExtension =  project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        }).get()
         holderExtension.collector.size() == 1
         def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
@@ -56,7 +58,8 @@ class VerifyPublicationTaskSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        def holderExtension =  project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        }).get()
         holderExtension.collector.size() == 1
         def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 1
@@ -88,7 +91,8 @@ class VerifyPublicationTaskSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        def holderExtension =  project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        }).get()
         holderExtension.collector.size() == 1
         def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
@@ -111,7 +115,8 @@ class VerifyPublicationTaskSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def holderExtension = project.extensions.findByType(PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        def holderExtension =  project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        }).get()
         holderExtension.collector.size() == 1
         def violations = holderExtension.collector[project.name]
         violations.statusViolations.size() == 0
@@ -119,7 +124,8 @@ class VerifyPublicationTaskSpec extends Specification {
     }
 
     Task setupProjectAndTask(Project project, String libraryStatus, String projectStatus) {
-        def extension = project.extensions.create('collectorExtension', PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension)
+        Provider<VerificationViolationsCollectorService> verificationViolationsCollectorServiceProvider = project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        })
         project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
@@ -128,6 +134,8 @@ class VerifyPublicationTaskSpec extends Specification {
 
         def task = project.task('verify', type: VerifyPublicationTask)
         task.configure {
+            verificationViolationsCollectorService.set(verificationViolationsCollectorServiceProvider)
+            usesService(verificationViolationsCollectorServiceProvider)
             ignore.set(Collections.emptySet())
             ignoreGroups.set(Collections.emptySet())
             resolvedComponentResultProvider = project.configurations.named(project.sourceSets.main.getRuntimeClasspathConfigurationName()).get().incoming.resolutionResult.rootComponent
@@ -136,7 +144,6 @@ class VerifyPublicationTaskSpec extends Specification {
             }.flatten().collect { Dependency dependency -> new DeclaredDependency(dependency.group, dependency.name, dependency.version) } as List<DeclaredDependency>)
             projectName.set(project.name)
             targetStatus.set(project.status.toString())
-            verificationViolationsCollectorHolderExtension.set(extension)
         }
     }
 

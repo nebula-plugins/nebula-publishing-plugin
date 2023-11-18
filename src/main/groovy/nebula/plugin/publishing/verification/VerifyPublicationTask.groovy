@@ -38,7 +38,8 @@ abstract class VerifyPublicationTask extends DefaultTask {
     abstract ListProperty<DeclaredDependency> getDefinedDependencies()
 
     @Internal
-    abstract Property<PublishVerificationPlugin.VerificationViolationsCollectorHolderExtension> getVerificationViolationsCollectorHolderExtension()
+    abstract Property<VerificationViolationsCollectorService> getVerificationViolationsCollectorService()
+
 
     @TaskAction
     void verifyDependencies() {
@@ -47,7 +48,7 @@ abstract class VerifyPublicationTask extends DefaultTask {
 
         List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore.get(), ignoreGroups.get()).verify(definedDependencies.get())
 
-        verificationViolationsCollectorHolderExtension.get().collector.put(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
+        verificationViolationsCollectorService.get().addProject(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
     }
 
     private static Set<ResolvedDependencyResult> getNonProjectDependencies(ResolvedComponentResult resolvedComponentResult) {

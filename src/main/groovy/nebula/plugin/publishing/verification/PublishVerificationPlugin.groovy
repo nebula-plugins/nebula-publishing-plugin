@@ -14,6 +14,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.Provider
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.api.tasks.SourceSet
@@ -44,23 +45,25 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     @CompileDynamic
     private void setupPlugin(Project project, PublishVerificationExtension extension) {
-        createVerificationViolationsCollector(project)
+        Provider<VerificationViolationsCollectorService> serviceProvider = project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        })
+
         generateStatusSchemeAttribute(project)
         project.afterEvaluate {
             SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
             if (!sourceSet) return
             TaskProvider<VerifyPublicationTask> verificationTask = project.tasks.register("verifyPublication", VerifyPublicationTask)
-            TaskProvider<VerificationReportTask> reportTask = getOrCreateReportTask(project, verificationTask)
-            VerificationViolationsCollectorHolderExtension verificationViolationsCollectorHolderExtension = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
+            TaskProvider<VerificationReportTask> reportTask = getOrCreateReportTask(project, verificationTask, serviceProvider)
             verificationTask.configure(new Action<VerifyPublicationTask>() {
                 @Override
                 void execute(VerifyPublicationTask verifyPublicationTask) {
+                    verifyPublicationTask.verificationViolationsCollectorService.set(serviceProvider)
+                    verifyPublicationTask.usesService(serviceProvider)
                     verifyPublicationTask.projectName.set(project.name)
                     verifyPublicationTask.targetStatus.set(project.status.toString())
                     verifyPublicationTask.resolvedComponentResultProvider = project.configurations.named(sourceSet.getRuntimeClasspathConfigurationName()).get().incoming.resolutionResult.rootComponent
                     verifyPublicationTask.ignore.set(extension.ignore)
                     verifyPublicationTask.ignoreGroups.set(extension.ignoreGroups)
-                    verifyPublicationTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
                     verifyPublicationTask.definedDependencies.set(project.configurations.collect { Configuration configuration ->
                         configuration.dependencies
                     }.flatten().collect { Dependency dependency -> new DeclaredDependency(dependency.group, dependency.name, dependency.version) } as List<DeclaredDependency>)
@@ -69,14 +72,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
             })
 
             configureHooks(project, reportTask)
-        }
-    }
-
-    void createVerificationViolationsCollector(Project project) {
-        //root project doesn't have to fulfil condition for plugin setup so first submodule will create extension if it not created
-        VerificationViolationsCollectorHolderExtension violationCollector = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
-        if (violationCollector == null) {
-            project.rootProject.extensions.create('verificationViolationsCollectorHolderExtension', VerificationViolationsCollectorHolderExtension)
         }
     }
 
@@ -96,7 +91,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
     }
 
 
-    private TaskProvider<VerificationReportTask> getOrCreateReportTask(Project project, TaskProvider<VerifyPublicationTask> verificationTask) {
+    private TaskProvider<VerificationReportTask> getOrCreateReportTask(Project project, TaskProvider<VerifyPublicationTask> verificationTask, Provider<VerificationViolationsCollectorService> verificationViolationsCollectorServiceProvider) {
         //root project doesn't have to fulfil condition for plugin setup so first submodule will create report task if it not created
         TaskCollection verificationReports = project.rootProject.tasks.withType(VerificationReportTask)
         TaskProvider<VerificationReportTask> verificationReportTask
@@ -105,12 +100,12 @@ class PublishVerificationPlugin implements Plugin<Project> {
         } else {
             verificationReportTask = project.rootProject.tasks.named('verifyPublicationReport', VerificationReportTask)
         }
-        VerificationViolationsCollectorHolderExtension verificationViolationsCollectorHolderExtension = project.rootProject.extensions.findByType(VerificationViolationsCollectorHolderExtension)
         verificationReportTask.configure(new Action<VerificationReportTask>() {
             @Override
             void execute(VerificationReportTask reportTask) {
+                reportTask.verificationViolationsCollectorService.set(verificationViolationsCollectorServiceProvider)
+                reportTask.usesService(verificationViolationsCollectorServiceProvider)
                 reportTask.targetStatus.set(project.status.toString())
-                reportTask.verificationViolationsCollectorHolderExtension.set(verificationViolationsCollectorHolderExtension)
                 reportTask.dependsOn(verificationTask)
             }
         })
@@ -124,9 +119,5 @@ class PublishVerificationPlugin implements Plugin<Project> {
         project.tasks.withType(PublishToMavenRepository).configureEach { Task task ->
             task.dependsOn(reportTask)
         }
-    }
-
-    static class VerificationViolationsCollectorHolderExtension {
-        Map<String, ViolationsContainer> collector = new ConcurrentHashMap<>()
     }
 }
