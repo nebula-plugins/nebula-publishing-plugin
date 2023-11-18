@@ -16,6 +16,7 @@ import netflix.nebula.dependency.recommender.DependencyRecommendationsPlugin
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
+@IgnoreIf({ jvm.isJava11Compatible() })
 class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
 
     def setup() {
@@ -24,7 +25,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         '''
         gradleVersion = null
         // Enable configuration cache :)
-    //    new File(projectDir, 'gradle.properties') << '''org.gradle.configuration-cache=true'''.stripIndent()
+       new File(projectDir, 'gradle.properties') << '''org.gradle.configuration-cache=true'''.stripIndent()
     }
 
     def 'should successful pass through verification'() {

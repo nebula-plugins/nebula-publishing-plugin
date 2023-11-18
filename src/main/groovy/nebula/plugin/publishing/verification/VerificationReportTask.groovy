@@ -19,12 +19,10 @@ abstract class VerificationReportTask extends DefaultTask {
     @Internal
     abstract Property<VerificationViolationsCollectorService> getVerificationViolationsCollectorService()
 
-
     @TaskAction
     void reportViolatingDependencies() {
-        if (project.rootProject == project) {
-            reportErrors(verificationViolationsCollectorService.get().collector)
-        }
+        reportErrors(verificationViolationsCollectorService.get().collector)
+
     }
 
     void reportErrors(Map<String, ViolationsContainer> violationsPerProject) {
