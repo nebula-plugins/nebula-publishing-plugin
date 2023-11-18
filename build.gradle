@@ -167,14 +167,6 @@ gradlePlugin {
             tags.set(['nebula', 'publish', 'ivy'])
         }
 
-        ivyCompileOnly {
-            id = 'com.netflix.nebula.ivy-compile-only'
-            displayName = 'com.netflix.nebula.ivy-compile-only'
-            description = 'Plugins to ease maven-publish and ivy-publish configuration'
-            implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
-            tags.set(['nebula', 'publish', 'ivy'])
-        }
-
         ivyManifest {
             id = 'com.netflix.nebula.ivy-manifest'
             displayName = 'com.netflix.nebula.ivy-manifest'
@@ -220,14 +212,6 @@ gradlePlugin {
             displayName = 'com.netflix.nebula.ivy-verify-unspecified-version-dependencies'
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyVerifyUnspecifiedVersionDependenciesPlugin'
-            tags.set(['nebula', 'publish', 'ivy'])
-        }
-
-        ivyRemovePlatformDependencies {
-            id = 'com.netflix.nebula.ivy-remove-platform-dependencies'
-            displayName = 'com.netflix.nebula.ivy-remove-platform-dependencies'
-            description = 'Plugins to ease maven-publish and ivy-publish configuration'
-            implementationClass = 'nebula.plugin.publishing.ivy.IvyRemovePlatformDependenciesPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
         }
 
