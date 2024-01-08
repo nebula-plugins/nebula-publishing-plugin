@@ -16,7 +16,9 @@
 package nebula.plugin.publishing.ivy
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import spock.lang.IgnoreIf
 
+@IgnoreIf({ !jvm.isJava17Compatible() })
 class IvyNebulaSpringBootPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
@@ -25,8 +27,8 @@ class IvyNebulaSpringBootPublishPluginIntegrationSpec extends BaseIntegrationTes
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.ivy-publish'
-                id 'org.springframework.boot' version '2.7.11'
-                id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+                id 'org.springframework.boot' version '3.2.1'
+                id 'io.spring.dependency-management' version '1.1.4'
                 id 'java'
                 id "com.netflix.nebula.info" version "12.1.3"
                 id "com.netflix.nebula.contacts" version "7.0.0"
@@ -107,8 +109,8 @@ public class DemoApplication {
         desc.'nebula:Module_Email' == 'nebula@example.test'
 
         and:
-        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '2.7.11', 'runtime->default')
-        assertDependency('org.postgresql', 'postgresql', '42.3.8', 'runtime->default')
+        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '3.2.1', 'runtime->default')
+        assertDependency('org.postgresql', 'postgresql', '42.6.0', 'runtime->default')
 
         when:
         def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0.jar")

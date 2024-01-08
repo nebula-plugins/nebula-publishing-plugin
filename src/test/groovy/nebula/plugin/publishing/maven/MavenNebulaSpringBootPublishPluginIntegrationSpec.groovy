@@ -17,9 +17,11 @@ package nebula.plugin.publishing.maven
 
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.plugin.publishing.publications.SpringBootJarPlugin
+import spock.lang.IgnoreIf
 import spock.lang.Subject
 
 @Subject(SpringBootJarPlugin)
+@IgnoreIf({ !jvm.isJava17Compatible() })
 class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
@@ -31,7 +33,7 @@ class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends BaseIntegration
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.maven-publish'
-                id 'org.springframework.boot' version '2.7.17'
+                id 'org.springframework.boot' version '3.2.1'
                 id 'io.spring.dependency-management' version '1.1.4'
                 id 'java'
                 id "com.netflix.nebula.info" version "12.1.6"
@@ -106,7 +108,7 @@ public class DemoApplication {
         def spring = dependencies.find { it.artifactId == 'spring-boot-starter-web' }
 
         then:
-        spring.version == '2.7.17'
+        spring.version == '3.2.1'
 
         when:
         def jar = new File(projectDir, "build/libs/mavenpublishingtest-0.1.0.jar")
