@@ -73,6 +73,8 @@ class IvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIntegrationTest
         settingsFile << '''\
             rootProject.name = 'ivypublishingtest'
         '''.stripIndent()
+
+        System.setProperty('ignoreDeprecations', 'true')
     }
 
     def 'publish shadow jar with proper Ivy descriptor - no classifier'() {

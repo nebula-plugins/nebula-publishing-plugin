@@ -69,6 +69,7 @@ class MavenNebulaShadowJarPublishPluginIntegrationSpec extends BaseIntegrationTe
             jar.dependsOn shadowJar // this configuration is used to produce only the shadowed jar
 
         """.stripIndent()
+        System.setProperty('ignoreDeprecations', 'true')
 
         settingsFile << '''\
             rootProject.name = 'mavenpublishingtest'
