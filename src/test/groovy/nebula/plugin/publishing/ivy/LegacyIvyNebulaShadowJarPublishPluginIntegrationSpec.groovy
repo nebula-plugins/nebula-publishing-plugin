@@ -17,8 +17,11 @@ package nebula.plugin.publishing.ivy
 
 import spock.lang.Subject
 
+/**
+ * Used to verify behavior against older plugin id/version of shadow
+ */
 @Subject(IvyShadowPublishPlugin)
-class IvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIvyNebulaShadowJarPublishPluginIntegrationSpec {
-    String shadowPluginId = 'com.gradleup.shadow'
-    String shadowPluginVersion = '8.3.0'
+class LegacyIvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIvyNebulaShadowJarPublishPluginIntegrationSpec {
+    String shadowPluginId = 'com.github.johnrengelman.shadow'
+    String shadowPluginVersion = '8.1.1'
 }

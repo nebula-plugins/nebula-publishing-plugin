@@ -18,27 +18,34 @@ class MavenShadowPublishPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.afterEvaluate {
             project.plugins.withId('com.github.johnrengelman.shadow') {
-                Task shadowJarTask = project.tasks.findByName('shadowJar')
-                boolean jarTaskEnabled = project.tasks.findByName('jar').enabled
-                if (!jarTaskEnabled) {
-                    ShadowJarPublicationConfigurer.configureForJarDisabled(project)
-                } else {
-                    //presence of this configurations means that shadow jar plugin is version 6.+
-                    //all the configuration below is done for us there and we can skip
-                    if (project.configurations.findByName("shadowRuntimeElements") == null) {
-                        PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
-                        publishing.publications(new Action<PublicationContainer>() {
-                            @Override
-                            void execute(PublicationContainer publications) {
-                                if (shadowJarTask) {
-                                    publications.withType(MavenPublication) { MavenPublication publication ->
-                                        publication.artifact(shadowJarTask)
-                                    }
-                                }
+                configureProject(project)
+            }
+            project.plugins.withId('com.gradleup.shadow') {
+                configureProject(project)
+            }
+        }
+    }
+
+    private void configureProject(Project project) {
+        Task shadowJarTask = project.tasks.findByName('shadowJar')
+        boolean jarTaskEnabled = project.tasks.findByName('jar').enabled
+        if (!jarTaskEnabled) {
+            ShadowJarPublicationConfigurer.configureForJarDisabled(project)
+        } else {
+            //presence of this configurations means that shadow jar plugin is version 6.+
+            //all the configuration below is done for us there and we can skip
+            if (project.configurations.findByName("shadowRuntimeElements") == null) {
+                PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+                publishing.publications(new Action<PublicationContainer>() {
+                    @Override
+                    void execute(PublicationContainer publications) {
+                        if (shadowJarTask) {
+                            publications.withType(MavenPublication) { MavenPublication publication ->
+                                publication.artifact(shadowJarTask)
                             }
-                        })
+                        }
                     }
-                }
+                })
             }
         }
     }

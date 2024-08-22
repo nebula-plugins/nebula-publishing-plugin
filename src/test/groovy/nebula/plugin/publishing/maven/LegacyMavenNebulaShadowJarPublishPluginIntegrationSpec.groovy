@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nebula.plugin.publishing.ivy
+package nebula.plugin.publishing.maven
 
-import spock.lang.Subject
 
-@Subject(IvyShadowPublishPlugin)
-class IvyNebulaShadowJarPublishPluginIntegrationSpec extends BaseIvyNebulaShadowJarPublishPluginIntegrationSpec {
-    String shadowPluginId = 'com.gradleup.shadow'
-    String shadowPluginVersion = '8.3.0'
+/**
+ * Used to verify behavior against older plugin id/version of shadow
+ */
+class LegacyMavenNebulaShadowJarPublishPluginIntegrationSpec extends BaseMavenNebulaShadowJarPublishPluginIntegrationSpec {
+    String shadowPluginId = 'com.github.johnrengelman.shadow'
+    String shadowPluginVersion = '8.1.1'
 }
