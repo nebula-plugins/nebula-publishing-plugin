@@ -59,7 +59,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:a:1.+'
@@ -82,7 +82,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:a:latest.release'
@@ -105,7 +105,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:d:[1.0.0, 2.0.0)'
@@ -129,7 +129,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:b:1.0.0'
@@ -172,7 +172,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
                     }
                 }
 
-                repositories { maven { url '${mavenrepo.absolutePath}' } }
+                repositories { maven { url = '${mavenrepo.absolutePath}' } }
             }
 
             dependencies {
@@ -265,7 +265,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:a:1.0.0'
@@ -289,7 +289,7 @@ class MavenResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTest
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             configurations.all {
                 exclude group: 'test.resolved', module: 'a'

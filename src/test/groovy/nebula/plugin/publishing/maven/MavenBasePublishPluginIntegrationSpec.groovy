@@ -188,7 +188,7 @@ class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java-library'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             dependencies {
@@ -216,7 +216,7 @@ class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             dependencies {
@@ -244,7 +244,7 @@ class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java-library'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             dependencies {
@@ -272,7 +272,7 @@ class MavenBasePublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java-library'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             dependencies {

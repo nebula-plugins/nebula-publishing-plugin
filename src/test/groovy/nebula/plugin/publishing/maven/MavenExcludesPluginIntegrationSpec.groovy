@@ -58,7 +58,7 @@ class MavenExcludesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         buildFile << """\
             apply plugin: 'java'
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             dependencies {

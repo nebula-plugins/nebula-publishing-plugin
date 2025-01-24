@@ -66,7 +66,7 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'com.netflix.nebula.info'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             contacts {
@@ -118,7 +118,7 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'com.netflix.nebula.info'
 
             repositories {
-                maven { url '${mavenrepo.absolutePath}' }
+                maven { url = '${mavenrepo.absolutePath}' }
             }
 
             contacts {

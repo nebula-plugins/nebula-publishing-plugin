@@ -147,7 +147,7 @@ class JavadocJarPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
 buildscript {
   repositories {
     maven {
-      url "https://plugins.gradle.org/m2/"
+      url = "https://plugins.gradle.org/m2/"
     }
   }
   dependencies {

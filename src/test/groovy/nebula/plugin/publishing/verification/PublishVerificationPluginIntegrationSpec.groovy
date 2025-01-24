@@ -492,7 +492,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                            
                 repositories {
                     maven {
-                        url "file://$mavenRepoDir.canonicalPath"
+                        url = "file://$mavenRepoDir.canonicalPath"
                     }
                 }
                
@@ -548,7 +548,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                            
                 repositories {
                     maven {
-                        url "file://$mavenRepoDir.canonicalPath"
+                        url = "file://$mavenRepoDir.canonicalPath"
                     }
                 }
                 
@@ -602,7 +602,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                            
                 repositories {
                     maven {
-                        url "file://$mavenRepoDir.canonicalPath"
+                        url = "file://$mavenRepoDir.canonicalPath"
                     }
                 }
                 
@@ -661,7 +661,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                        
             repositories {
                 maven {
-                    url "file://$mavenRepoDir.canonicalPath"
+                    url = "file://$mavenRepoDir.canonicalPath"
                 }
             }
            
@@ -787,7 +787,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
             repositories {
                 maven {
                     metadataSupplier = CustomMetadataSupplier.class
-                    url "https://repo.maven.apache.org/maven2/" //This usually would be an internal repository
+                    url = "https://repo.maven.apache.org/maven2/" //This usually would be an internal repository
                 }
             }
             
@@ -852,7 +852,7 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
                        
             repositories {
                 maven {
-                    url "file://$mavenRepoDir.canonicalPath"
+                    url = "file://$mavenRepoDir.canonicalPath"
                 }
             }
            
@@ -870,12 +870,12 @@ class PublishVerificationPluginIntegrationSpec extends IntegrationSpec {
         publishing {
             repositories {
                 ivy {
-                    name 'distIvy'
-                    url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distIvy").toURI().toURL()
+                    name = 'distIvy'
+                    url = project.file("\${project.layout.buildDirectory.getAsFile().get()}/distIvy").toURI().toURL()
                 }
                 maven {
-                    name 'distMaven'
-                    url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
+                    name = 'distMaven'
+                    url = project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
                 }
             }
         }

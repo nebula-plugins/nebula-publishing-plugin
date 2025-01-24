@@ -41,8 +41,8 @@ class IvyPublishRecommenderInteractionSpec extends BaseIntegrationTestKitSpec {
             publishing {
                 repositories {
                     ivy {
-                        name 'testlocal'
-                        url 'build/testlocal'
+                        name = 'testlocal'
+                        url = 'build/testlocal'
                     }
                 }
             }
@@ -95,8 +95,8 @@ class IvyPublishRecommenderInteractionSpec extends BaseIntegrationTestKitSpec {
             publishing {
                 repositories {
                     ivy {
-                        name 'testlocal'
-                        url 'build/testlocal'
+                        name = 'testlocal'
+                        url = 'build/testlocal'
                     }
                 }
             }

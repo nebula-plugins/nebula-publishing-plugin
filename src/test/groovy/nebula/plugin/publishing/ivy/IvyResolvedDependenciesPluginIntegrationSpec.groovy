@@ -139,7 +139,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKi
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:b:1.0.0'
@@ -163,7 +163,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKi
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:a:1.0.0'
@@ -187,7 +187,7 @@ class IvyResolvedDependenciesPluginIntegrationSpec extends BaseIntegrationTestKi
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             configurations.all {
                 exclude group: 'test.resolved', module: 'a'

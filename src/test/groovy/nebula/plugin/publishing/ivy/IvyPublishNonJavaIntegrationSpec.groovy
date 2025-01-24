@@ -43,8 +43,8 @@ class IvyPublishNonJavaIntegrationSpec extends BaseIntegrationTestKitSpec {
             publishing {
                 repositories {
                     ivy {
-                        name 'testivy'
-                        url 'build/testivyrepo'
+                        name = 'testivy'
+                        url = 'build/testivyrepo'
                     }
                 }
 

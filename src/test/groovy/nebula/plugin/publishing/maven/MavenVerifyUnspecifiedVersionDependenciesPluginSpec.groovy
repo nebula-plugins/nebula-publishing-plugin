@@ -45,7 +45,7 @@ class MavenVerifyUnspecifiedVersionDependenciesPluginSpec extends BaseIntegratio
         buildFile << """\
             apply plugin: 'java'
 
-            repositories { maven { url '${mavenrepo.absolutePath}' } }
+            repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
             dependencies {
                 implementation 'test.resolved:b:unspecified'

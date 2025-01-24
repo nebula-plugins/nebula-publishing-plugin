@@ -47,7 +47,7 @@ class MavenRemoveInvalidDependenciesPluginSpec extends BaseIntegrationTestKitSpe
         buildFile << """\
             apply plugin: 'java'
 
-                       repositories { maven { url '${mavenrepo.absolutePath}' } }
+                       repositories { maven { url = '${mavenrepo.absolutePath}' } }
 
 
             dependencies {

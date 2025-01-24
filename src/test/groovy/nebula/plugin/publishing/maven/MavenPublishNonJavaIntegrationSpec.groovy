@@ -43,8 +43,8 @@ class MavenPublishNonJavaIntegrationSpec extends BaseIntegrationTestKitSpec {
             publishing {
                 repositories {
                     maven {
-                        name 'testmaven'
-                        url 'build/testmavenrepo'
+                        name = 'testmaven'
+                        url = 'build/testmavenrepo'
                     }
                 }
 

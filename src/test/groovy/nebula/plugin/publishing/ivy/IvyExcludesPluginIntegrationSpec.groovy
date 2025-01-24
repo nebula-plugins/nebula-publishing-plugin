@@ -63,7 +63,7 @@ class IvyExcludesPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java'
 
             repositories {
-                ivy { url '${ivyrepo.absolutePath}' }
+                ivy { url = '${ivyrepo.absolutePath}' }
             }
 
             dependencies {

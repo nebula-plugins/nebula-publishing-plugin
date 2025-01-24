@@ -19,8 +19,8 @@ class MavenPublishPluginSpec extends BaseIntegrationTestKitSpec {
             publishing {
                 repositories {
                     maven {
-                        name 'distMaven'
-                        url project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
+                        name = 'distMaven'
+                        url = project.file("\${project.layout.buildDirectory.getAsFile().get()}/distMaven").toURI().toURL()
                     }
                 }
             }
