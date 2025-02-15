@@ -30,8 +30,6 @@ import org.gradle.api.publish.maven.MavenPublication
 
 class MavenScmPlugin implements Plugin<Project> {
 
-    String c = null;
-
     @Override
     void apply(Project project) {
         // Capture the start time in milliseconds
@@ -47,7 +45,7 @@ class MavenScmPlugin implements Plugin<Project> {
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
             def publishingExtension = project.extensions.getByType(PublishingExtension)
-            def scmExtension = project.extensions.getByType(ScmInfoExtension)
+            def scmExtension = project.rootProject.extensions.getByType(ScmInfoExtension)
 
             System.out.println("Execution 1 took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
             publishingExtension.publications(new Action<PublicationContainer>() {
@@ -58,10 +56,7 @@ class MavenScmPlugin implements Plugin<Project> {
                             publication.pom(new Action<MavenPom>() {
                                 @Override
                                 void execute(MavenPom pom) {
-                                    if (c == null) {
-                                        c = calculateUrlFromOrigin(scmExtension.origin, project)
-                                    }
-                                    pom.url.set(c)
+                                    pom.url.set(calculateUrlFromOrigin(scmExtension.origin, project))
                                 }
                             })
                         }

@@ -26,14 +26,6 @@ import org.gradle.api.publish.maven.MavenPublication
 class MavenBasePublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-
-
-        // Capture the start time in milliseconds
-        long startTime = System.currentTimeMillis();
-
-
-
-
         project.plugins.apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
         PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
@@ -54,13 +46,6 @@ class MavenBasePublishPlugin implements Plugin<Project> {
                 }
             }
         })
-
-//        // Capture the end time in milliseconds
-//        long endTime = System.currentTimeMillis();
-//
-//        // Calculate and print the duration
-//        long duration = endTime - startTime;
-//        System.out.println("Execution took " + duration + " milliseconds.");
     }
 
     private static void configureDescription(MavenPublication publication, Project p) {
