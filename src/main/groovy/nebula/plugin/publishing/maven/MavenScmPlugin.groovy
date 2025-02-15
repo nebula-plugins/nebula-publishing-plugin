@@ -43,7 +43,10 @@ class MavenScmPlugin implements Plugin<Project> {
 
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
             def publishingExtension = project.extensions.getByType(PublishingExtension)
-            def scmExtension = project.extensions.getByType(ScmInfoExtension)
+            // Using rootProject's git info for performance reasons instead of having to re-calculate it
+            // in every subproject.
+            def scmExtension = project.rootProject.extensions.getByType(ScmInfoExtension)
+
             publishingExtension.publications(new Action<PublicationContainer>() {
                 @Override
                 void execute(PublicationContainer publications) {
