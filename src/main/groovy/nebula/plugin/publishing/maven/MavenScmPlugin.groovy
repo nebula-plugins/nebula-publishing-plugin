@@ -30,8 +30,12 @@ import org.gradle.api.publish.maven.MavenPublication
 
 class MavenScmPlugin implements Plugin<Project> {
 
+    String c = null;
+
     @Override
     void apply(Project project) {
+        // Capture the start time in milliseconds
+        long startTime = System.currentTimeMillis();
         project.plugins.apply MavenBasePublishPlugin
 
         try {
@@ -44,6 +48,8 @@ class MavenScmPlugin implements Plugin<Project> {
         project.plugins.withType(ScmInfoPlugin) { ScmInfoPlugin scmInfo ->
             def publishingExtension = project.extensions.getByType(PublishingExtension)
             def scmExtension = project.extensions.getByType(ScmInfoExtension)
+
+            System.out.println("Execution 1 took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
             publishingExtension.publications(new Action<PublicationContainer>() {
                 @Override
                 void execute(PublicationContainer publications) {
@@ -52,10 +58,15 @@ class MavenScmPlugin implements Plugin<Project> {
                             publication.pom(new Action<MavenPom>() {
                                 @Override
                                 void execute(MavenPom pom) {
-                                    pom.url.set(calculateUrlFromOrigin(scmExtension.origin, project))
+                                    if (c == null) {
+                                        c = calculateUrlFromOrigin(scmExtension.origin, project)
+                                    }
+                                    pom.url.set(c)
                                 }
                             })
                         }
+                        System.out.println("Execution 2 took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
+
                         publication.pom(new Action<MavenPom>() {
                             @Override
                             void execute(MavenPom pom) {
@@ -67,10 +78,14 @@ class MavenScmPlugin implements Plugin<Project> {
                                 })
                             }
                         })
+                        System.out.println("Execution 3 took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
+
                     }
                 }
             })
         }
+
+
     }
 
     static final GIT_PATTERN = /((git|ssh|https?):(\/\/))?(\w+@)?([\w\.@\\/\-~]+)([\:\\/])([\w\.@\:\/\-~]+)(\.git)(\/)?/
