@@ -156,4 +156,60 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         b.version.requires == '1.9.2'
     }
 
+    def 'publish BOM when platform plugin is used'() {
+        def graph = new DependencyGraphBuilder()
+                .addModule('test:a:0.0.1')
+                .addModule('test:b:1.9.2')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java-platform'
+            apply plugin: 'com.netflix.nebula.contacts'
+            apply plugin: 'com.netflix.nebula.info'
+
+            repositories {
+                maven { url = '${mavenrepo.absolutePath}' }
+            }
+
+            contacts {
+                'nebula@example.test' {
+                    moniker 'Nebula'
+                }
+            }
+
+            dependencies {
+                constraints {
+                    api 'test:a:0.0.1'
+                    api 'test:b:1.9.2'
+                }
+            }
+        """.stripIndent()
+
+        when:
+        runTasks('generatePomFileForNebulaPublication')
+
+        then:
+        def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
+        pom.version == '0.1.0'
+        pom.packaging == 'pom'
+        pom.developers.developer[0].name == 'Nebula'
+        pom.properties.nebula_Module_Owner == 'nebula@example.test'
+        pom.url != null
+
+        when:
+        def dependencies = pom.dependencyManagement.dependencies.dependency
+        def a = dependencies.find { it.artifactId == 'a' }
+
+        then:
+        a.version == '0.0.1'
+
+        when:
+        def b = dependencies.find { it.artifactId == 'b' }
+
+        then:
+        b.version == '1.9.2'
+    }
+
+
 }
