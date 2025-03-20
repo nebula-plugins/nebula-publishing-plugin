@@ -3,6 +3,7 @@ package nebula.plugin.publishing.maven
 import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlatformPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.publish.maven.MavenPublication
@@ -11,12 +12,14 @@ import org.gradle.api.publish.maven.MavenPublication
 class MavenNebulaPublishPlugin implements Plugin<Project> {
     static final String MAVEN_WAR = 'nebulaPublish.maven.war'
     static final String MAVEN_JAR = 'nebulaPublish.maven.jar'
+    static final String MAVEN_BOM = 'nebulaPublish.maven.platform'
 
     @Override
     void apply(Project project) {
         project.plugins.apply org.gradle.api.publish.maven.plugins.MavenPublishPlugin
         project.ext.set(MAVEN_WAR, false)
         project.ext.set(MAVEN_JAR, false)
+        project.ext.set(MAVEN_BOM, false)
 
         project.plugins.withType(WarPlugin) {
             project.ext.set(MAVEN_WAR, true)
@@ -24,6 +27,10 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
 
         project.plugins.withType(JavaPlugin) {
             project.ext.set(MAVEN_JAR, true)
+        }
+
+        project.plugins.withType(JavaPlatformPlugin) {
+            project.ext.set(MAVEN_BOM, true)
         }
 
         project.publishing {
@@ -45,7 +52,9 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
     private void configurePublication(MavenPublication publication, Project p) {
         if (p.ext.get(MAVEN_WAR)) {
             publication.from p.components.web
-        } else if (p.ext.get(MAVEN_JAR)) {
+        } else if (p.ext.get(MAVEN_BOM)) {
+            publication.from p.components.javaPlatform
+        }else if (p.ext.get(MAVEN_JAR)) {
             publication.from p.components.java
         }
     }
