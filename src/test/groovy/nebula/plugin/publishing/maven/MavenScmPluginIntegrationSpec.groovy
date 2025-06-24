@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 
 class MavenScmPluginIntegrationSpec extends BaseIntegrationTestKitSpec {

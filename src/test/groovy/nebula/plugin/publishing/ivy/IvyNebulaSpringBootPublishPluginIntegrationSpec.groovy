@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.ivy
 
+import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.IgnoreIf
 
@@ -27,8 +28,8 @@ class IvyNebulaSpringBootPublishPluginIntegrationSpec extends BaseIntegrationTes
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.ivy-publish'
-                id 'org.springframework.boot' version '3.2.1'
-                id 'io.spring.dependency-management' version '1.1.4'
+                id 'org.springframework.boot' version '3.5.3'
+                id 'io.spring.dependency-management' version '1.+'
                 id 'java'
                 id "com.netflix.nebula.info" version "12.1.3"
                 id "com.netflix.nebula.contacts" version "7.0.0"
@@ -109,8 +110,8 @@ public class DemoApplication {
         desc.'nebula:Module_Email' == 'nebula@example.test'
 
         and:
-        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '3.2.1', 'runtime->default')
-        assertDependency('org.postgresql', 'postgresql', '42.6.0', 'runtime->default')
+        assertDependency('org.springframework.boot', 'spring-boot-starter-web', '3.5.3', 'runtime->default')
+        assertDependency('org.postgresql', 'postgresql', '42.7.7', 'runtime->default')
 
         when:
         def jar = new File(projectDir, "build/libs/ivypublishingtest-0.1.0.jar")

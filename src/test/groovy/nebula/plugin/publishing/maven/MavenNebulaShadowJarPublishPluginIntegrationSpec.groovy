@@ -18,5 +18,5 @@ package nebula.plugin.publishing.maven
 
 class MavenNebulaShadowJarPublishPluginIntegrationSpec extends BaseMavenNebulaShadowJarPublishPluginIntegrationSpec {
     String shadowPluginId = 'com.gradleup.shadow'
-    String shadowPluginVersion = '8.3.0'
+    String shadowPluginVersion = '8.3.7'
 }
