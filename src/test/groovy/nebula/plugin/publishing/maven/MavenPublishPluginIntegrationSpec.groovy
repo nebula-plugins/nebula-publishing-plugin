@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.xml.XmlSlurper
 import groovy.json.JsonSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import nebula.test.dependencies.DependencyGraphBuilder

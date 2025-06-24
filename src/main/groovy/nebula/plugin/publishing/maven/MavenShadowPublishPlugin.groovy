@@ -17,9 +17,6 @@ class MavenShadowPublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.afterEvaluate {
-            project.plugins.withId('com.github.johnrengelman.shadow') {
-                configureProject(project)
-            }
             project.plugins.withId('com.gradleup.shadow') {
                 configureProject(project)
             }

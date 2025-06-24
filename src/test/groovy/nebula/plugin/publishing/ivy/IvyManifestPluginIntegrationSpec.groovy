@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.ivy
 
+import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Subject
 

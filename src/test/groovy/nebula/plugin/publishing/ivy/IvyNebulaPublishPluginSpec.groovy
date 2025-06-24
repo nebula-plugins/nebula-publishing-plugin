@@ -1,5 +1,6 @@
 package nebula.plugin.publishing.ivy
 
+import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import org.gradle.testkit.runner.TaskOutcome
 

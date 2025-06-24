@@ -10,7 +10,6 @@ import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.ivy.IvyArtifact
 import org.gradle.api.publish.ivy.IvyPublication
-import org.gradle.jvm.tasks.Jar
 
 @CompileDynamic
 class IvyShadowPublishPlugin implements Plugin<Project> {
@@ -18,9 +17,6 @@ class IvyShadowPublishPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         project.afterEvaluate {
-            project.plugins.withId('com.github.johnrengelman.shadow') {
-                configureProject(project)
-            }
             project.plugins.withId('com.gradleup.shadow') {
                 configureProject(project)
             }

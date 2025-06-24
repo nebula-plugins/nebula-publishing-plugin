@@ -15,6 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
+import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
 import spock.lang.Unroll
 
@@ -26,17 +27,6 @@ abstract class BaseMavenNebulaShadowJarPublishPluginIntegrationSpec extends Base
     def setup() {
         keepFiles = true
         buildFile << """\
-        buildscript {
-               configurations.named('classpath').configure {
-                  resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                       if (details.requested.group == 'org.ow2.asm') {
-                            details.useVersion '9.5'
-                            details.because "Asm 9.5 is required for JDK 21 support"
-                      }
-                  }
-                }
-            }
-            
             plugins {
                 id 'com.netflix.nebula.maven-publish'
                 id "$shadowPluginId" version "$shadowPluginVersion"
