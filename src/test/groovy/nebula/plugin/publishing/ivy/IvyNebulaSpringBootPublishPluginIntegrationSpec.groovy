@@ -23,8 +23,6 @@ import spock.lang.IgnoreIf
 class IvyNebulaSpringBootPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
-        // Because Spring Boot 2.x uses project.conventions
-        System.setProperty('ignoreDeprecations', 'true')
         buildFile << """\
             plugins {
                 id 'com.netflix.nebula.ivy-publish'
@@ -89,7 +87,7 @@ public class DemoApplication {
 
 """)
         when:
-        def result = runTasks('bootJar', 'publishNebulaIvyPublicationToDistIvyRepository')
+        def result = runTasks('jar', 'bootJar', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:
         def root = new XmlSlurper().parse(new File(projectDir, 'build/distIvy/test.nebula/ivypublishingtest/0.1.0/ivy-0.1.0.xml'))

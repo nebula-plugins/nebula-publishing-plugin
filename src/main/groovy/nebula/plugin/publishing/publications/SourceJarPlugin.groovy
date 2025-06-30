@@ -36,7 +36,7 @@ class SourceJarPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.plugins.withType(JavaPlugin) {
+        project.plugins.withType(JavaPlugin).configureEach {
             JavaPluginExtension javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
             javaPluginExtension.withSourcesJar()
         }

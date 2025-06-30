@@ -246,15 +246,7 @@ gradlePlugin {
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
             tags.set(['nebula', 'publish', 'source'])
         }
-
-        springBootJar {
-            id = 'com.netflix.nebula.spring-boot-jar'
-            displayName = 'com.netflix.nebula.spring-boot-jar'
-            description = 'Plugins to ease maven-publish and ivy-publish configuration'
-            implementationClass = 'nebula.plugin.publishing.publications.SpringBootJarPlugin'
-            tags.set(['nebula', 'publish', 'spring-boot'])
-        }
-
+        
         testJar {
             id = 'com.netflix.nebula.test-jar'
             displayName = 'com.netflix.nebula.test-jar'

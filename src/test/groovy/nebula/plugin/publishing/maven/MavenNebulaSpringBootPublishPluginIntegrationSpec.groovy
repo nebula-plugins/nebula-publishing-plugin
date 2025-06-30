@@ -17,19 +17,12 @@ package nebula.plugin.publishing.maven
 
 import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
-import nebula.plugin.publishing.publications.SpringBootJarPlugin
 import spock.lang.IgnoreIf
-import spock.lang.Subject
 
-@Subject(SpringBootJarPlugin)
 @IgnoreIf({ !jvm.isJava17Compatible() })
 class MavenNebulaSpringBootPublishPluginIntegrationSpec  extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
-
-        // Because Spring Boot 2.x uses project.conventions
-        System.setProperty('ignoreDeprecations', 'true')
-        // spring dependency management does not support config cache. More in https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/312
         disableConfigurationCache()
         buildFile << """\
             plugins {
@@ -95,7 +88,7 @@ public class DemoApplication {
 
 """)
         when:
-        def result = runTasks('bootJar', 'publishNebulaPublicationToTestLocalRepository')
+        def result = runTasks('jar', 'bootJar', 'publishNebulaPublicationToTestLocalRepository')
 
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
