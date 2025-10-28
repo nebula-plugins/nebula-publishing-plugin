@@ -95,6 +95,7 @@ public class DemoApplication {
 
 """)
         when:
+        disableConfigurationCache()
         def result = runTasks('shadowJar', 'publishNebulaIvyPublicationToDistIvyRepository')
 
         then:

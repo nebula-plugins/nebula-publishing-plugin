@@ -1,15 +1,11 @@
 package nebula.plugin.publishing.verification
 
-import com.netflix.nebula.interop.GradleKt
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.CacheableRule
-import org.gradle.api.artifacts.ComponentMetadataContext
-import org.gradle.api.artifacts.ComponentMetadataDetails
-import org.gradle.api.artifacts.ComponentMetadataRule
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Attribute
@@ -21,8 +17,6 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.GradleVersion
-
-import java.util.concurrent.ConcurrentHashMap
 
 class PublishVerificationPlugin implements Plugin<Project> {
 
@@ -75,21 +69,10 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
-    @CompileDynamic
-    private void generateStatusSchemeAttribute(Project p) {
-        if(GradleKt.versionLessThan(p.gradle, "5.0")) {
-            p.dependencies {
-                components {
-                    all { ComponentMetadataDetails details ->
-                        StatusSchemaAttributeRule.modifyAttributes(details)
-                    }
-                }
-            }
-        } else {
-            p.dependencies.components.all(StatusSchemaAttributeRule)
-        }
+    @CompileStatic
+    private static void generateStatusSchemeAttribute(Project p) {
+        p.dependencies.components.all(StatusSchemaAttributeRule)
     }
-
 
     private TaskProvider<VerificationReportTask> getOrCreateReportTask(Project project, TaskProvider<VerifyPublicationTask> verificationTask, Provider<VerificationViolationsCollectorService> verificationViolationsCollectorServiceProvider) {
         //root project doesn't have to fulfil condition for plugin setup so first submodule will create report task if it not created

@@ -57,6 +57,7 @@ class IvyManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             '''
 
         when:
+        disableConfigurationCache()
         runTasks('publishNebulaIvyPublicationToTestLocalRepository')
 
         then:
