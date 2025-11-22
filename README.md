@@ -100,6 +100,75 @@ Note that nebula.maven-dependencies is based on the Gradle maven-publish plugin,
         }
     }
 
+### Shadow Jar Publishing Support
+
+When using the [Gradle Shadow plugin](https://gradleup.com/shadow/) to create fat/uber JARs, `nebula-publishing-plugin` can automatically use the shadow component for proper Maven publishing. This feature is controlled by a feature flag and is **opt-in** for backward compatibility.
+
+#### Enabling Shadow Component Detection
+
+Add to your `gradle.properties`:
+
+```properties
+nebula.publishing.features.detectShadowComponent.enabled=true
+```
+
+Or enable via command line:
+
+```bash
+./gradlew publish -Pnebula.publishing.features.detectShadowComponent.enabled=true
+```
+
+#### How It Works
+
+When the feature flag is enabled and a shadow plugin is detected (either `com.gradleup.shadow` or `com.github.johnrengelman.shadow`), the plugin will use `components.shadow` instead of `components.java` for publication. This ensures proper handling of dependencies:
+
+| Dependency Configuration | In Shadow JAR? | In POM? | Use Case |
+|-------------------------|---------------|-------|----------|
+| `implementation` (with relocation) | Yes (relocated) |  No | Bundled/shaded dependencies |
+| `shadow` |  No |  Yes | External runtime dependencies |
+
+#### Example
+
+```gradle
+plugins {
+    id 'com.netflix.nebula.maven-publish'
+    id 'com.gradleup.shadow' version '8.3.7'
+    id 'java'
+}
+
+dependencies {
+    implementation 'com.google.guava:guava:32.0.0'  // Will be bundled & relocated
+    shadow 'commons-io:commons-io:2.11.0'           // External (appears in POM)
+}
+
+shadowJar {
+    archiveClassifier.set(null)  // Replace main jar
+    relocate 'com.google.common', 'myapp.shaded.guava'
+}
+```
+
+**Result:**
+- Shadow JAR contains Guava at `myapp/shaded/guava/...` (relocated)
+- POM lists `commons-io` as a runtime dependency
+- POM does NOT list `guava` (it's bundled in the JAR)
+
+#### Why Use This?
+
+Without shadow component detection:
+- All dependencies (including shaded ones) appear in the POM
+- Consumers may have dependency conflicts with your shaded libraries
+- Doesn't follow Shadow plugin best practices
+
+With shadow component detection:
+- Only external dependencies appear in the POM
+- Shaded dependencies are excluded from POM (they're already in your JAR)
+- Follows [Shadow plugin recommended practices](https://gradleup.com/shadow/publishing/)
+- Proper Gradle Module Metadata generation
+
+#### Migration Path
+
+This feature is currently **opt-in** with the feature flag defaulting to `false` to maintain backward compatibility. In a future major version, this may become the default behavior.
+
 ### com.netflix.nebula.maven-publish
 
 Link all the other maven plugins together.

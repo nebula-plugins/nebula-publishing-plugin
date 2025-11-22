@@ -34,7 +34,7 @@ abstract class BaseMavenNebulaShadowJarPublishPluginIntegrationSpec extends Base
                 id "com.netflix.nebula.info" version "12.1.3"
                 id "com.netflix.nebula.contacts" version "7.0.0"
             }
-            
+
             contacts {
                 'nebula@example.test' {
                     moniker 'Nebula'
@@ -46,11 +46,11 @@ abstract class BaseMavenNebulaShadowJarPublishPluginIntegrationSpec extends Base
             repositories {
                 mavenCentral()
             }
-            
+
             dependencies {
                implementation 'com.google.guava:guava:19.0'
             }
-            
+
             publishing {
                 repositories {
                     maven {
