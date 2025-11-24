@@ -15,7 +15,11 @@
  */
 package nebula.plugin.publishing.maven
 
-
+/**
+ * Tests for shadow jar publishing using the new com.gradleup.shadow plugin.
+ * These tests verify the original behavior (without the shadow component feature flag).
+ * For tests with the feature flag enabled, see MavenShadowComponentFeatureIntegrationSpec.
+ */
 class MavenNebulaShadowJarPublishPluginIntegrationSpec extends BaseMavenNebulaShadowJarPublishPluginIntegrationSpec {
     String shadowPluginId = 'com.gradleup.shadow'
     String shadowPluginVersion = '8.3.7'

@@ -13,6 +13,7 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
     static final String MAVEN_WAR = 'nebulaPublish.maven.war'
     static final String MAVEN_JAR = 'nebulaPublish.maven.jar'
     static final String MAVEN_BOM = 'nebulaPublish.maven.platform'
+    static final String SHADOW_JAR = 'nebulaPublish.maven.shadow'
 
     @Override
     void apply(Project project) {
@@ -20,6 +21,7 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
         project.ext.set(MAVEN_WAR, false)
         project.ext.set(MAVEN_JAR, false)
         project.ext.set(MAVEN_BOM, false)
+        project.ext.set(SHADOW_JAR, false)
 
         project.plugins.withType(WarPlugin) {
             project.ext.set(MAVEN_WAR, true)
@@ -31,6 +33,14 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
 
         project.plugins.withType(JavaPlatformPlugin) {
             project.ext.set(MAVEN_BOM, true)
+        }
+
+        project.plugins.withId("com.gradleup.shadow") {
+            project.ext.set(SHADOW_JAR, true)
+        }
+
+        project.plugins.withId("com.github.johnrengelman.shadow") {
+            project.ext.set(SHADOW_JAR, true)
         }
 
         project.publishing {
@@ -50,11 +60,15 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
     }
 
     private void configurePublication(MavenPublication publication, Project p) {
+        def useShadowComponent = p.findProperty('nebula.publishing.features.detectShadowComponent.enabled')?.toBoolean() ?: false
+
         if (p.ext.get(MAVEN_WAR)) {
             publication.from p.components.web
         } else if (p.ext.get(MAVEN_BOM)) {
             publication.from p.components.javaPlatform
-        }else if (p.ext.get(MAVEN_JAR)) {
+        } else if (useShadowComponent && p.ext.get(SHADOW_JAR)) {
+            publication.from p.components.shadow
+        } else if (p.ext.get(MAVEN_JAR)) {
             publication.from p.components.java
         }
     }
