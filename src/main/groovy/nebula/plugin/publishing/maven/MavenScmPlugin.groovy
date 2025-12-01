@@ -55,7 +55,7 @@ class MavenScmPlugin implements Plugin<Project> {
                             publication.pom(new Action<MavenPom>() {
                                 @Override
                                 void execute(MavenPom pom) {
-                                    pom.url.set(calculateUrlFromOrigin(scmExtension.origin, project))
+                                    pom.url.set(calculateUrlFromOrigin(scmExtension.origin.get(), project))
                                 }
                             })
                         }
@@ -65,7 +65,7 @@ class MavenScmPlugin implements Plugin<Project> {
                                 pom.scm(new Action<MavenPomScm>() {
                                     @Override
                                     void execute(MavenPomScm scm) {
-                                        scm.url.set(scmExtension.origin)
+                                        scm.url.set(scmExtension.origin.get())
                                     }
                                 })
                             }
