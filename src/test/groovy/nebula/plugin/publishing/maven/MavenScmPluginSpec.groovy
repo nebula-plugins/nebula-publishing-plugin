@@ -37,9 +37,10 @@ class MavenScmPluginSpec extends PluginProjectSpec {
         scmOrigin                                                        | calculatedUrl
         'https://fake-scm.com/foo/bar.git'                               | 'https://fake-scm.com/foo/bar'
         'https://github.com/nebula-plugins/nebula-publishing-plugin'     | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
+        'https://github.com/nebula-plugins/nebula-publishing-plugin/'    | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
         'https://github.com/nebula-plugins/nebula-publishing-plugin.git' | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
         'git@github.com:nebula-plugins/nebula-publishing-plugin.git'     | 'https://github.com/nebula-plugins/nebula-publishing-plugin'
         'git@github.com:username/nebula-publishing-plugin.git'           | 'https://github.com/username/nebula-publishing-plugin'
-        'git@github.com:username/nebula-publishing-plugin.git'           | 'https://github.com/username/nebula-publishing-plugin'
+        'git@github.com:username/nebula-publishing-plugin'               | 'https://github.com/username/nebula-publishing-plugin'
     }
 }

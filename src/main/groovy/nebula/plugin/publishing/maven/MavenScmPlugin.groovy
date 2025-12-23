@@ -15,7 +15,7 @@
  */
 package nebula.plugin.publishing.maven
 
-import groovy.transform.CompileDynamic
+
 import nebula.plugin.info.scm.GitScmProvider
 import nebula.plugin.info.scm.ScmInfoExtension
 import nebula.plugin.info.scm.ScmInfoPlugin
@@ -76,17 +76,16 @@ class MavenScmPlugin implements Plugin<Project> {
         }
     }
 
-    static final GIT_PATTERN = /((git|ssh|https?):(\/\/))?(\w+@)?([\w\.@\\/\-~]+)([\:\\/])([\w\.@\:\/\-~]+)(\.git)(\/)?/
+    static final GIT_PATTERN = /^((git|ssh|https?):\/\/)?((\S+)@)?(?<host>\S+?)[:\/](?<repo>\S+?)(.git)?\/?$/
 
     /**
      * Convert git syntax of git@github.com:reactivex/rxjava-core.git to https://github.com/reactivex/rxjava-core
      * @param origin
      */
-    @CompileDynamic
     static String calculateUrlFromOrigin(String origin, Project project) {
         def m = origin =~ GIT_PATTERN
-        if (m) {
-            return "https://${m[0][5]}/${m[0][7]}"
+        if (m.matches()) {
+            return "https://${m.group("host")}/${m.group("repo")}"
         } else {
             project.logger.warn("Unable to convert $origin to https form in MavenScmPlugin. Using original value.")
             return origin
