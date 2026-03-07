@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '23.+'
+    id 'com.netflix.nebula.plugin-plugin' version '25.+'
 }
 
 description 'Gradle plugin to ease use of ivy-publish and maven-publish'
@@ -69,6 +69,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.license.MavenApacheLicensePlugin'
             tags.set(['nebula', 'publish', 'maven', 'apache', 'license'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenBasePublish {
@@ -77,6 +82,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenBasePublishPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenDeveloper {
@@ -85,6 +95,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenDeveloperPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenManifest {
@@ -93,6 +108,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenManifestPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenNebulaPublish {
@@ -101,6 +121,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenNebulaPublishPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenPublish {
@@ -109,6 +134,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenPublishPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenShadowPublish {
@@ -117,6 +147,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenShadowPublishPlugin'
             tags.set(['nebula', 'publish', 'maven', 'shadow'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenResolvedDependencies {
@@ -125,6 +160,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenResolvedDependenciesPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenVerifyUnspecifiedVersionDependencies {
@@ -133,6 +173,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenVerifyUnspecifiedVersionDependenciesPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         mavenRemoveInvalidDependencies {
@@ -141,6 +186,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenRemoveInvalidDependenciesPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         ivyRemoveInvalidDependencies {
@@ -149,6 +199,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyRemoveInvalidDependenciesPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
 
@@ -158,6 +213,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.maven.MavenScmPlugin'
             tags.set(['nebula', 'publish', 'maven'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         ivyBasePublish {
@@ -166,6 +226,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyBasePublishPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyManifest {
@@ -174,6 +239,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyManifestPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyNebulaPublish {
@@ -182,6 +252,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyNebulaPublishPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyPublish {
@@ -190,6 +265,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyPublishPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyShadowPublish {
@@ -198,6 +278,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyShadowPublishPlugin'
             tags.set(['nebula', 'publish', 'ivy', 'shadow'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyResolvedDependencies {
@@ -206,6 +291,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyResolvedDependenciesPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyVerifyUnspecifiedVersionDependencies {
@@ -214,6 +304,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyVerifyUnspecifiedVersionDependenciesPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         ivyCompileOnly {
@@ -222,6 +317,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.ivy.IvyCompileOnlyPlugin'
             tags.set(['nebula', 'publish', 'ivy'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
 
         publishVerification {
@@ -230,6 +330,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.verification.PublishVerificationPlugin'
             tags.set(['nebula', 'publish'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         javadocJar {
@@ -238,6 +343,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.JavadocJarPlugin'
             tags.set(['nebula', 'publish', 'javadoc'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
 
         sourceJar {
@@ -246,6 +356,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.SourceJarPlugin'
             tags.set(['nebula', 'publish', 'source'])
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
         
         testJar {
@@ -254,6 +369,11 @@ gradlePlugin {
             description = 'Plugins to ease maven-publish and ivy-publish configuration'
             implementationClass = 'nebula.plugin.publishing.publications.TestJarPlugin'
             tags.set(['nebula', 'publish', 'test-jar'])
+            compatibility {
+                features {
+                    configurationCache = false
+                }
+            }
         }
     }
 }
