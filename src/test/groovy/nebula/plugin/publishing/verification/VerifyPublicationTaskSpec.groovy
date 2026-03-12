@@ -17,13 +17,11 @@ import spock.lang.Unroll
 
 class VerifyPublicationTaskSpec extends Specification {
 
-    private static String DUMMY_LIBRARY = 'foo:bar:1.0'
-
     @Unroll
     def 'test releasable combinations of statuses library=#libraryStatus project=#projectStatus'() {
         given:
         Project project = ProjectBuilder.builder().build()
-        def task = setupProjectAndTask(project, libraryStatus, projectStatus)
+        def task = setupProjectAndTask(project, libraryStatus, projectStatus, 'foo:bar:1.0')
 
         when:
         task.verifyDependencies()
@@ -51,7 +49,7 @@ class VerifyPublicationTaskSpec extends Specification {
     def 'test error collection when combinations of statuses library=#libraryStatus project=#projectStatus'() {
         given:
         Project project = ProjectBuilder.builder().build()
-        def task = setupProjectAndTask(project, libraryStatus, projectStatus)
+        def task = setupProjectAndTask(project, libraryStatus, projectStatus, 'foo:bar:1.0')
 
         when:
         task.verifyDependencies()
@@ -78,10 +76,8 @@ class VerifyPublicationTaskSpec extends Specification {
     def 'test ignore through specific name and group'() {
         given:
         Project project = ProjectBuilder.builder().build()
-        def task = setupProjectAndTask(project, 'integration', 'release')
-        project.dependencies {
-            runtimeOnly 'foo:bar:1.0+'
-        }
+        def task = setupProjectAndTask(project, 'integration', 'release', 'foo:bar:1.0+')
+
         task.configure {
             ignore = [DefaultModuleIdentifier.newId('foo', 'bar')] as Set
         }
@@ -99,13 +95,28 @@ class VerifyPublicationTaskSpec extends Specification {
         violations.versionSelectorViolations.size() == 0
     }
 
+    def "version part separator '#separator' is allowed as last sub-version character"() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        def task = setupProjectAndTask(project, 'release', 'release', "foo:bar:1.0${separator}+")
+
+        when:
+        task.verifyDependencies()
+
+        then:
+        def holderExtension =  project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
+        }).get()
+        def violations = holderExtension.collector[project.name]
+        violations.versionSelectorViolations.size() == 0
+
+        where:
+        separator << ['.', '_', '-', '+']
+    }
+
     def 'test ignore through group'() {
         given:
         Project project = ProjectBuilder.builder().build()
-        def task = setupProjectAndTask(project, 'integration', 'release')
-        project.dependencies {
-            runtimeOnly 'foo:bar:1.0+'
-        }
+        def task = setupProjectAndTask(project, 'integration', 'release', 'foo:bar:1.0+')
         task.configure {
             ignoreGroups = ['foo'] as Set
         }
@@ -123,14 +134,17 @@ class VerifyPublicationTaskSpec extends Specification {
         violations.versionSelectorViolations.size() == 0
     }
 
-    Task setupProjectAndTask(Project project, String libraryStatus, String projectStatus) {
+    Task setupProjectAndTask(Project project, String libraryStatus, String projectStatus, String request) {
         Provider<VerificationViolationsCollectorService> verificationViolationsCollectorServiceProvider = project.getGradle().getSharedServices().registerIfAbsent("verificationViolationsCollectorService", VerificationViolationsCollectorService.class, spec -> {
         })
         project.plugins.apply(JavaPlugin)
         project.status = projectStatus
 
         populateAndSetRepository(project, libraryStatus)
-        createConfigurations(project)
+        project.dependencies.components.all(StatusSchemaAttributeRule)
+        project.dependencies {
+            runtimeOnly request
+        }
 
         def task = project.task('verify', type: VerifyPublicationTask)
         task.configure {
@@ -149,7 +163,11 @@ class VerifyPublicationTaskSpec extends Specification {
 
     private void populateAndSetRepository(Project project, String libraryStatus) {
         DependencyGraphBuilder builder = new DependencyGraphBuilder()
-        builder.addModule(new ModuleBuilder(DUMMY_LIBRARY).setStatus(libraryStatus).build())
+        builder.addModule(new ModuleBuilder('foo:bar:1.0').setStatus(libraryStatus).build())
+        builder.addModule(new ModuleBuilder('foo:bar:1.0.0').setStatus(libraryStatus).build())
+        builder.addModule(new ModuleBuilder('foo:bar:1.0-1').setStatus(libraryStatus).build())
+        builder.addModule(new ModuleBuilder('foo:bar:1.0_1').setStatus(libraryStatus).build())
+        builder.addModule(new ModuleBuilder('foo:bar:1.0+1').setStatus(libraryStatus).build())
         DependencyGraph graph = builder.build()
         def generator = new GradleDependencyGenerator(graph)
         generator.generateTestIvyRepo()
@@ -166,10 +184,4 @@ class VerifyPublicationTaskSpec extends Specification {
         }
     }
 
-    private void createConfigurations(Project project) {
-        project.dependencies {
-            runtimeOnly DUMMY_LIBRARY
-        }
-        project.dependencies.components.all(StatusSchemaAttributeRule)
-    }
 }
