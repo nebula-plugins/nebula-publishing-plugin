@@ -1,6 +1,6 @@
 package nebula.plugin.publishing.verification
 
-import org.gradle.api.artifacts.Dependency
+
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
 import org.gradle.api.internal.artifacts.ivyservice.ivyresolve.strategy.DefaultVersionComparator
@@ -29,7 +29,7 @@ class VersionSelectorVerification {
 
     private boolean verifySubVersion(DeclaredDependency dependency) {
         VersionSelector selector = parseSelector(dependency.version)
-        selector instanceof SubVersionSelector && !selector.selector.endsWith(".+")
+        selector instanceof SubVersionSelector && !VERSION_PART_SEPARATORS.contains(selector.selector[selector.selector.length() - 2])
     }
 
     private VersionSelector parseSelector(String version) {
@@ -37,4 +37,8 @@ class VersionSelectorVerification {
         def selector = scheme.parseSelector(version)
         selector
     }
+
+    // See https://github.com/gradle/gradle/blob/c140b42ed9b263a06a5346782a04310313bc29b2/platforms/software/dependency-management/src/main/java/org/gradle/api/internal/artifacts/ivyservice/ivyresolve/strategy/VersionParser.java#L50
+    private static final Set<String> VERSION_PART_SEPARATORS = ['.', '_', '-', '+']
+
 }
