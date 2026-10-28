@@ -20,7 +20,6 @@ import nebula.plugin.info.InfoBrokerPlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.XmlProvider
 import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
@@ -49,16 +48,9 @@ class MavenManifestPlugin implements Plugin<Project> {
                         publication.pom(new Action<MavenPom>() {
                             @Override
                             void execute(MavenPom pom) {
-                                pom.withXml(new Action<XmlProvider>() {
-                                    @Override
-                                    void execute(XmlProvider xml) {
-                                        def propertiesNode = xml.asNode()?.properties
-                                        if (!propertiesNode) {
-                                            propertiesNode = xml.asNode().appendNode('properties')
-                                        }
-                                        infoBroker.buildManifest().each { String key, String value ->
-                                            propertiesNode.appendNode(elementName("nebula_$key"), value)
-                                        }
+                                pom.properties.putAll(project.provider {
+                                    infoBroker.buildManifest().collectEntries { String key, String value ->
+                                        [(elementName("nebula_$key")): value]
                                     }
                                 })
                             }
