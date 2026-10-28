@@ -17,6 +17,7 @@ package nebula.plugin.publishing.maven
 
 import groovy.xml.XmlSlurper
 import nebula.plugin.publishing.BaseIntegrationTestKitSpec
+import org.gradle.testkit.runner.TaskOutcome
 
 class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
@@ -56,5 +57,63 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         fullChange
         fullChange.startsWith(change)
         fullChange.size() > change.size()
+    }
+
+    def 'unchanged modeled manifest properties keep all publications up to date on Gradle 9.8'() {
+        given:
+        gradleVersion = '9.8.2'
+        buildFile << '''
+            apply plugin: 'java'
+            apply plugin: 'com.netflix.nebula.info-broker'
+
+            publishing.publications {
+                custom(MavenPublication) {
+                    from components.java
+                    artifactId = 'custom-artifact'
+                }
+                withType(MavenPublication).configureEach {
+                    pom.properties.put('custom', 'preserved')
+                }
+            }
+
+            // Nebula's origin entries may be added after the publication's POM is configured.
+            def broker = plugins.getPlugin(nebula.plugin.info.InfoBrokerPlugin)
+            broker.add('Gradle-Project-Path', project.path)
+            broker.add('Gradle-Project-Directory', '.')
+            broker.add('Entry.with spaces', { providers.gradleProperty('manifestValue').getOrElse('one') })
+        '''
+        def taskPaths = ['generatePomFileForNebulaPublication', 'generatePomFileForCustomPublication']
+        runTasks(*(taskPaths + ['--configuration-cache-problems=fail']))
+
+        when:
+        def unchanged = runTasks(*(taskPaths + ['--configuration-cache-problems=fail']))
+
+        then:
+        taskPaths.each { taskPath ->
+            assert unchanged.task(":$taskPath").outcome == TaskOutcome.UP_TO_DATE
+        }
+        unchanged.output.contains('Reusing configuration cache.')
+        ['nebula', 'custom'].each { publication ->
+            def pom = new XmlSlurper().parse(new File(projectDir, "build/publications/$publication/pom-default.xml"))
+            assert pom.properties.'nebula_Gradle_Project_Path'*.text() == [':']
+            assert pom.properties.'nebula_Gradle_Project_Directory'*.text() == ['.']
+            assert pom.properties.'nebula_Entry_withspaces'*.text() == ['one']
+            assert pom.properties.custom.text() == 'preserved'
+        }
+
+        when:
+        def changed = runTasks(*(taskPaths + ['-PmanifestValue=two', '--configuration-cache-problems=fail']))
+
+        then:
+        taskPaths.each { taskPath ->
+            assert changed.task(":$taskPath").outcome == TaskOutcome.SUCCESS
+        }
+        ['nebula', 'custom'].each { publication ->
+            def pom = new XmlSlurper().parse(new File(projectDir, "build/publications/$publication/pom-default.xml"))
+            assert pom.properties.'nebula_Gradle_Project_Path'*.text() == [':']
+            assert pom.properties.'nebula_Gradle_Project_Directory'*.text() == ['.']
+            assert pom.properties.'nebula_Entry_withspaces'*.text() == ['two']
+            assert pom.properties.custom.text() == 'preserved'
+        }
     }
 }

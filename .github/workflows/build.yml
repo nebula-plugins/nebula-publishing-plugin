@@ -22,7 +22,13 @@ jobs:
         run: |
           git config --global user.name "Nebula Plugin Maintainers"
           git config --global user.email "nebula-plugins-oss@netflix.com"
-      - name: Set up JDKs
+      - name: Install JDK 8 for dependency fixtures
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+          java-package: jdk
+      - name: Set up build and test JDKs
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
