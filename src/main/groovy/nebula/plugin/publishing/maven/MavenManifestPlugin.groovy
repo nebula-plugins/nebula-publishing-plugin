@@ -26,8 +26,28 @@ import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
 import static nebula.plugin.publishing.ManifestElementNameGenerator.*
 
+/**
+ * Adds {@link InfoBrokerPlugin} manifest entries to every Maven publication's POM properties.
+ * Manifest keys are prefixed with {@code nebula_} and normalized for use as XML element names;
+ * the manifest values are preserved.
+ *
+ * <p>The entries are supplied through a provider so contributors can register metadata after
+ * a publication is configured. Adding them to {@link MavenPom#getProperties()} exposes the
+ * metadata as modeled inputs to {@link org.gradle.api.publish.maven.tasks.GenerateMavenPom}.
+ * On Gradle 9.8 and later, unchanged inputs can therefore leave POM generation up to date,
+ * while changed manifest values invalidate those inputs.</p>
+ *
+ * <p>Other {@code pom.withXml} customizations can still disable up-to-date checks. This plugin
+ * contributes to the existing properties map, preserving unrelated custom properties.</p>
+ */
 @CompileDynamic
 class MavenManifestPlugin implements Plugin<Project> {
+    /**
+     * Applies the base publishing conventions and wires Info Broker metadata into existing
+     * and subsequently added Maven publications.
+     *
+     * @param project the project whose publications should include manifest metadata
+     */
     @Override
     void apply(Project project) {
         project.plugins.apply MavenBasePublishPlugin

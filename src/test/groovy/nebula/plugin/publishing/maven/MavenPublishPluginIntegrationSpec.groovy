@@ -25,6 +25,12 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 
+/**
+ * Exercises the aggregate {@link MavenPublishPlugin} through its public
+ * {@code com.netflix.nebula.maven-publish} plugin ID. Covers resolved dependency versions,
+ * publication metadata, and BOMs, including metadata preservation and incremental POM
+ * generation with configuration-cache reuse on Gradle 9.8.
+ */
 class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
         keepFiles = true
@@ -181,6 +187,14 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         assertAggregateMetadata('two')
     }
 
+    /**
+     * Runs publication tasks with configuration-cache problems treated as failures.
+     * Allows the existing InfoJavaPlugin {@code findAll(Closure)} deprecation while checking
+     * for other deprecations, and restores the harness property after each invocation.
+     *
+     * @param tasks task names and additional Gradle arguments
+     * @return the result of the publication build
+     */
     private BuildResult runAggregatePublishingTasks(List<String> tasks) {
         def previous = System.getProperty('ignoreDeprecations')
         try {
