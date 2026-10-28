@@ -66,9 +66,6 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             apply plugin: 'java'
             apply plugin: 'com.netflix.nebula.info-broker'
 
-            def broker = plugins.getPlugin(nebula.plugin.info.InfoBrokerPlugin)
-            broker.add('Gradle-Project-Path', project.path)
-            broker.add('Entry.with spaces', { providers.gradleProperty('manifestValue').getOrElse('one') })
             publishing.publications {
                 custom(MavenPublication) {
                     from components.java
@@ -78,6 +75,12 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
                     pom.properties.put('custom', 'preserved')
                 }
             }
+
+            // Nebula's origin entries may be added after the publication's POM is configured.
+            def broker = plugins.getPlugin(nebula.plugin.info.InfoBrokerPlugin)
+            broker.add('Gradle-Project-Path', project.path)
+            broker.add('Gradle-Project-Directory', '.')
+            broker.add('Entry.with spaces', { providers.gradleProperty('manifestValue').getOrElse('one') })
         '''
         def taskPaths = ['generatePomFileForNebulaPublication', 'generatePomFileForCustomPublication']
         runTasks(*(taskPaths + ['--configuration-cache-problems=fail']))
@@ -93,6 +96,7 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         ['nebula', 'custom'].each { publication ->
             def pom = new XmlSlurper().parse(new File(projectDir, "build/publications/$publication/pom-default.xml"))
             assert pom.properties.'nebula_Gradle_Project_Path'*.text() == [':']
+            assert pom.properties.'nebula_Gradle_Project_Directory'*.text() == ['.']
             assert pom.properties.'nebula_Entry_withspaces'*.text() == ['one']
             assert pom.properties.custom.text() == 'preserved'
         }
@@ -106,6 +110,8 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         }
         ['nebula', 'custom'].each { publication ->
             def pom = new XmlSlurper().parse(new File(projectDir, "build/publications/$publication/pom-default.xml"))
+            assert pom.properties.'nebula_Gradle_Project_Path'*.text() == [':']
+            assert pom.properties.'nebula_Gradle_Project_Directory'*.text() == ['.']
             assert pom.properties.'nebula_Entry_withspaces'*.text() == ['two']
             assert pom.properties.custom.text() == 'preserved'
         }
