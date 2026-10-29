@@ -29,7 +29,8 @@ import org.gradle.util.GradleVersion
  * Exercises the aggregate {@link MavenPublishPlugin} through its public
  * {@code com.netflix.nebula.maven-publish} plugin ID. Covers resolved dependency versions,
  * publication metadata, and BOMs, including metadata preservation and incremental POM
- * generation with configuration-cache reuse on Gradle 9.8.
+ * generation with configuration-cache reuse on Gradle 9.8. Signing coverage also checks
+ * that resolved-version mapping leaves classpaths unresolved during configuration.
  */
 class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     def setup() {
@@ -115,46 +116,35 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         b.version == '1.9.2'
     }
 
-    def 'aggregate publishing preserves metadata through POM reuse and manifest changes on Gradle 9.8'() {
+    def 'signing a version-mapped publication stays lazy on Gradle #testedGradleVersion'() {
+        given:
+        gradleVersion = testedGradleVersion
+        configureAggregatePublishing(true)
+        def tasks = ['help', '-PrejectClasspathResolution=true']
+
+        when:
+        def first = runAggregatePublishingTasks(tasks)
+
+        then:
+        first.task(':help').outcome == TaskOutcome.SUCCESS
+        first.task(':signCustomPublication') == null
+        first.task(':generatePomFileForCustomPublication') == null
+
+        when:
+        def unchanged = runAggregatePublishingTasks(tasks)
+
+        then:
+        unchanged.output.contains('Reusing configuration cache.')
+        unchanged.task(':help').outcome == TaskOutcome.SUCCESS
+
+        where:
+        testedGradleVersion << [GradleVersion.current().version, '9.8.2'].unique()
+    }
+
+    def 'aggregate publishing preserves metadata through POM reuse and manifest changes on Gradle 9.8 with signing #signPublication'() {
         given:
         gradleVersion = '9.8.2'
-        def graph = new DependencyGraphBuilder()
-                .addModule('test:a:0.0.1')
-                .build()
-        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
-
-        buildFile << """\
-            apply plugin: 'java'
-            apply plugin: 'com.netflix.nebula.contacts'
-            apply plugin: 'com.netflix.nebula.info'
-
-            description = 'Aggregate publishing regression'
-            repositories {
-                maven { url = '${mavenrepo.toURI()}' }
-            }
-            contacts {
-                'nebula@example.test' {
-                    moniker 'Nebula'
-                }
-            }
-            dependencies {
-                implementation 'test:a:0.+'
-            }
-            publishing.publications {
-                custom(MavenPublication) {
-                    from components.java
-                    artifactId = 'custom-artifact'
-                }
-                withType(MavenPublication).configureEach {
-                    pom.properties.put('custom', 'preserved')
-                }
-            }
-
-            def broker = plugins.getPlugin(nebula.plugin.info.InfoBrokerPlugin)
-            broker.add('Gradle-Project-Path', project.path)
-            broker.add('Gradle-Project-Directory', '.')
-            broker.add('Manifest-Value', { providers.gradleProperty('manifestValue').getOrElse('one') })
-        """.stripIndent()
+        configureAggregatePublishing(signPublication)
         def taskPaths = ['generatePomFileForNebulaPublication', 'generatePomFileForCustomPublication',
                          'generateMetadataFileForNebulaPublication']
 
@@ -165,6 +155,7 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
         taskPaths.each { taskPath ->
             assert first.task(":$taskPath").outcome == TaskOutcome.SUCCESS
         }
+        first.task(':signCustomPublication') == null
         assertAggregateMetadata('one')
 
         when:
@@ -185,6 +176,83 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             assert changed.task(":$taskPath").outcome == TaskOutcome.SUCCESS
         }
         assertAggregateMetadata('two')
+
+        where:
+        signPublication << [false, true]
+    }
+
+    /**
+     * Configures metadata and a custom publication under the aggregate plugin. When signing is
+     * enabled, the Java component and resolution-backed version mapping are attached before
+     * {@code sign(publication)} and the dependencies block, reproducing Gradle issue #38909.
+     * The dummy key is never used to execute a signing task.
+     *
+     * @param signPublication whether to configure in-memory signing for the custom publication
+     */
+    private void configureAggregatePublishing(boolean signPublication) {
+        def graph = new DependencyGraphBuilder()
+                .addModule('test:a:0.0.1')
+                .build()
+        File mavenrepo = new GradleDependencyGenerator(graph, "${projectDir}/testrepogen").generateTestMavenRepo()
+
+        buildFile << """\
+            apply plugin: 'java-library'
+            apply plugin: 'com.netflix.nebula.contacts'
+            apply plugin: 'com.netflix.nebula.info'
+
+            description = 'Aggregate publishing regression'
+            repositories {
+                maven { url = '${mavenrepo.toURI()}' }
+            }
+            contacts {
+                'nebula@example.test' {
+                    moniker 'Nebula'
+                }
+            }
+            publishing.publications {
+                custom(MavenPublication) {
+                    from components.java
+                    artifactId = 'custom-artifact'
+                }
+                withType(MavenPublication).configureEach {
+                    pom.properties.put('custom', 'preserved')
+                }
+            }
+
+            def broker = plugins.getPlugin(nebula.plugin.info.InfoBrokerPlugin)
+            broker.add('Gradle-Project-Path', project.path)
+            broker.add('Gradle-Project-Directory', '.')
+            broker.add('Manifest-Value', { providers.gradleProperty('manifestValue').getOrElse('one') })
+        """.stripIndent()
+        if (signPublication) {
+            buildFile << '''\
+                apply plugin: 'signing'
+
+                // Nebula normally supplies this mapping after evaluation. Apply it before sign()
+                // to exercise signing conventions that run before the script's dependencies block.
+                publishing.publications.custom.versionMapping {
+                    allVariants { fromResolutionResult() }
+                }
+                if (providers.gradleProperty('rejectClasspathResolution').isPresent()) {
+                    configurations.matching { it.name in ['compileClasspath', 'runtimeClasspath'] }.configureEach {
+                        incoming.beforeResolve {
+                            throw new GradleException('Signing must not resolve classpaths during help')
+                        }
+                    }
+                }
+                signing {
+                    useInMemoryPgpKeys('not-a-real-key', 'not-a-real-passphrase')
+                    sign(publishing.publications.custom)
+                }
+                assert configurations.compileClasspath.state == Configuration.State.UNRESOLVED
+                assert configurations.runtimeClasspath.state == Configuration.State.UNRESOLVED
+            '''.stripIndent()
+        }
+        buildFile << '''\
+            dependencies {
+                api 'test:a:0.+'
+            }
+        '''.stripIndent()
     }
 
     /**
@@ -238,6 +306,7 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             assert pom.dependencies.dependency[0].groupId.text() == 'test'
             assert pom.dependencies.dependency[0].artifactId.text() == 'a'
             assert pom.dependencies.dependency[0].version.text() == '0.0.1'
+            assert pom.dependencies.dependency[0].scope.text() == 'compile'
         }
         def moduleJson = new JsonSlurper().parse(new File(projectDir, 'build/publications/nebula/module.json'))
         def runtimeVariant = moduleJson.variants.find { it.name == 'runtimeElements' }
