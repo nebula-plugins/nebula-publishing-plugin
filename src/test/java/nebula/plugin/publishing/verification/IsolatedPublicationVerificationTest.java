@@ -27,7 +27,7 @@ class IsolatedPublicationVerificationTest {
     @TempDir(cleanup = CleanupMode.ON_SUCCESS) Path directory;
 
     @ParameterizedTest
-    @CsvSource({"8.0,false", "8.14.3,true", "9.2.1,false", "9.2.1,true"})
+    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
     void publishingOneProjectVerifiesEveryParticipant(String version, boolean isolated) throws IOException {
         fixture(":api,:platform:api", "api", "platform:api");
         BuildResult first = run(version, isolated, false, ":api:" + PUBLISH);
@@ -42,7 +42,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"8.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1"})
     void rootCanAlsoBeTheOnlyParticipant(String version) throws IOException {
         fixture(":", "");
         write("gradle.properties", FLAG + "=true\n"); // A single-project build defaults to the root.
@@ -54,31 +54,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"8.0", "9.2.1"})
-    void gradleCoreTaskPathIsolationControl(String version) throws IOException {
-        write("settings.gradle", "include 'api'\n");
-        write("build.gradle", "tasks.register('report') { dependsOn(':api:verify') }\n");
-        write("api/build.gradle", "tasks.register('verify')\ntasks.register('upload') { dependsOn(':report') }\n");
-        BuildResult result = run(version, true, version.equals("8.0"), ":api:upload");
-        if (version.equals("8.0")) {
-            assertTrue(result.getOutput().contains("Cannot access project ':' from project ':api'"));
-            assertTrue(result.getOutput().contains("Cannot access project ':api' from project ':'"));
-            assertFalse(result.getOutput().contains("Configuration cache entry stored."));
-        } else {
-            stored(result);
-        }
-    }
-
-    @Test
-    void gradleEightMultiProjectIsolationHasTheSameCoreLimitation() throws IOException {
-        fixture(":api,:app", "api", "app");
-        BuildResult result = run("8.0", true, true, ":verifyPublicationReport");
-        assertTrue(result.getOutput().contains("Cannot access project ':api' from project ':'"));
-        assertFalse(result.getOutput().contains("Configuration cache entry stored."));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"8.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1"})
     void flagOffRetainsImplicitRootAggregation(String version) throws IOException {
         fixture(":ignored", "api", "app");
         write("build.gradle", ""); // Legacy children create the report; root does not apply the plugin.
@@ -94,7 +70,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"8.0,false", "9.2.1,true"})
+    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
     void statusAndIgnoreChangesInvalidateCacheAndNeverUploadOnFailure(String version, boolean isolated) throws IOException {
         fixture(":api,:platform:api", "api", "platform:api");
         unstableDependency("platform:api");
@@ -210,8 +186,9 @@ class IsolatedPublicationVerificationTest {
         assertNull(changed.task(publish));
     }
 
-    @Test
-    void ivyRepositoryPublishingUsesTheSameGate() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    void ivyRepositoryPublishingUsesTheSameGate(String version) throws IOException {
         fixture(":api,:app", "api", "app");
         Path apiBuild = directory.resolve("api/build.gradle");
         Files.writeString(apiBuild, Files.readString(apiBuild).replace("id 'maven-publish'", "id 'ivy-publish'")
@@ -219,27 +196,28 @@ class IsolatedPublicationVerificationTest {
                 .replace("repositories { maven { name", "repositories { ivy { name"));
         unstableDependency("app");
         String publish = ":api:publishLibraryPublicationToFixtureRepository";
-        BuildResult rejected = run("9.2.1", true, true, publish);
+        BuildResult rejected = run(version, true, true, publish);
         assertRejected(rejected, ":app", "release");
         assertFalse(Files.exists(directory.resolve("api/build/repository")));
 
-        BuildResult accepted = run("9.2.1", true, false, publish, "-PignorePolicy=group");
+        BuildResult accepted = run(version, true, false, publish, "-PignorePolicy=group");
         stored(accepted);
         success(accepted, ":verifyPublicationReport", publish);
         assertTrue(Files.isRegularFile(directory.resolve("api/build/repository/fixture/api/1.0/ivy-1.0.xml")));
-        assertTrue(run("9.2.1", true, false, publish, "-PignorePolicy=group")
+        assertTrue(run(version, true, false, publish, "-PignorePolicy=group")
                 .getOutput().contains("Reusing configuration cache."));
     }
 
-    @Test
-    void rootAndChildParticipantsSupportProjectDependencies() throws IOException {
+    @ParameterizedTest
+    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    void rootAndChildParticipantsSupportProjectDependencies(String version) throws IOException {
         fixture(":,:api", "", "api");
         append("build.gradle", "dependencies { implementation project(':api') }\n");
-        BuildResult result = run("9.2.1", true, false, ":" + PUBLISH);
+        BuildResult result = run(version, true, false, ":" + PUBLISH);
         stored(result);
         success(result, ":verifyPublication", ":api:verifyPublication", ":verifyPublicationReport", ":" + PUBLISH);
         assertTrue(Files.readString(artifact("", "pom")).contains("<artifactId>api</artifactId>"));
-        assertTrue(run("9.2.1", true, false, ":" + PUBLISH).getOutput().contains("Reusing configuration cache."));
+        assertTrue(run(version, true, false, ":" + PUBLISH).getOutput().contains("Reusing configuration cache."));
     }
 
     @Test

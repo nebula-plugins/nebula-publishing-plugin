@@ -8,24 +8,22 @@
 
 ## Usage
 
-__WARNING: Version 14.x.x requires at least Gradle 5.4__
-
-__WARNING: Version 17.x.x requires at least Gradle 6.0 or newer for sources and javadoc plugins__
-
-__WARNING: Version 19.x.x requires at least Gradle 8.0 or newer for sources and javadoc plugins__
+**Version 22.0.0 and later target Gradle 9.x and are built with Groovy 4. They are
+not backward compatible with Gradle 8.x.** See the
+[22.0.0 breaking-change notes](https://github.com/nebula-plugins/nebula-publishing-plugin/releases/tag/v22.0.0).
 
 To apply this plugin if using plugins block
 
     plugins {
-      id 'com.netflix.nebula.<publishing plugin of your choice>' version '20.2.0'
+      id 'com.netflix.nebula.<publishing plugin of your choice>' version '23.2.0'
     }
 
-If using an older version of Gradle
+Alternatively, using the buildscript classpath
 
     buildscript {
       repositories { mavenCentral() }
       dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:20.2.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:23.2.0'
       }
     }
 
@@ -345,7 +343,6 @@ apply the plugin at the root and each participant, and declare the participants 
 the publishing gate, and tested Gradle limitations. This flag currently covers
 publication verification only.
 
-Plugin features are enabled only for Gradle 4.8 and higher.
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
 #### Usage
@@ -407,13 +404,14 @@ Or you can use extension for this plugin which allows you exclude not just singl
 Gradle Compatibility Tested
 ---------------------------
 
-Built with Azul JDK8
-Tested with Azul JDK8, JDK11, JDK17
+The current release line supports Gradle 9.x. The build uses the Gradle 9.2.1
+wrapper and a Java 21 build toolchain. CI runs tests on Java 17, 21, and 25.
 
-| Gradle Version    | Works |
-| 7.0   | yes   |
-| 8.0   | yes   |
-| 8.1   | yes   |
+Publication-verification compatibility tests exercise Gradle 9.0.0 and 9.2.1,
+including strict configuration-cache storage and reuse with isolated projects.
+Other publishing integration tests also exercise newer Gradle 9.x versions.
+See the [experimental verification guide](docs/isolated-publication-verification.md)
+for its opt-in configuration and scope.
 
 
 LICENSE

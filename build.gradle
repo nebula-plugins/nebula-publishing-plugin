@@ -266,7 +266,7 @@ gradlePlugin {
 
 tasks.withType(Test).configureEach {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-    // The compatibility fixtures include Gradle 8.0, which cannot run on Java 21+.
+    // Gradle 9.0 compatibility fixtures need a supported JVM even when CI tests on Java 25.
     systemProperty 'publishing.verificationTestJavaHome', javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(17)
     }.get().metadata.installationPath.asFile.absolutePath

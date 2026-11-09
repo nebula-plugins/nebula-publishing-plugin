@@ -11,6 +11,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.project.IsolatedProject
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -40,13 +41,14 @@ class PublishVerificationPlugin implements Plugin<Project> {
     @CompileDynamic
     private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
         List<String> participants = IsolatedVerificationInputs.participants(project.providers)
-        String projectPath = project.path
+        IsolatedProject isolatedProject = project.isolated
+        String projectPath = isolatedProject.path
         Provider<VerificationViolationsCollectorService> serviceProvider = project.gradle.sharedServices.registerIfAbsent(
                 'verificationViolationsCollectorService', VerificationViolationsCollectorService) {}
 
         // The root owns its report even when it has no Java component. Dependencies are
         // task paths, so no project inspects or configures another project's model.
-        if (projectPath == ':') {
+        if (isolatedProject == isolatedProject.rootProject) {
             project.tasks.register('verifyPublicationReport', VerificationReportTask) { report ->
                 report.verificationViolationsCollectorService.set(serviceProvider)
                 report.usesService(serviceProvider)

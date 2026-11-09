@@ -83,8 +83,9 @@ ignore policies in the relevant participant or its convention plugin.
 
 ## Design and correctness
 
-The root exclusively registers `verifyPublicationReport`. Each declared Java
-participant registers its own `verifyPublication`. The report depends on absolute
+The implementation uses Gradle's immutable `IsolatedProject` view to identify the
+root of the current build. The root exclusively registers `verifyPublicationReport`.
+Each declared Java participant registers its own `verifyPublication`. The report depends on absolute
 verification task paths; repository publication tasks depend on the absolute root
 report path. No child reads or configures the root's tasks, and the root does not
 inspect child project models.
@@ -115,14 +116,13 @@ and nested participants; a root without Java; duplicate leaf names; mixed status
 ignore policies; missing enrollment; cache reuse; and legacy behavior with the flag
 disabled. Nothing in these tests uploads to a remote repository.
 
-Multi-project isolation is verified on Gradle 8.14.3 and 9.2.1. Gradle 8.0 supports the
-ordinary configuration-cache path and isolated single-project verification. Its
-experimental isolation mode rejects cross-project **string task dependencies**, even
-in a build using only core Gradle tasks. Multi-project aggregation cannot pass strict
-isolation on that version; upgrade Gradle to use this mode. Tests reproduce the core
-limitation separately. The repository's Gradle compatibility floor and wrapper are
-unchanged. Compatibility fixtures use Java 17 because Gradle 8.0 cannot run on newer
-JVMs such as Java 21.
+The current plugin release line targets Gradle 9.x, as established in the
+[22.0.0 breaking-change notes](https://github.com/nebula-plugins/nebula-publishing-plugin/releases/tag/v22.0.0).
+Verification compatibility tests cover Gradle 9.0.0 and 9.2.1 in both ordinary and
+isolated configuration-cache modes. Java 17 runs these fixtures so the Gradle 9.0
+baseline can be tested even when the outer test suite runs on Java 25. The Gradle
+wrapper remains unchanged.
 
-Ivy repository tasks use the same verification gate. Gradle 8.0 also has separate core
-Ivy configuration-cache limitations; enabling this flag does not resolve those.
+Ivy repository tasks use the same verification gate, with local Ivy publishing
+verified on Gradle 9.0.0 and 9.2.1. Other publishing integrations retain the scope
+limitations described above.
