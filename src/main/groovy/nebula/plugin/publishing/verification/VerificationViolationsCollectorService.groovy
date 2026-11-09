@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 abstract class VerificationViolationsCollectorService implements BuildService<BuildServiceParameters.None>, AutoCloseable {
     private final Map<String, ViolationsContainer> collector
+    private final Set<String> completedContributions = ConcurrentHashMap.newKeySet()
 
     VerificationViolationsCollectorService() {
         this.collector = new ConcurrentHashMap<>()
@@ -20,8 +21,17 @@ abstract class VerificationViolationsCollectorService implements BuildService<Bu
         return collector
     }
 
+    void completeContribution(String projectPath) {
+        completedContributions.add(projectPath)
+    }
+
+    boolean hasContribution(String projectPath) {
+        completedContributions.contains(projectPath)
+    }
+
     @Override
     void close() {
         collector.clear()
+        completedContributions.clear()
     }
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IsolatedPublicationVerificationTest {
     private static final String FLAG = "nebula.publishing.isolatedProjectsSupport";
-    private static final String PARTICIPANTS = "nebula.publishing.verification.projects";
     private static final String PUBLISH = "publishLibraryPublicationToFixtureRepository";
 
     @TempDir(cleanup = CleanupMode.ON_SUCCESS) Path directory;
@@ -29,7 +29,7 @@ class IsolatedPublicationVerificationTest {
     @ParameterizedTest
     @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
     void publishingOneProjectVerifiesEveryParticipant(String version, boolean isolated) throws IOException {
-        fixture(":api,:platform:api", "api", "platform:api");
+        fixture("api", "platform:api");
         BuildResult first = run(version, isolated, false, ":api:" + PUBLISH);
         stored(first);
         success(first, ":api:verifyPublication", ":platform:api:verifyPublication", ":verifyPublicationReport", ":api:" + PUBLISH);
@@ -44,8 +44,7 @@ class IsolatedPublicationVerificationTest {
     @ParameterizedTest
     @ValueSource(strings = {"9.0.0", "9.2.1"})
     void rootCanAlsoBeTheOnlyParticipant(String version) throws IOException {
-        fixture(":", "");
-        write("gradle.properties", FLAG + "=true\n"); // A single-project build defaults to the root.
+        fixture("");
         BuildResult first = run(version, true, false, ":" + PUBLISH);
         stored(first);
         success(first, ":verifyPublication", ":verifyPublicationReport", ":" + PUBLISH);
@@ -56,7 +55,7 @@ class IsolatedPublicationVerificationTest {
     @ParameterizedTest
     @ValueSource(strings = {"9.0.0", "9.2.1"})
     void flagOffRetainsImplicitRootAggregation(String version) throws IOException {
-        fixture(":ignored", "api", "app");
+        fixture("api", "app");
         write("build.gradle", ""); // Legacy children create the report; root does not apply the plugin.
         BuildResult result = run(version, false, false, ":api:" + PUBLISH, "-P" + FLAG + "=false");
         stored(result);
@@ -72,7 +71,7 @@ class IsolatedPublicationVerificationTest {
     @ParameterizedTest
     @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
     void statusAndIgnoreChangesInvalidateCacheAndNeverUploadOnFailure(String version, boolean isolated) throws IOException {
-        fixture(":api,:platform:api", "api", "platform:api");
+        fixture("api", "platform:api");
         unstableDependency("platform:api");
         append("api/build.gradle", "status = 'milestone'\n");
         String publish = ":api:" + PUBLISH;
@@ -107,7 +106,7 @@ class IsolatedPublicationVerificationTest {
 
     @Test
     void duplicateLeafNamesAndMixedStatusesProduceDeterministicReports() throws IOException {
-        fixture(":platform:api,:api", "api", "platform:api");
+        fixture("api", "platform:api");
         unstableDependency("api");
         unstableDependency("platform:api");
         append("api/build.gradle", "status = 'milestone'\n");
@@ -124,7 +123,7 @@ class IsolatedPublicationVerificationTest {
 
     @Test
     void invalidVersionSelectorsAreStillRejected() throws IOException {
-        fixture(":api,:app", "api", "app");
+        fixture("api", "app");
         module("library", "1.01");
         write("repo/fixture/library/maven-metadata.xml", """
             <metadata><groupId>fixture</groupId><artifactId>library</artifactId>
@@ -138,58 +137,71 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", "api", ":api,", ":api,:api", ":api, :app", ":api:", ":api::app", ":../api"})
-    void invalidParticipantListsFailEarly(String participants) throws IOException {
-        fixture(participants, "api");
-        BuildResult result = run("9.2.1", true, true, "help");
-        assertTrue(result.getOutput().contains(PARTICIPANTS));
-        assertFalse(Files.exists(artifact("api", "jar")));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"unenrolled", "root-plugin", "participant-plugin", "participant-java", "missing-project", "excluded", "disabled", "replacement-task"})
-    void incompleteEnrollmentFailsBeforeUpload(String problem) throws IOException {
-        fixture(":api,:app", "api", "app");
+    @ValueSource(strings = {"settings-plugin", "root-plugin", "project-plugin", "excluded", "disabled", "only-if",
+            "excluded-contribution", "disabled-contribution", "replacement-contribution", "root-report"})
+    void incompleteContributionsFailBeforeUpload(String problem) throws IOException {
+        fixture("api", "app");
         List<String> arguments = new ArrayList<>(List.of(":api:" + PUBLISH));
         switch (problem) {
-            case "unenrolled" -> write("gradle.properties", FLAG + "=true\n" + PARTICIPANTS + "=:app\n");
+            case "settings-plugin" -> write("settings.gradle", "rootProject.name = 'verification-fixture'\ninclude 'api', 'app'\n");
             case "root-plugin" -> write("build.gradle", "");
-            case "participant-plugin" -> write("app/build.gradle", "plugins { id 'java-library' }\n");
-            case "participant-java" -> write("app/build.gradle", "plugins { id 'com.netflix.nebula.publish-verification' }\n");
-            case "missing-project" -> write("gradle.properties", FLAG + "=true\n" + PARTICIPANTS + "=:api,:missing\n");
+            case "project-plugin" -> write("app/build.gradle", "plugins { id 'java-library' }\n");
             case "excluded" -> arguments.addAll(List.of("-x", ":app:verifyPublication"));
             case "disabled" -> append("app/build.gradle", "afterEvaluate { tasks.named('verifyPublication') { enabled = false } }\n");
-            case "replacement-task" -> write("app/build.gradle", "tasks.register('verifyPublication')\n");
+            case "only-if" -> append("app/build.gradle", "afterEvaluate { tasks.named('verifyPublication') { onlyIf { false } } }\n");
+            case "excluded-contribution" -> arguments.addAll(List.of("-x", ":app:collectPublicationVerification"));
+            case "disabled-contribution" -> append("app/build.gradle", "tasks.named('collectPublicationVerification') { enabled = false }\n");
+            case "replacement-contribution" -> write("app/build.gradle", "tasks.register('collectPublicationVerification')\n");
+            case "root-report" -> append("build.gradle", "tasks.remove(tasks.named('verifyPublicationReport').get())\n");
             default -> throw new AssertionError(problem);
         }
         BuildResult result = run("9.2.1", true, true, arguments.toArray(String[]::new));
         assertFalse(Files.exists(artifact("api", "jar")), result.getOutput());
         assertNull(result.task(":api:" + PUBLISH));
-        if (problem.equals("excluded") || problem.equals("disabled") || problem.equals("replacement-task")) {
-            assertTrue(result.getOutput().contains("Publication verification did not run for: :app"));
+        if (problem.equals("settings-plugin")) {
+            assertTrue(result.getOutput().contains("Apply com.netflix.nebula.publishing.settings"), result.getOutput());
+        } else if (problem.equals("excluded") || problem.equals("disabled") || problem.equals("only-if") || problem.endsWith("contribution")) {
+            assertTrue(result.getOutput().contains("Publication verification did not run for: :app"), result.getOutput());
+            BuildResult reused = run("9.2.1", true, true, arguments.toArray(String[]::new));
+            assertTrue(reused.getOutput().contains("Reusing configuration cache."), reused.getOutput());
+            assertTrue(reused.getOutput().contains("Publication verification did not run for: :app"), reused.getOutput());
+            assertNull(reused.task(":api:" + PUBLISH));
         }
     }
 
     @Test
-    void changingParticipantsInvalidatesAggregation() throws IOException {
-        fixture(":api", "api", "app");
-        unstableDependency("app");
+    void addingRemovingAndRenamingProjectsUpdatesAggregation() throws IOException {
+        fixture("api");
         String publish = ":api:" + PUBLISH;
         BuildResult first = run("9.2.1", true, false, publish);
         stored(first);
-        assertNull(first.task(":app:verifyPublication"));
+        assertTrue(run("9.2.1", true, false, publish).getOutput().contains("Reusing configuration cache."));
 
-        write("gradle.properties", FLAG + "=true\n" + PARTICIPANTS + "=:api,:app\n");
+        javaProject("app");
+        unstableDependency("app");
+        append("settings.gradle", "include 'app'\n");
         BuildResult changed = run("9.2.1", true, true, publish);
         assertFalse(changed.getOutput().contains("Reusing configuration cache."));
         assertRejected(changed, ":app", "release");
         assertNull(changed.task(publish));
+
+        append("settings.gradle", "project(':app').name = 'renamed'\n");
+        BuildResult renamed = run("9.2.1", true, true, publish);
+        assertFalse(renamed.getOutput().contains("Reusing configuration cache."));
+        assertRejected(renamed, ":renamed", "release");
+        assertNull(renamed.task(":app:verifyPublication"));
+
+        settings("api");
+        BuildResult removed = run("9.2.1", true, false, publish);
+        success(removed, ":verifyPublicationReport", publish);
+        assertNull(removed.task(":renamed:verifyPublication"));
+        assertTrue(run("9.2.1", true, false, publish).getOutput().contains("Reusing configuration cache."));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"9.0.0", "9.2.1"})
     void ivyRepositoryPublishingUsesTheSameGate(String version) throws IOException {
-        fixture(":api,:app", "api", "app");
+        fixture("api", "app");
         Path apiBuild = directory.resolve("api/build.gradle");
         Files.writeString(apiBuild, Files.readString(apiBuild).replace("id 'maven-publish'", "id 'ivy-publish'")
                 .replace("library(MavenPublication)", "library(IvyPublication)")
@@ -211,7 +223,7 @@ class IsolatedPublicationVerificationTest {
     @ParameterizedTest
     @ValueSource(strings = {"9.0.0", "9.2.1"})
     void rootAndChildParticipantsSupportProjectDependencies(String version) throws IOException {
-        fixture(":,:api", "", "api");
+        fixture("", "api");
         append("build.gradle", "dependencies { implementation project(':api') }\n");
         BuildResult result = run(version, true, false, ":" + PUBLISH);
         stored(result);
@@ -221,8 +233,8 @@ class IsolatedPublicationVerificationTest {
     }
 
     @Test
-    void helpAndUnrelatedTasksDoNotResolveDependenciesOrRequireNonparticipants() throws IOException {
-        fixture(":api", "api", "app");
+    void helpAndUnrelatedTasksDoNotResolveDependencies() throws IOException {
+        fixture("api", "app");
         append("api/build.gradle", """
             configurations.configureEach {
                 incoming.beforeResolve { throw new GradleException('Unexpected dependency resolution') }
@@ -234,6 +246,81 @@ class IsolatedPublicationVerificationTest {
         assertFalse(first.getOutput().contains("Unexpected dependency resolution"));
         assertNull(first.task(":api:verifyPublication"));
         assertTrue(run("9.2.1", true, false, "help", ":app:tasks", ":api:unrelated").getOutput().contains("Reusing configuration cache."));
+    }
+
+    @Test
+    void nonJavaProjectsContributeWithoutResolvingDependencies() throws IOException {
+        fixture("api", "platform:app");
+        write("platform/app/build.gradle", """
+            plugins { id 'com.netflix.nebula.publish-verification' }
+            configurations.create('unused')
+            dependencies.add('unused', 'missing:module:1.0')
+            configurations.configureEach {
+                incoming.beforeResolve { throw new GradleException('Unexpected dependency resolution') }
+            }
+            assert !extensions.extraProperties.has('__nebulaPublishingProjectPaths')
+            """);
+        BuildResult first = run("9.2.1", true, false, ":api:" + PUBLISH);
+        stored(first);
+        success(first, ":collectPublicationVerification", ":platform:collectPublicationVerification",
+                ":platform:app:collectPublicationVerification", ":verifyPublicationReport");
+        assertNull(first.task(":platform:app:verifyPublication"));
+        assertTrue(run("9.2.1", true, false, ":api:" + PUBLISH).getOutput().contains("Reusing configuration cache."));
+    }
+
+    @Test
+    void discoveryScalesWithoutAConsumerMaintainedCatalog() throws IOException {
+        String[] projects = java.util.stream.IntStream.range(0, 50).mapToObj(i -> "module" + i).toArray(String[]::new);
+        fixture(projects);
+        unstableDependency("module49");
+        // An obsolete property must not be able to hide another project's violations.
+        append("gradle.properties", "nebula.publishing.verification.projects=:module0\n");
+        BuildResult first = run("9.2.1", true, true, ":module0:" + PUBLISH);
+        stored(first);
+        assertRejected(first, ":module49", "release");
+        for (String project : projects) {
+            success(first, ":" + project + ":verifyPublication", ":" + project + ":collectPublicationVerification");
+        }
+        assertFalse(Files.exists(artifact("module0", "jar")));
+        BuildResult reused = run("9.2.1", true, true, ":module0:" + PUBLISH);
+        assertTrue(reused.getOutput().contains("Reusing configuration cache."));
+        assertRejected(reused, ":module49", "release");
+    }
+
+    @Test
+    void settingsArtifactHasNoProjectPluginDependenciesAndAppliesNoProjectPlugins() throws IOException {
+        settings("api");
+        write("gradle.properties", FLAG + "=true\n");
+        append("settings.gradle", """
+            def settingsLoader = nebula.plugin.publishing.settings.PublishingSettingsPlugin.class.classLoader
+            for (name in ['nebula.plugin.publishing.verification.PublishVerificationPlugin',
+                          'nebula.plugin.contacts.ContactsPlugin', 'nebula.plugin.info.InfoPlugin']) {
+                try {
+                    Class.forName(name, false, settingsLoader)
+                    throw new GradleException('Settings classpath contains project plugin: ' + name)
+                } catch (ClassNotFoundException expected) { }
+            }
+            """);
+        String noProjectPlugins = """
+            assert !plugins.hasPlugin('com.netflix.nebula.publish-verification')
+            assert !plugins.hasPlugin('java')
+            assert !plugins.hasPlugin('maven-publish')
+            assert !tasks.names.contains('collectPublicationVerification')
+            """;
+        write("build.gradle", noProjectPlugins);
+        write("api/build.gradle", noProjectPlugins);
+        // Resolve the real settings publication without injecting the project plugin classpath.
+        GradleRunner runner = GradleRunner.create().withProjectDir(directory.toFile()).withGradleVersion("9.0.0")
+                .withArguments("help", "--configuration-cache", "--configuration-cache-problems=fail",
+                        "-Dorg.gradle.unsafe.isolated-projects=true",
+                        "-Dorg.gradle.java.home=" + System.getProperty("publishing.verificationTestJavaHome"));
+        stored(runner.build());
+        assertTrue(runner.build().getOutput().contains("Reusing configuration cache."));
+        Path repository = Path.of(URI.create(System.getProperty("publishing.settingsPluginRepository")));
+        String version = System.getProperty("publishing.settingsPluginVersion");
+        String pom = Files.readString(repository.resolve("com/netflix/nebula/nebula-publishing-settings-plugin/" + version +
+                "/nebula-publishing-settings-plugin-" + version + ".pom"));
+        assertFalse(pom.contains("<dependencies>"), pom);
     }
 
     private void unstableDependency(String project) throws IOException {
@@ -261,13 +348,37 @@ class IsolatedPublicationVerificationTest {
         assertTrue(result.getOutput().contains("fixture:unstable"), result.getOutput());
     }
 
-    private void fixture(String participants, String... projects) throws IOException {
-        write("settings.gradle", "rootProject.name = 'verification-fixture'\n" +
-                Arrays.stream(projects).filter(p -> !p.isEmpty()).map(p -> "include '" + p + "'\n").reduce("", String::concat));
-        write("gradle.properties", FLAG + "=true\n" + PARTICIPANTS + "=" + participants + "\n");
+    private void fixture(String... projects) throws IOException {
+        settings(projects);
+        write("gradle.properties", FLAG + "=true\n");
         write("build.gradle", "plugins { id 'com.netflix.nebula.publish-verification' }\n");
         for (String project : projects) {
-            write(projectDirectory(project) + "build.gradle", """
+            String parent = project;
+            while (parent.contains(":")) {
+                parent = parent.substring(0, parent.lastIndexOf(':'));
+                Path build = directory.resolve(projectDirectory(parent) + "build.gradle");
+                if (!Files.exists(build)) {
+                    write(projectDirectory(parent) + "build.gradle", "plugins { id 'com.netflix.nebula.publish-verification' }\n");
+                }
+            }
+            javaProject(project);
+        }
+    }
+
+    private void settings(String... projects) throws IOException {
+        write("settings.gradle", """
+            pluginManagement {
+                repositories { maven { url = uri('%s') } }
+            }
+            plugins { id 'com.netflix.nebula.publishing.settings' version '%s' }
+            rootProject.name = 'verification-fixture'
+            """.formatted(System.getProperty("publishing.settingsPluginRepository"),
+                System.getProperty("publishing.settingsPluginVersion")) +
+                Arrays.stream(projects).filter(p -> !p.isEmpty()).map(p -> "include '" + p + "'\n").reduce("", String::concat));
+    }
+
+    private void javaProject(String project) throws IOException {
+        write(projectDirectory(project) + "build.gradle", """
                 plugins {
                     id 'java-library'
                     id 'maven-publish'
@@ -281,7 +392,6 @@ class IsolatedPublicationVerificationTest {
                     repositories { maven { name = 'fixture'; url = layout.buildDirectory.dir('repository') } }
                 }
                 """);
-        }
     }
 
     private BuildResult run(String version, boolean isolated, boolean fails, String... arguments) {

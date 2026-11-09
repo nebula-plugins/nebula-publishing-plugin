@@ -3,7 +3,6 @@ package nebula.plugin.publishing.verification
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -40,43 +39,42 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     @CompileDynamic
     private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
-        List<String> participants = IsolatedVerificationInputs.participants(project.providers)
+        IsolatedVerificationInputs.requireSettings(project)
         IsolatedProject isolatedProject = project.isolated
         String projectPath = isolatedProject.path
         Provider<VerificationViolationsCollectorService> serviceProvider = project.gradle.sharedServices.registerIfAbsent(
                 'verificationViolationsCollectorService', VerificationViolationsCollectorService) {}
 
+        TaskProvider<CollectPublicationVerificationTask> contribution = project.tasks.register(
+                IsolatedVerificationInputs.CONTRIBUTION_TASK, CollectPublicationVerificationTask) { task ->
+            task.projectPath.set(projectPath)
+            task.verificationRequired.convention(false)
+            task.verificationViolationsCollectorService.set(serviceProvider)
+            task.usesService(serviceProvider)
+        }
+
         // The root owns its report even when it has no Java component. Dependencies are
         // task paths, so no project inspects or configures another project's model.
         if (isolatedProject == isolatedProject.rootProject) {
+            List<String> participants = IsolatedVerificationInputs.discoveredProjects(project)
             project.tasks.register('verifyPublicationReport', VerificationReportTask) { report ->
                 report.verificationViolationsCollectorService.set(serviceProvider)
                 report.usesService(serviceProvider)
                 report.verificationProjectPaths.set(participants)
                 report.targetStatus.set(project.status.toString())
-                report.dependsOn(participants.collect { IsolatedVerificationInputs.verificationTask(it) })
+                report.dependsOn(participants.collect { IsolatedVerificationInputs.contributionTask(it) })
             }
         }
 
-        // Install the gate independently of Java: an unenrolled publisher must not
-        // silently upload, including publications configured without a Java component.
-        Provider<String> reportPath = project.providers.provider {
-            if (!participants.contains(projectPath)) {
-                throw new GradleException("Publishing project '${projectPath}' must be included in " +
-                        IsolatedVerificationInputs.PROJECTS + ' before publishing with isolated projects support.')
-            }
-            ':verifyPublicationReport'
-        }
-        project.tasks.withType(PublishToIvyRepository).configureEach { it.dependsOn(reportPath) }
-        project.tasks.withType(PublishToMavenRepository).configureEach { it.dependsOn(reportPath) }
+        project.tasks.withType(PublishToIvyRepository).configureEach { it.dependsOn(':verifyPublicationReport') }
+        project.tasks.withType(PublishToMavenRepository).configureEach { it.dependsOn(':verifyPublicationReport') }
 
-        if (!participants.contains(projectPath)) return
         project.plugins.withType(JavaBasePlugin) {
             generateStatusSchemeAttribute(project)
             project.afterEvaluate {
                 SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
                 if (!sourceSet) return
-                project.tasks.register('verifyPublication', VerifyPublicationTask) { task ->
+                TaskProvider<VerifyPublicationTask> verification = project.tasks.register('verifyPublication', VerifyPublicationTask) { task ->
                     task.verificationViolationsCollectorService.set(serviceProvider)
                     task.usesService(serviceProvider)
                     // Full paths prevent equal leaf names from overwriting each other.
@@ -91,6 +89,10 @@ class PublishVerificationPlugin implements Plugin<Project> {
                     }.flatten().collect { Dependency dependency ->
                         new DeclaredDependency(dependency.group, dependency.name, dependency.version)
                     } as List<DeclaredDependency>)
+                }
+                contribution.configure { task ->
+                    task.verificationRequired.set(true)
+                    task.dependsOn(verification)
                 }
             }
         }

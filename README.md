@@ -336,9 +336,9 @@ Eliminates this boilerplate:
 ### com.netflix.nebula.publish-verification
 
 Experimental isolated-projects support is available behind
-`nebula.publishing.isolatedProjectsSupport=true`. Multi-project builds explicitly
-apply the plugin at the root and each participant, and declare the participants in
-`nebula.publishing.verification.projects`. See the
+`nebula.publishing.isolatedProjectsSupport=true`. A separate settings plugin discovers
+projects automatically; project conventions apply verification locally to every
+project, including the root. See the
 [adoption guide and design](docs/isolated-publication-verification.md) for configuration,
 the publishing gate, and tested Gradle limitations. This flag currently covers
 publication verification only.
@@ -347,11 +347,14 @@ Creates a task which runs before actual publication into repositories. It catche
 
 #### Usage
 
-This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`. You have to apply the plugin to all modules within the project.
+This plugin is NOT automatically applied with `nebula.ivy-publish` or `nebula.maven-publish`.
+Apply it in each project's own build file, or through a project convention plugin:
 
-    allprojects {
-        apply plugin: 'com.netflix.nebula.publish-verification'
-    }
+```groovy
+plugins {
+    id 'com.netflix.nebula.publish-verification'
+}
+```
 
 Plugin is integrated with Gradle publishing and with Artifactory plugin. The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
 `artifactoryPublish` and `artifactoryDeploy` coming from `com.jfrog.artifactory` plugin. If you need any other integration

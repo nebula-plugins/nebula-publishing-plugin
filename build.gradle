@@ -265,11 +265,20 @@ gradlePlugin {
 
 
 tasks.withType(Test).configureEach {
+    dependsOn gradle.includedBuild('nebula-publishing-settings-plugin').task(':publishAllPublicationsToTestRepository')
+    systemProperty 'publishing.settingsPluginRepository',
+            layout.projectDirectory.dir('settings-plugin/build/test-repository').asFile.toURI().toString()
+    systemProperty 'publishing.settingsPluginVersion',
+            providers.gradleProperty('publishingSettingsVersion').getOrElse('0.1.0')
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     // Gradle 9.0 compatibility fixtures need a supported JVM even when CI tests on Java 25.
     systemProperty 'publishing.verificationTestJavaHome', javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(17)
     }.get().metadata.installationPath.asFile.absolutePath
+}
+
+tasks.named('check') {
+    dependsOn gradle.includedBuild('nebula-publishing-settings-plugin').task(':check')
 }
 
 testing {

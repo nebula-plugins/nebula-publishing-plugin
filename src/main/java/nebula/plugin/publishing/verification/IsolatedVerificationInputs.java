@@ -1,18 +1,15 @@
 package nebula.plugin.publishing.verification;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.Project;
 import org.gradle.api.provider.ProviderFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
-/** Build-wide inputs read independently by each project; no project discovery is needed. */
+/** JDK-only metadata protocol shared with the independent settings artifact. */
 final class IsolatedVerificationInputs {
     static final String FLAG = "nebula.publishing.isolatedProjectsSupport";
-    static final String PROJECTS = "nebula.publishing.verification.projects";
+    static final String CONTRIBUTION_TASK = "collectPublicationVerification";
 
     private IsolatedVerificationInputs() {}
 
@@ -20,30 +17,22 @@ final class IsolatedVerificationInputs {
         return providers.gradleProperty(FLAG).map(Boolean::parseBoolean).getOrElse(false);
     }
 
-    static List<String> participants(ProviderFactory providers) {
-        String value = providers.gradleProperty(PROJECTS).getOrElse(":");
-        List<String> paths = new ArrayList<>(Arrays.asList(value.split(",", -1)));
-        for (String path : paths) {
-            if (!canonical(path)) {
-                throw new GradleException(PROJECTS + " must contain comma-separated absolute project paths "
-                        + "without whitespace (for example :api,:platform:app); invalid path '" + path + "'.");
-            }
+    static void requireSettings(Project project) {
+        var extras = project.getExtensions().getExtraProperties();
+        if (!extras.has("__nebulaPublishingSettingsProtocol")
+                || !Integer.valueOf(1).equals(extras.get("__nebulaPublishingSettingsProtocol"))) {
+            throw new GradleException("Apply com.netflix.nebula.publishing.settings in settings before enabling "
+                    + FLAG + ". Project conventions must apply com.netflix.nebula.publish-verification "
+                    + "locally to every project, including the root.");
         }
-        if (new HashSet<>(paths).size() != paths.size()) {
-            throw new GradleException(PROJECTS + " must not contain duplicate project paths.");
-        }
-        Collections.sort(paths);
-        return Collections.unmodifiableList(paths);
     }
 
-    private static boolean canonical(String path) {
-        if (path.equals(":")) return true;
-        if (!path.matches(":[^:\\s/\\\\<>\"?*|]+(?::[^:\\s/\\\\<>\"?*|]+)*")) return false;
-        return Arrays.stream(path.substring(1).split(":"))
-                .noneMatch(segment -> segment.equals(".") || segment.equals(".."));
+    @SuppressWarnings("unchecked")
+    static List<String> discoveredProjects(Project rootProject) {
+        return (List<String>) rootProject.getExtensions().getExtraProperties().get("__nebulaPublishingProjectPaths");
     }
 
-    static String verificationTask(String path) {
-        return (path.equals(":") ? ":" : path + ":") + "verifyPublication";
+    static String contributionTask(String path) {
+        return (path.equals(":") ? ":" : path + ":") + CONTRIBUTION_TASK;
     }
 }

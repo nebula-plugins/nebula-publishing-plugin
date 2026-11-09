@@ -19,7 +19,7 @@ abstract class VerificationReportTask extends DefaultTask {
         verificationProjectPaths = project.objects.listProperty(String).convention(Collections.emptyList())
     }
 
-    /** Empty for legacy aggregation; explicit participants for isolated aggregation. */
+    /** Empty for legacy aggregation; automatically discovered projects for isolated aggregation. */
     @Input
     ListProperty<String> getVerificationProjectPaths() {
         verificationProjectPaths
@@ -33,17 +33,19 @@ abstract class VerificationReportTask extends DefaultTask {
 
     @TaskAction
     void reportViolatingDependencies() {
-        Map<String, ViolationsContainer> collected = verificationViolationsCollectorService.get().collector
+        VerificationViolationsCollectorService service = verificationViolationsCollectorService.get()
+        Map<String, ViolationsContainer> collected = service.collector
         List<String> participants = verificationProjectPaths.get()
         if (participants.isEmpty()) {
             reportErrors(collected)
             return
         }
 
-        List<String> missing = participants.findAll { !collected.containsKey(it) }
+        List<String> missing = participants.findAll { !collected.containsKey(it) || !service.hasContribution(it) }
         if (!missing.isEmpty()) {
             throw new BuildCancelledException('Publication verification did not run for: ' + missing.join(', ') +
-                    '. Apply com.netflix.nebula.publish-verification and a Java plugin to every declared participant; do not skip verifyPublication.')
+                    '. Project conventions must apply com.netflix.nebula.publish-verification locally to every project; ' +
+                    'do not skip collectPublicationVerification.')
         }
         // Report in path order with each project's own status. Mixed statuses must
         // not make diagnostics depend on configuration or task execution order.

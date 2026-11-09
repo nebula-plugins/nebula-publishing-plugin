@@ -3,31 +3,42 @@
 ## Scope
 
 The opt-in implementation of `com.netflix.nebula.publish-verification` supports
-project-local configuration with an explicit build-wide participant list. Publishing
-one participant to a Maven or Ivy repository still verifies every participant before
-uploading. The default implementation remains unchanged when the flag is absent or
-false.
+project-local configuration with automatic project discovery. Publishing one project
+to a Maven or Ivy repository verifies the whole build before uploading. The default
+implementation remains unchanged when `nebula.publishing.isolatedProjectsSupport`
+is absent or false.
 
-This is a bounded first step. It does not establish isolated-projects support for all
-publishing plugins. Inherited developer contacts, SCM configuration, shadow-component
-detection, and other publishing integrations require their own adoption work.
+This feature covers publication verification only. Inherited developer contacts,
+SCM configuration, shadow-component detection, and other publishing integrations
+require their own isolated-projects adoption work.
 
 ## Adoption
 
-Declare both properties in the **root `gradle.properties`**, or pass them build-wide
-with `-P`. Do not override them in individual projects or set them as extra properties.
+Enable the feature build-wide in the root `gradle.properties`:
 
 ```properties
 nebula.publishing.isolatedProjectsSupport=true
-nebula.publishing.verification.projects=:api,:platform:app
 ```
 
-The participant list contains comma-separated, unique, absolute project paths without
-whitespace. Use `:` to include the root when it publishes a Java component. The
-default list is `:`, so a single-project Java build needs only the feature flag.
-The list is explicit: there is no implicit project discovery or enrollment of children.
+Apply the independent settings plugin in `settings.gradle`:
 
-Apply the plugin in the root `build.gradle`, even if the root has no Java component:
+```groovy
+plugins {
+    id 'com.netflix.nebula.publishing.settings' version '<settings-plugin-version>'
+}
+
+rootProject.name = 'example'
+include 'api', 'platform:app'
+```
+
+Project discovery follows the final settings project graph, including intermediate
+projects and the root. No module-list property is required. Adding, removing, or
+renaming a project updates aggregation on the next build.
+
+Apply verification in **every project's own build file**, including the root and
+non-Java intermediate projects. A base project convention plugin should normally
+apply it locally, so consumers need only apply their usual convention. Settings
+does not apply project plugins.
 
 ```groovy
 plugins {
@@ -35,9 +46,7 @@ plugins {
 }
 ```
 
-Apply it in each participant's own build file, alongside its Java and publishing
-plugins. A convention plugin can share this configuration without cross-project
-configuration blocks.
+Java library conventions can apply it alongside the Java and publishing plugins:
 
 ```groovy
 plugins {
@@ -71,58 +80,79 @@ Enable Gradle's isolated-projects mode separately. For the tested Gradle version
   --configuration-cache --configuration-cache-problems=fail
 ```
 
-Every project that publishes through the verification plugin must be declared in the
-participant list. Nonparticipating intermediate projects need no Java or verification
-plugin. A missing root report, missing participant task, or nonexistent participant
-fails before upload. The report also refuses to pass when a declared verification
-task was skipped or replaced by an unrelated task.
-
 The `nebulaPublishVerification` extension retains its existing `ignore`,
-`ignoreGroups`, `ignore(String)`, `ignore(Map)`, and `ignoreGroup(String)` API. Configure
-ignore policies in the relevant participant or its convention plugin.
+`ignoreGroups`, `ignore(String)`, `ignore(Map)`, and `ignoreGroup(String)` APIs.
+Configure ignore policies locally in the relevant project or its convention plugin.
 
-## Design and correctness
+## Settings and project classpath boundaries
 
-The implementation uses Gradle's immutable `IsolatedProject` view to identify the
-root of the current build. The root exclusively registers `verifyPublicationReport`.
-Each declared Java participant registers its own `verifyPublication`. The report depends on absolute
-verification task paths; repository publication tasks depend on the absolute root
-report path. No child reads or configures the root's tasks, and the root does not
-inspect child project models.
+`settings-plugin/` is an independent Gradle build and artifact, not a subproject or
+a runtime dependency of the project plugins. It uses Gradle and JDK APIs only, has
+no external runtime dependencies, and never loads or applies a project plugin.
+This is a transition that allows moving it to its own repository later without
+coupling its classpath to the project plugins.
 
-Dependency resolution remains lazy: `help` and unrelated tasks do not resolve the
-runtime classpath. Task inputs retain declared dependencies, ignore policies, and each
-participant's target status. Runtime component resolution uses Gradle's resolution
-provider without retaining project state in task execution.
+The settings plugin reads `ProjectDescriptor` objects after settings evaluation.
+An isolated lifecycle action writes a small protocol marker into each project's
+local metadata; only the root receives the immutable project-path catalog. Values
+crossing this boundary are JDK types, with no shared implementation classes or
+mutable configuration registry. Each project plugin reads only its own metadata.
 
-The execution-time build service collects results keyed by full project path, so
-duplicate leaf names do not overwrite each other. The report checks that every
-declared participant contributed a result, then reports violations in project-path
-order using each participant's own target status. Mixed statuses do not depend on
-configuration order. Each build, including a configuration-cache reuse, reruns the
-verification and report tasks against a fresh service. Verification results are not
-task outputs that can be restored independently of the collector.
+The two artifacts have independent versions and release lifecycles. This draft adds
+local Maven publication for tests; it does **not** publish the settings artifact to a
+public repository or connect it to the project plugin's release workflow. Public
+distribution must be established before consumers can use the settings plugin ID
+from the plugin portal. For local development, consumers can resolve it with
+`pluginManagement { includeBuild('/path/to/nebula-publishing-plugin/settings-plugin') }`
+and omit the version in the settings plugin declaration.
 
-Existing plugin IDs, extension methods, task types, task names, and legacy aggregation
-behavior remain available. The new task property `verificationProjectPaths` defaults
-to an empty list for legacy/custom report tasks; the experimental root report sets it
-to the explicit participant list. Dependency verification failures remain fatal.
+Wrapper/init behavior, convention-plugin names and repositories, managed plugin
+classpaths, and classpath locking belong to the consuming platform's higher layers.
+This plugin does not implement or enforce those policies.
 
-## Validation and limitations
+## Local verification and aggregation
 
-TestKit coverage uses disposable local Maven repositories, strict configuration-cache
-checks, parallel execution, and real invalid dependencies. It covers single, sibling,
-and nested participants; a root without Java; duplicate leaf names; mixed statuses;
-ignore policies; missing enrollment; cache reuse; and legacy behavior with the flag
-disabled. Nothing in these tests uploads to a remote repository.
+Every project registers `collectPublicationVerification`. Java projects with a main
+source set also register `verifyPublication`; their contribution depends on that
+verification. Other projects contribute an empty result without resolving their
+configurations. The root exclusively registers `verifyPublicationReport`, depending
+on the automatically discovered contribution task paths. Local Maven and Ivy
+repository publication tasks depend on the absolute root report path.
 
-The current plugin release line targets Gradle 9.x, as established in the
+No project reads or configures another project's model. There are no cross-project
+configuration blocks in this path. Gradle's immutable `IsolatedProject` view identifies
+the root; absolute task dependencies handle execution ordering.
+
+Missing project-plugin application produces a missing contribution task and fails
+before upload. A skipped or disabled Java verification task produces no result and
+fails its contribution. A skipped, disabled, or replaced contribution produces no
+result and fails the report. These checks protect verification correctness; they
+are not intended to prevent users from deliberately disabling the publishing gate.
+
+Dependency resolution remains lazy: `help` and unrelated tasks do not resolve runtime
+dependencies. Task inputs capture declared dependencies, ignore policies, and each
+project's target status. Task execution retains no project model.
+
+An execution-only build service collects results by full project path. Duplicate
+leaf names remain distinct; report order and status diagnostics are deterministic.
+Verification, contribution, and report tasks rerun on configuration-cache reuse to
+populate a fresh collector. The service does not coordinate configuration.
+
+Existing plugin IDs, extension methods, task types, and legacy aggregation remain
+available. The concrete `verificationProjectPaths` getter defaults to an empty list
+for legacy/custom report tasks; the experimental root report sets it automatically.
+
+## Compatibility and validation
+
+The current release line targets Gradle 9.x, as established in the
 [22.0.0 breaking-change notes](https://github.com/nebula-plugins/nebula-publishing-plugin/releases/tag/v22.0.0).
-Verification compatibility tests cover Gradle 9.0.0 and 9.2.1 in both ordinary and
-isolated configuration-cache modes. Java 17 runs these fixtures so the Gradle 9.0
-baseline can be tested even when the outer test suite runs on Java 25. The Gradle
-wrapper remains unchanged.
+Compatibility tests cover Gradle 9.0.0 and 9.2.1 in ordinary and isolated
+configuration-cache modes. Java 17 runs these fixtures even when the outer test suite
+runs on Java 25. The wrapper remains unchanged.
 
-Ivy repository tasks use the same verification gate, with local Ivy publishing
-verified on Gradle 9.0.0 and 9.2.1. Other publishing integrations retain the scope
-limitations described above.
+TestKit uses disposable local Maven/Ivy repositories, strict configuration-cache
+checks, parallel execution, and real invalid dependencies. Coverage includes cache
+reuse, changing project graphs, non-Java projects, duplicate names, mixed statuses,
+ignore policies, missing or skipped contributions, a 50-module build, independent
+settings-classpath resolution, and legacy behavior with the flag disabled. Tests
+never publish to a remote repository.
