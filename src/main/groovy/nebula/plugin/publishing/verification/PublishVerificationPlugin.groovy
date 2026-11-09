@@ -19,6 +19,19 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.GradleVersion
 
+/**
+ * Verifies dependencies before Maven or Ivy repository publication.
+ *
+ * <p>The experimental path is selected by the build-wide property
+ * {@code nebula.publishing.isolatedProjectsSupport=true}; the default is false.
+ * Apply this plugin locally to every project, including the root and non-Java projects.
+ * Each project owns its verification contribution, and only the root owns the report.
+ * Absolute task paths connect the execution graph without configuring foreign tasks.</p>
+ *
+ * @see VerifyPublicationTask
+ * @see CollectPublicationVerificationTask
+ * @see VerificationReportTask
+ */
 class PublishVerificationPlugin implements Plugin<Project> {
 
     public static final Attribute<String> STATUS_SCHEME = Attribute.of('org.netflix.internal.statusScheme', String)
@@ -37,6 +50,10 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
     }
 
+    /**
+     * Configures the current project's contribution and publishing gate. Discovery reads
+     * only immutable project identities; the collector is populated during task execution.
+     */
     @CompileDynamic
     private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
         IsolatedProject isolatedProject = project.isolated
@@ -70,6 +87,8 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
         project.plugins.withType(JavaBasePlugin) {
             generateStatusSchemeAttribute(project)
+            // Preserve existing verification timing: source sets and local dependency
+            // declarations may still be configured after JavaBasePlugin is applied.
             project.afterEvaluate {
                 SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
                 if (!sourceSet) return

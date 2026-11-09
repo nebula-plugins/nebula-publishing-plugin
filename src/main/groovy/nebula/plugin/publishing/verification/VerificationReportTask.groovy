@@ -9,6 +9,19 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
+/**
+ * Aggregates dependency violations and fails before repository publication when verification is incomplete.
+ *
+ * <p>In isolated mode the root report expects a completed contribution for every discovered
+ * project. It reports violations in project-path order using each project's own target status.
+ * An empty expected-path list retains historical aggregation for legacy and custom report tasks.</p>
+ *
+ * <p>The task has no outputs and reruns on configuration-cache reuse to read the current
+ * invocation's execution-only collector.</p>
+ *
+ * @see CollectPublicationVerificationTask
+ * @see VerificationViolationsCollectorService
+ */
 @DisableCachingByDefault
 abstract class VerificationReportTask extends DefaultTask {
 
@@ -19,18 +32,33 @@ abstract class VerificationReportTask extends DefaultTask {
         verificationProjectPaths = project.objects.listProperty(String).convention(Collections.emptyList())
     }
 
-    /** Empty for legacy aggregation; automatically discovered projects for isolated aggregation. */
+    /**
+     * Projects required to contribute before the report may pass.
+     *
+     * <p>The isolated root report populates this automatically. The empty default preserves
+     * legacy/custom task behavior. This getter is concrete so existing subclasses need no
+     * additional abstract implementation.</p>
+     *
+     * @return the expected absolute project paths; empty for legacy aggregation
+     */
     @Input
     ListProperty<String> getVerificationProjectPaths() {
         verificationProjectPaths
     }
 
+    /** Legacy report status; isolated reports use the status stored in each project's result. */
     @Input
     abstract Property<String> getTargetStatus()
 
+    /** Results and contribution completion for this build invocation. */
     @Internal
     abstract Property<VerificationViolationsCollectorService> getVerificationViolationsCollectorService()
 
+    /**
+     * Checks contribution completeness before rendering deterministic violation reports.
+     *
+     * @throws BuildCancelledException if a contribution is missing or dependencies violate policy
+     */
     @TaskAction
     void reportViolatingDependencies() {
         VerificationViolationsCollectorService service = verificationViolationsCollectorService.get()

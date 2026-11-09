@@ -90,11 +90,28 @@ def projectPaths = project.getAllprojects()
     .sort()
 ```
 
+The Java implementation uses the same boundary explicitly:
+
+```java
+List<String> projectPaths = project.getAllprojects().stream()
+    .map(Project::getIsolated)
+    .map(IsolatedProject::getPath)
+    .sorted()
+    .toList();
+```
+
 Discovery reads only project identities, without accessing another project's
 mutable model. It uses no `allprojects { ... }` or `subprojects { ... }`
 configuration blocks. Only strings enter the report's inputs and task dependencies;
 project references are not retained in task execution state. Discovery adds no
 settings plugin, metadata protocol, artifact, or dependency.
+
+Gradle's [IsolatedProject JavaDoc](https://docs.gradle.org/9.0.0/javadoc/org/gradle/api/project/IsolatedProject.html)
+defines the view as exposing properties safe to access from another project. The
+API has been available since Gradle 8.8; this plugin's supported release line starts
+at Gradle 9. The [isolated-project views guide](https://docs.gradle.org/9.0.0/userguide/isolated_projects.html#isolated_project_views)
+describes that boundary. The enumeration and task wiring are tested on Gradle 9.0.0
+and 9.2.1 with strict isolation checks.
 
 Wrapper/init behavior, convention-plugin names and repositories, managed plugin
 classpaths, and classpath locking belong to the consuming platform's higher layers.
@@ -112,6 +129,17 @@ repository publication tasks depend on the absolute root report path.
 No project reads or configures another project's mutable model. There are no
 cross-project configuration blocks in this path. Gradle's immutable `IsolatedProject`
 view supplies project identities; absolute task dependencies handle execution ordering.
+
+| Task | Owner | Responsibility |
+| --- | --- | --- |
+| `verifyPublication` | Each Java project with a main source set | Produce dependency-verification results. |
+| `collectPublicationVerification` | Every project | Confirm verification or contribute an empty non-Java result, then record completion. |
+| `verifyPublicationReport` | Root | Require every contribution and report violations before upload. |
+
+For Java projects the execution order is verification, contribution, root report,
+then repository publication. Verification results and contribution completion are
+tracked separately: a verifier may have run even when its contribution task was
+disabled. Checking both states prevents that partial execution from passing the gate.
 
 Missing project-plugin application produces a missing contribution task and fails
 before upload. A skipped or disabled Java verification task produces no result and
@@ -146,3 +174,9 @@ reuse, changing project graphs, non-Java projects, duplicate names, mixed status
 ignore policies, missing or skipped contributions, a 50-module build, lazy dependency
 resolution for `help` and unrelated tasks, and legacy behavior with the flag disabled.
 Tests never publish to a remote repository.
+
+Source JavaDoc and Groovydoc describe the discovery contract, public task inputs,
+legacy defaults, and execution-only collector lifecycle. Generate the public Groovy
+API documentation with `./gradlew groovydoc`; output is under `build/docs/groovydoc`.
+The Java discovery helper is package-private implementation code and is documented
+in source rather than exposed as public API.
