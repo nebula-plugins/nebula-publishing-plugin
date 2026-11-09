@@ -16,6 +16,19 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
+/**
+ * Checks a Java project's runtime dependencies and declared version selectors.
+ *
+ * <p>Configuration supplies dependency-resolution providers, ignore policies, and target
+ * status; execution does not access a project model. Results go to the execution-only
+ * collector. In isolated mode, {@link CollectPublicationVerificationTask} confirms the
+ * result before the root report runs.</p>
+ *
+ * <p>The task has no outputs and must rerun to populate a fresh collector, including
+ * when the task graph is restored from the configuration cache.</p>
+ *
+ * @see VerificationReportTask
+ */
 @DisableCachingByDefault
 abstract class VerifyPublicationTask extends DefaultTask {
 
@@ -48,7 +61,7 @@ abstract class VerifyPublicationTask extends DefaultTask {
 
         List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore.get(), ignoreGroups.get()).verify(definedDependencies.get())
 
-        verificationViolationsCollectorService.get().addProject(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
+        verificationViolationsCollectorService.get().addProject(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations, targetStatus: targetStatus.get()))
     }
 
     private static Set<ResolvedDependencyResult> getNonProjectDependencies(ResolvedComponentResult resolvedComponentResult) {

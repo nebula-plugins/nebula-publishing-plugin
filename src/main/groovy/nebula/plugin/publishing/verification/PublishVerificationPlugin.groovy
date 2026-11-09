@@ -10,6 +10,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.project.IsolatedProject
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.ivy.tasks.PublishToIvyRepository
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
@@ -18,6 +19,19 @@ import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.util.GradleVersion
 
+/**
+ * Verifies dependencies before Maven or Ivy repository publication.
+ *
+ * <p>The experimental path is selected by the build-wide property
+ * {@code nebula.publishing.isolatedProjectsSupport=true}; the default is false.
+ * Apply this plugin locally to every project, including the root and non-Java projects.
+ * Each project owns its verification contribution, and only the root owns the report.
+ * Absolute task paths connect the execution graph without configuring foreign tasks.</p>
+ *
+ * @see VerifyPublicationTask
+ * @see CollectPublicationVerificationTask
+ * @see VerificationReportTask
+ */
 class PublishVerificationPlugin implements Plugin<Project> {
 
     public static final Attribute<String> STATUS_SCHEME = Attribute.of('org.netflix.internal.statusScheme', String)
@@ -26,8 +40,78 @@ class PublishVerificationPlugin implements Plugin<Project> {
     void apply(Project project) {
         if (shouldApplyPlugin()) {
             PublishVerificationExtension extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension) as PublishVerificationExtension
+            if (IsolatedVerificationInputs.enabled(project.providers)) {
+                setupIsolatedPlugin(project, extension)
+                return
+            }
             project.plugins.withType(JavaBasePlugin) {
                 setupPlugin(project, extension)
+            }
+        }
+    }
+
+    /**
+     * Configures the current project's contribution and publishing gate. Discovery reads
+     * only immutable project identities; the collector is populated during task execution.
+     */
+    @CompileDynamic
+    private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
+        IsolatedProject isolatedProject = project.isolated
+        String projectPath = isolatedProject.path
+        Provider<VerificationViolationsCollectorService> serviceProvider = project.gradle.sharedServices.registerIfAbsent(
+                'verificationViolationsCollectorService', VerificationViolationsCollectorService) {}
+
+        TaskProvider<CollectPublicationVerificationTask> contribution = project.tasks.register(
+                IsolatedVerificationInputs.CONTRIBUTION_TASK, CollectPublicationVerificationTask) { task ->
+            task.projectPath.set(projectPath)
+            task.verificationRequired.convention(false)
+            task.verificationViolationsCollectorService.set(serviceProvider)
+            task.usesService(serviceProvider)
+        }
+
+        // The root owns its report even when it has no Java component. Dependencies are
+        // task paths, so no project inspects or configures another project's mutable model.
+        if (isolatedProject == isolatedProject.rootProject) {
+            List<String> participants = IsolatedVerificationInputs.discoveredProjects(project)
+            project.tasks.register('verifyPublicationReport', VerificationReportTask) { report ->
+                report.verificationViolationsCollectorService.set(serviceProvider)
+                report.usesService(serviceProvider)
+                report.verificationProjectPaths.set(participants)
+                report.targetStatus.set(project.status.toString())
+                report.dependsOn(participants.collect { IsolatedVerificationInputs.contributionTask(it) })
+            }
+        }
+
+        project.tasks.withType(PublishToIvyRepository).configureEach { it.dependsOn(':verifyPublicationReport') }
+        project.tasks.withType(PublishToMavenRepository).configureEach { it.dependsOn(':verifyPublicationReport') }
+
+        project.plugins.withType(JavaBasePlugin) {
+            generateStatusSchemeAttribute(project)
+            // Preserve existing verification timing: source sets and local dependency
+            // declarations may still be configured after JavaBasePlugin is applied.
+            project.afterEvaluate {
+                SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
+                if (!sourceSet) return
+                TaskProvider<VerifyPublicationTask> verification = project.tasks.register('verifyPublication', VerifyPublicationTask) { task ->
+                    task.verificationViolationsCollectorService.set(serviceProvider)
+                    task.usesService(serviceProvider)
+                    // Full paths prevent equal leaf names from overwriting each other.
+                    task.projectName.set(projectPath)
+                    task.targetStatus.set(project.status.toString())
+                    task.resolvedComponentResultProvider = project.configurations.named(sourceSet.runtimeClasspathConfigurationName)
+                            .get().incoming.resolutionResult.rootComponent
+                    task.ignore.set(extension.ignore)
+                    task.ignoreGroups.set(extension.ignoreGroups)
+                    task.definedDependencies.set(project.configurations.collect { Configuration configuration ->
+                        configuration.dependencies
+                    }.flatten().collect { Dependency dependency ->
+                        new DeclaredDependency(dependency.group, dependency.name, dependency.version)
+                    } as List<DeclaredDependency>)
+                }
+                contribution.configure { task ->
+                    task.verificationRequired.set(true)
+                    task.dependsOn(verification)
+                }
             }
         }
     }
