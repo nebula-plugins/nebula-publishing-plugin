@@ -39,7 +39,6 @@ class PublishVerificationPlugin implements Plugin<Project> {
 
     @CompileDynamic
     private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
-        IsolatedVerificationInputs.requireSettings(project)
         IsolatedProject isolatedProject = project.isolated
         String projectPath = isolatedProject.path
         Provider<VerificationViolationsCollectorService> serviceProvider = project.gradle.sharedServices.registerIfAbsent(
@@ -54,7 +53,7 @@ class PublishVerificationPlugin implements Plugin<Project> {
         }
 
         // The root owns its report even when it has no Java component. Dependencies are
-        // task paths, so no project inspects or configures another project's model.
+        // task paths, so no project inspects or configures another project's mutable model.
         if (isolatedProject == isolatedProject.rootProject) {
             List<String> participants = IsolatedVerificationInputs.discoveredProjects(project)
             project.tasks.register('verifyPublicationReport', VerificationReportTask) { report ->

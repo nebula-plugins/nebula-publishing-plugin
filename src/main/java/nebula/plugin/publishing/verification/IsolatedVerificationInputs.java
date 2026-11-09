@@ -1,12 +1,12 @@
 package nebula.plugin.publishing.verification;
 
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.project.IsolatedProject;
 import org.gradle.api.provider.ProviderFactory;
 
 import java.util.List;
 
-/** JDK-only metadata protocol shared with the independent settings artifact. */
+/** Build-wide inputs and read-only discovery for isolated publication verification. */
 final class IsolatedVerificationInputs {
     static final String FLAG = "nebula.publishing.isolatedProjectsSupport";
     static final String CONTRIBUTION_TASK = "collectPublicationVerification";
@@ -17,19 +17,13 @@ final class IsolatedVerificationInputs {
         return providers.gradleProperty(FLAG).map(Boolean::parseBoolean).getOrElse(false);
     }
 
-    static void requireSettings(Project project) {
-        var extras = project.getExtensions().getExtraProperties();
-        if (!extras.has("__nebulaPublishingSettingsProtocol")
-                || !Integer.valueOf(1).equals(extras.get("__nebulaPublishingSettingsProtocol"))) {
-            throw new GradleException("Apply com.netflix.nebula.publishing.settings in settings before enabling "
-                    + FLAG + ". Project conventions must apply com.netflix.nebula.publish-verification "
-                    + "locally to every project, including the root.");
-        }
-    }
-
-    @SuppressWarnings("unchecked")
     static List<String> discoveredProjects(Project rootProject) {
-        return (List<String>) rootProject.getExtensions().getExtraProperties().get("__nebulaPublishingProjectPaths");
+        // Enumerate identities only; never inspect or configure another project's mutable model.
+        return rootProject.getAllprojects().stream()
+                .map(Project::getIsolated)
+                .map(IsolatedProject::getPath)
+                .sorted()
+                .toList();
     }
 
     static String contributionTask(String path) {

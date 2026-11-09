@@ -10,8 +10,3 @@ develocity {
 }
 
 rootProject.name='nebula-publishing-plugin'
-
-// Independent artifact: settings must not inherit the project plugins' dependencies.
-includeBuild('settings-plugin') {
-    name = 'nebula-publishing-settings-plugin'
-}

@@ -336,9 +336,10 @@ Eliminates this boilerplate:
 ### com.netflix.nebula.publish-verification
 
 Experimental isolated-projects support is available behind
-`nebula.publishing.isolatedProjectsSupport=true`. A separate settings plugin discovers
-projects automatically; project conventions apply verification locally to every
-project, including the root. See the
+`nebula.publishing.isolatedProjectsSupport=true`. The root discovers project paths
+through Gradle's immutable isolated views; project conventions apply verification
+locally to every project, including the root. No settings helper or module-list
+property is required. See the
 [adoption guide and design](docs/isolated-publication-verification.md) for configuration,
 the publishing gate, and tested Gradle limitations. This flag currently covers
 publication verification only.
