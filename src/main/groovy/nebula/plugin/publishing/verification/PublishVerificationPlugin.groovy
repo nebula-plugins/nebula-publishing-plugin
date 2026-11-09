@@ -3,6 +3,7 @@ package nebula.plugin.publishing.verification
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -26,8 +27,69 @@ class PublishVerificationPlugin implements Plugin<Project> {
     void apply(Project project) {
         if (shouldApplyPlugin()) {
             PublishVerificationExtension extension = project.extensions.create('nebulaPublishVerification', PublishVerificationExtension) as PublishVerificationExtension
+            if (IsolatedVerificationInputs.enabled(project.providers)) {
+                setupIsolatedPlugin(project, extension)
+                return
+            }
             project.plugins.withType(JavaBasePlugin) {
                 setupPlugin(project, extension)
+            }
+        }
+    }
+
+    @CompileDynamic
+    private void setupIsolatedPlugin(Project project, PublishVerificationExtension extension) {
+        List<String> participants = IsolatedVerificationInputs.participants(project.providers)
+        String projectPath = project.path
+        Provider<VerificationViolationsCollectorService> serviceProvider = project.gradle.sharedServices.registerIfAbsent(
+                'verificationViolationsCollectorService', VerificationViolationsCollectorService) {}
+
+        // The root owns its report even when it has no Java component. Dependencies are
+        // task paths, so no project inspects or configures another project's model.
+        if (projectPath == ':') {
+            project.tasks.register('verifyPublicationReport', VerificationReportTask) { report ->
+                report.verificationViolationsCollectorService.set(serviceProvider)
+                report.usesService(serviceProvider)
+                report.verificationProjectPaths.set(participants)
+                report.targetStatus.set(project.status.toString())
+                report.dependsOn(participants.collect { IsolatedVerificationInputs.verificationTask(it) })
+            }
+        }
+
+        // Install the gate independently of Java: an unenrolled publisher must not
+        // silently upload, including publications configured without a Java component.
+        Provider<String> reportPath = project.providers.provider {
+            if (!participants.contains(projectPath)) {
+                throw new GradleException("Publishing project '${projectPath}' must be included in " +
+                        IsolatedVerificationInputs.PROJECTS + ' before publishing with isolated projects support.')
+            }
+            ':verifyPublicationReport'
+        }
+        project.tasks.withType(PublishToIvyRepository).configureEach { it.dependsOn(reportPath) }
+        project.tasks.withType(PublishToMavenRepository).configureEach { it.dependsOn(reportPath) }
+
+        if (!participants.contains(projectPath)) return
+        project.plugins.withType(JavaBasePlugin) {
+            generateStatusSchemeAttribute(project)
+            project.afterEvaluate {
+                SourceSet sourceSet = project.sourceSets.find { it.name == SourceSet.MAIN_SOURCE_SET_NAME }
+                if (!sourceSet) return
+                project.tasks.register('verifyPublication', VerifyPublicationTask) { task ->
+                    task.verificationViolationsCollectorService.set(serviceProvider)
+                    task.usesService(serviceProvider)
+                    // Full paths prevent equal leaf names from overwriting each other.
+                    task.projectName.set(projectPath)
+                    task.targetStatus.set(project.status.toString())
+                    task.resolvedComponentResultProvider = project.configurations.named(sourceSet.runtimeClasspathConfigurationName)
+                            .get().incoming.resolutionResult.rootComponent
+                    task.ignore.set(extension.ignore)
+                    task.ignoreGroups.set(extension.ignoreGroups)
+                    task.definedDependencies.set(project.configurations.collect { Configuration configuration ->
+                        configuration.dependencies
+                    }.flatten().collect { Dependency dependency ->
+                        new DeclaredDependency(dependency.group, dependency.name, dependency.version)
+                    } as List<DeclaredDependency>)
+                }
             }
         }
     }

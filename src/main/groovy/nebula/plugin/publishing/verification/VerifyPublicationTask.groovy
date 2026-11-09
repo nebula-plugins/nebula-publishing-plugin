@@ -48,7 +48,7 @@ abstract class VerifyPublicationTask extends DefaultTask {
 
         List<VersionSelectorVerificationViolation> versionViolations = new VersionSelectorVerification(ignore.get(), ignoreGroups.get()).verify(definedDependencies.get())
 
-        verificationViolationsCollectorService.get().addProject(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations))
+        verificationViolationsCollectorService.get().addProject(projectName.get(), new ViolationsContainer(statusViolations:  violations, versionSelectorViolations: versionViolations, targetStatus: targetStatus.get()))
     }
 
     private static Set<ResolvedDependencyResult> getNonProjectDependencies(ResolvedComponentResult resolvedComponentResult) {

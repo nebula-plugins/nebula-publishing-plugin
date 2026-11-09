@@ -2,6 +2,7 @@ package nebula.plugin.publishing.verification
 
 import org.gradle.api.BuildCancelledException
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -12,6 +13,17 @@ import org.gradle.work.DisableCachingByDefault
 abstract class VerificationReportTask extends DefaultTask {
 
     protected VerificationReportGenerator verificationReportGenerator = new VerificationReportGenerator()
+    private final ListProperty<String> verificationProjectPaths
+
+    VerificationReportTask() {
+        verificationProjectPaths = project.objects.listProperty(String).convention(Collections.emptyList())
+    }
+
+    /** Empty for legacy aggregation; explicit participants for isolated aggregation. */
+    @Input
+    ListProperty<String> getVerificationProjectPaths() {
+        verificationProjectPaths
+    }
 
     @Input
     abstract Property<String> getTargetStatus()
@@ -21,7 +33,30 @@ abstract class VerificationReportTask extends DefaultTask {
 
     @TaskAction
     void reportViolatingDependencies() {
-        reportErrors(verificationViolationsCollectorService.get().collector)
+        Map<String, ViolationsContainer> collected = verificationViolationsCollectorService.get().collector
+        List<String> participants = verificationProjectPaths.get()
+        if (participants.isEmpty()) {
+            reportErrors(collected)
+            return
+        }
+
+        List<String> missing = participants.findAll { !collected.containsKey(it) }
+        if (!missing.isEmpty()) {
+            throw new BuildCancelledException('Publication verification did not run for: ' + missing.join(', ') +
+                    '. Apply com.netflix.nebula.publish-verification and a Java plugin to every declared participant; do not skip verifyPublication.')
+        }
+        // Report in path order with each project's own status. Mixed statuses must
+        // not make diagnostics depend on configuration or task execution order.
+        StringBuilder messages = new StringBuilder()
+        participants.sort(false).each { String path ->
+            ViolationsContainer violations = collected.get(path)
+            if (violations.hasViolations()) {
+                messages.append(verificationReportGenerator.generateReport(Collections.singletonMap(path, violations), violations.targetStatus))
+            }
+        }
+        if (messages.length() > 0) {
+            throw new BuildCancelledException(messages.toString())
+        }
 
     }
 

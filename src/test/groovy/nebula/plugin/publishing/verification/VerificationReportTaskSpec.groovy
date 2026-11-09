@@ -5,10 +5,27 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class VerificationReportTaskSpec extends Specification {
+
+    def 'existing concrete report subclasses need no new abstract methods'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        def service = project.gradle.sharedServices.registerIfAbsent('customCollector', VerificationViolationsCollectorService) {}
+        def task = project.tasks.create('customReport', ConcreteVerificationReportTask)
+        task.verificationViolationsCollectorService.set(service)
+        task.usesService(service)
+
+        when:
+        task.reportViolatingDependencies()
+
+        then:
+        noExceptionThrown()
+        task.verificationProjectPaths.get().isEmpty()
+    }
 
     def 'build is unaffected when there is no violation'() {
         given:
@@ -72,4 +89,11 @@ class VerificationReportTaskSpec extends Specification {
                         ])
         ]
     }
+}
+
+// A consumer subclass implementing only the task's original abstract properties.
+class ConcreteVerificationReportTask extends VerificationReportTask {
+    final Property<String> targetStatus = project.objects.property(String).convention('release')
+    final Property<VerificationViolationsCollectorService> verificationViolationsCollectorService =
+            project.objects.property(VerificationViolationsCollectorService)
 }

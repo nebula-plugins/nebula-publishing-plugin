@@ -337,6 +337,14 @@ Eliminates this boilerplate:
     
 ### com.netflix.nebula.publish-verification
 
+Experimental isolated-projects support is available behind
+`nebula.publishing.isolatedProjectsSupport=true`. Multi-project builds explicitly
+apply the plugin at the root and each participant, and declare the participants in
+`nebula.publishing.verification.projects`. See the
+[adoption guide and design](docs/isolated-publication-verification.md) for configuration,
+the publishing gate, and tested Gradle limitations. This flag currently covers
+publication verification only.
+
 Plugin features are enabled only for Gradle 4.8 and higher.
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
