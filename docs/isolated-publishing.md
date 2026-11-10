@@ -155,6 +155,36 @@ library; it does not add constraint validation to the BOM itself.
 
 ## Validation and limits
 
+### Combined release and publishing
+
+The integration matrix also composes this plugin with the released
+`com.netflix.nebula:nebula-release-plugin:21.2.0`. Use that plugin's existing
+`com.netflix.nebula.release-settings` setup and enable
+`nebula.release.isolatedProjectsSupport=true` alongside the publishing and info
+flags. Project conventions apply release, publishing, info and contacts locally.
+The contacts inheritance setting remains independent. This does not require a
+publishing settings helper or a manually maintained project list.
+
+The fixture wires native Maven/Ivy publication tasks explicitly to the root
+snapshot workflow. It checks signed main/source/Javadoc JARs and metadata using
+one Git-inferred version across root, nested projects and a version-only project.
+Git commit and release-scope changes must invalidate cached configuration and
+update the published coordinates. Warm cache hits must retain consistent versions.
+
+Mutable `-SNAPSHOT` Maven uploads use Gradle's timestamp/build-number filenames;
+the POM still records the inferred `-SNAPSHOT` version. Immutable snapshots use
+their inferred timestamped version directly.
+
+Version selection and status setup are separate release contracts:
+`-Prelease.stage=final` selects a final version, while `finalSetup` supplies the
+release status used by verification. Tests request both when checking final-status
+dependency rejection and descriptor generation without executing `final` or
+creating a release tag. Snapshot workflows likewise leave the fixture's original
+Git tag unchanged. This coverage does not expand the release plugin's supported
+custom workflow or tagging boundary.
+
+### Test matrix
+
 The normal test suite uses released dependencies, strict isolation, parallel
 configuration, and configuration-cache storage and reuse. Tests publish only into
 disposable local Maven/Ivy repositories.
@@ -187,6 +217,13 @@ Coverage includes:
   compiled classes, packaged/excluded dependencies and descriptor packaging.
   Gradle 9.2.1 also checks snapshot dependency rejection before upload on cold and
   warm configuration caches.
+- Combined release/publishing on Gradle 9.0.0, 9.2.1 and 9.8.2: mutable and
+  immutable snapshot workflows, signed Maven and Ivy publications, Git-inferred
+  versions, final-status publication without tagging, project dependency coordinates,
+  metadata and cold/warm caches.
+  Gradle 9.2.1 also checks changed release scope and commits, final-status snapshot
+  dependency rejection, descriptor-only commands and dependency-resolution-free
+  `help`.
 
 These compatibility fixtures use Java 17, including when the outer test suite runs
 on newer JVMs. They validate these configurations, not every third-party plugin or
@@ -205,7 +242,23 @@ Run the new coverage with:
   --tests nebula.plugin.publishing.maven.IsolatedMavenDeveloperTest \
   --tests nebula.plugin.publishing.IsolatedPublishingFacadeTest \
   --tests nebula.plugin.publishing.IsolatedPublicationTypesTest \
+  --tests nebula.plugin.publishing.IsolatedReleasePublishingTest \
   --no-configuration-cache --max-workers=2
 ```
 
 Generate the source API documentation with `./gradlew groovydoc`.
+
+### Timeout diagnostics
+
+Each Jupiter test invocation, including each parameterized TestKit case, has a
+five-minute default timeout. The entire Gradle test task has a twenty-minute
+timeout. Jupiter prints the test JVM's thread dump before interrupting a timed-out
+invocation. These limits expose stalls; they do not retry failures or change
+Gradle's project scheduler.
+
+On CI failure, the build workflow retains test reports/results and TestKit daemon
+logs in the `test-diagnostics-java-<version>` artifact for seven days. The archive
+contains logs, not fixture signing keys or configuration-cache state. A thread
+dump from the test JVM may show it waiting on the Tooling API; the Gradle daemon
+logs provide the complementary build context. Diagnosing the daemon's own threads
+still requires capturing that daemon's thread dump while it is running.

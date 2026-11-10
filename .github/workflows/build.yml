@@ -45,3 +45,14 @@ jobs:
         run: ./gradlew --stacktrace build
         env:
           JDK_VERSION_FOR_TESTS: ${{ matrix.java }}
+      - name: Upload test failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics-java-${{ matrix.java }}
+          retention-days: 7
+          path: |
+            build/reports/tests/
+            build/test-results/
+            build/tmp/test/work/.gradle-test-kit/test-kit-daemon/**/*.out.log
+          include-hidden-files: true

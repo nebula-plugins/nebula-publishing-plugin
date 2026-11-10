@@ -357,6 +357,11 @@ are tested with strict isolation and configuration-cache reuse on Gradle 9.0.0,
 9.2.1 and 9.8.2. BOM constraints are published but are not independently checked by
 the runtime-dependency verification policy; see the guide for scope and examples.
 
+The integration suite also combines the released release plugin 21.2.0 with signed
+Maven/Ivy snapshot publishing, checking Git-inferred versions and cache reuse.
+See the [combined release/publishing coverage](docs/isolated-publishing.md#combined-release-and-publishing)
+for the separate version-selection and status-setup contracts.
+
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
 #### Usage
