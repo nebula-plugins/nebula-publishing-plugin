@@ -57,7 +57,9 @@ The publishing flag defaults to false, retaining existing root-extension lookup
 and eager conversion. The info flag independently controls collector isolation;
 enabling only publishing's flag does not isolate the old info collector.
 
-Enable Gradle's mode separately, using the tested Gradle 9.x command:
+Enable Gradle's mode separately. Prefer Gradle 9.9.0+ for the experimental path;
+see the [scheduler limitation and version recommendation](isolated-publishing.md#recommended-gradle-version).
+The command for the tested Gradle 9.x versions is:
 
 ```shell
 ./gradlew :api:generatePomFileForLibraryPublication \
@@ -79,7 +81,7 @@ prerelease opt-in. Flag-on fixtures enable strict Isolated Projects and fail on
 configuration-cache problems. The flag-off fixture verifies legacy root inheritance
 with ordinary configuration cache. No artifact is published by these tests.
 
-The fixtures cover Gradle 9.0.0 and 9.2.1 on Java 17, cold/warm cache reuse,
+The fixtures cover Gradle 9.0.0, 9.2.1 and 9.9.0 on Java 17, cold/warm cache reuse,
 root-plus-child and child-only plugin application, local and late overrides,
 nested Git repositories, changed remotes, no-Git fallback, unchanged URL conversion,
 lazy `help`, and flag-off root inheritance. They generate POMs in temporary builds

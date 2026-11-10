@@ -26,7 +26,7 @@ class IsolatedMavenDeveloperTest {
     @TempDir Path directory;
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,true", "9.0.0,false", "9.2.1,true", "9.2.1,false"})
+    @CsvSource({"9.0.0,true", "9.0.0,false", "9.2.1,true", "9.2.1,false", "9.9.0,true", "9.9.0,false"})
     void localContactsSupportRootAndChildOnlyApplication(String version, boolean root) throws Exception {
         fixture(root);
         List<String> tasks = new ArrayList<>(List.of(":api:" + POM, ":platform:app:" + POM, ":empty:" + POM));

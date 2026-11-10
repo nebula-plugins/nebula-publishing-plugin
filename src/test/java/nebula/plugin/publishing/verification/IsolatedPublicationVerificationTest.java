@@ -26,7 +26,7 @@ class IsolatedPublicationVerificationTest {
     @TempDir(cleanup = CleanupMode.ON_SUCCESS) Path directory;
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
+    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true", "9.9.0,false", "9.9.0,true"})
     void publishingOneProjectVerifiesEveryParticipant(String version, boolean isolated) throws IOException {
         fixture("api", "platform:api");
         BuildResult first = run(version, isolated, false, ":api:" + PUBLISH);
@@ -41,7 +41,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void rootCanAlsoBeTheOnlyParticipant(String version) throws IOException {
         fixture("");
         BuildResult first = run(version, true, false, ":" + PUBLISH);
@@ -52,7 +52,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void flagOffRetainsImplicitRootAggregation(String version) throws IOException {
         fixture("api", "app");
         write("build.gradle", ""); // Legacy children create the report; root does not apply the plugin.
@@ -68,7 +68,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true"})
+    @CsvSource({"9.0.0,false", "9.0.0,true", "9.2.1,false", "9.2.1,true", "9.9.0,false", "9.9.0,true"})
     void statusAndIgnoreChangesInvalidateCacheAndNeverUploadOnFailure(String version, boolean isolated) throws IOException {
         fixture("api", "platform:api");
         unstableDependency("platform:api");
@@ -166,7 +166,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void addingRemovingAndRenamingProjectsUpdatesAggregation(String version) throws IOException {
         fixture("api");
         String publish = ":api:" + PUBLISH;
@@ -196,7 +196,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void ivyRepositoryPublishingUsesTheSameGate(String version) throws IOException {
         fixture("api", "app");
         Path apiBuild = directory.resolve("api/build.gradle");
@@ -218,7 +218,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void rootAndChildParticipantsSupportProjectDependencies(String version) throws IOException {
         fixture("", "api");
         append("build.gradle", "dependencies { implementation project(':api') }\n");
@@ -230,7 +230,7 @@ class IsolatedPublicationVerificationTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void helpAndUnrelatedTasksDoNotResolveDependencies(String version) throws IOException {
         fixture("api", "app");
         append("api/build.gradle", """
