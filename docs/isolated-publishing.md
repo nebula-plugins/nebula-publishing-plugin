@@ -138,9 +138,13 @@ Coverage includes:
 
 These compatibility fixtures use Java 17, including when the outer test suite runs
 on newer JVMs. They validate these configurations, not every third-party plugin or
-publication type. Artifactory integration, WARs, Java platforms, the older
+publication type. WARs, Java platforms, the older
 `com.github.johnrengelman.shadow` ID, and additional info reporters are outside this
 new end-to-end matrix. Keep the feature opt-in while adopting other combinations.
+
+Gradle's standard Maven/Ivy publishing tasks can target an Artifactory repository.
+The separate JFrog Gradle plugin (`com.jfrog.artifactory`) and its publishing tasks
+are not supported.
 
 Run the new coverage with:
 

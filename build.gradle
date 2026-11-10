@@ -58,9 +58,6 @@ dependencies {
     testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
     testImplementation 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
     testImplementation 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
-    testImplementation('org.jfrog.buildinfo:build-info-extractor-gradle:latest.release') {
-        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-    }
     testImplementation("org.spockframework:spock-junit4:2.3-groovy-4.0")
 
     testRuntimeOnly files(tasks.createClasspathManifest)
