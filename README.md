@@ -364,9 +364,13 @@ plugins {
 }
 ```
 
-Plugin is integrated with Gradle publishing and with Artifactory plugin. The task itself is a dependence of tasks with type `PublishToIvyRepository` or `PublishToMavenRepository`. The task will also get hooked to tasks named 
-`artifactoryPublish` and `artifactoryDeploy` coming from `com.jfrog.artifactory` plugin. If you need any other integration
-you have to manually configure relationship in your build file.
+Verification runs before Gradle's standard `PublishToIvyRepository` and
+`PublishToMavenRepository` tasks. These tasks can publish to Artifactory or any
+other compatible Ivy/Maven repository.
+
+The JFrog Gradle plugin (`com.jfrog.artifactory`) and its publishing tasks are not
+supported. Use Gradle's standard Maven or Ivy publishing tasks to publish to an
+Artifactory repository.
 
 ##### Your dependency has a lower status then your project violation
 
