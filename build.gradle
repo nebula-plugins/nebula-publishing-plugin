@@ -49,8 +49,8 @@ task createClasspathManifest {
 }
 
 dependencies {
-    implementation 'com.netflix.nebula:gradle-info-plugin:latest.release'
-    implementation 'com.netflix.nebula:gradle-contacts-plugin:latest.release'
+    implementation 'com.netflix.nebula:gradle-info-plugin:17.1.0'
+    implementation 'com.netflix.nebula:gradle-contacts-plugin:8.1.0'
 
     testImplementation enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.9.10.+")
 
@@ -270,12 +270,6 @@ tasks.withType(Test).configureEach {
     systemProperty 'publishing.verificationTestJavaHome', javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(17)
     }.get().metadata.installationPath.asFile.absolutePath
-    // Prerelease cross-repository validation; does not replace production dependencies.
-    def scmInfoJar = providers.gradleProperty('publishing.scmInfoPluginJar')
-    if (scmInfoJar.present) {
-        inputs.file(scmInfoJar).withPropertyName('scmInfoPluginJar')
-        systemProperty 'publishing.scmInfoPluginJar', file(scmInfoJar.get()).absolutePath
-    }
 }
 
 testing {

@@ -51,6 +51,7 @@ class IvyManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     }
 
     def 'manifest created'() {
+        initializeGitRepository('https://example.org/team/ivytest.git')
         buildFile << '''\
             apply plugin: 'java'
             apply plugin: 'com.netflix.nebula.info'

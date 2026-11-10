@@ -37,6 +37,7 @@ class MavenManifestPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     }
 
     def 'manifest created'() {
+        initializeGitRepository('https://example.org/team/manifestpomtest.git')
         buildFile << '''\
             apply plugin: 'java'
             apply plugin: 'com.netflix.nebula.info'
