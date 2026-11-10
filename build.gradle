@@ -49,7 +49,7 @@ task createClasspathManifest {
 }
 
 dependencies {
-    implementation 'com.netflix.nebula:gradle-info-plugin:17.1.0'
+    implementation 'com.netflix.nebula:gradle-info-plugin:17.1.1'
     implementation 'com.netflix.nebula:gradle-contacts-plugin:8.1.0'
 
     testImplementation enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.9.10.+")

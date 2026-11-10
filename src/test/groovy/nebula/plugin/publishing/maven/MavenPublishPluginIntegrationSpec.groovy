@@ -258,9 +258,8 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
 
     /**
      * Runs publication tasks with configuration-cache problems treated as failures.
-     * Allows the upstream info plugin's {@code findAll(Closure)} and
-     * {@code Configuration.setVisible(boolean)} deprecations while checking for
-     * other deprecations, and restores the harness property after each invocation.
+     * Allows the existing InfoJavaPlugin {@code findAll(Closure)} deprecation while checking
+     * for other deprecations, and restores the harness property after each invocation.
      *
      * @param tasks task names and additional Gradle arguments
      * @return the result of the publication build
@@ -271,11 +270,9 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
             System.setProperty('ignoreDeprecations', 'true')
             def result = runTasks(*(tasks + ['--configuration-cache-problems=fail']))
             System.setProperty('ignoreDeprecations', 'false')
-            // InfoJavaPlugin uses findAll(Closure); DependenciesInfoPlugin 17.1.0 sets
-            // visibility on its report configurations. Keep checking every other warning.
+            // InfoJavaPlugin uses findAll(Closure); keep failing on any other deprecation.
             def checkedOutput = result.output.readLines().findAll {
-                !it.startsWith('The DomainObjectCollection.findAll(Closure) method has been deprecated.') &&
-                        !it.startsWith('The Configuration.setVisible(boolean) method has been deprecated.')
+                !it.startsWith('The DomainObjectCollection.findAll(Closure) method has been deprecated.')
             }.join('\n')
             TestKitOutputUtil.checkForDeprecations(checkedOutput)
             return result

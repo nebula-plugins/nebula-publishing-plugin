@@ -2,10 +2,9 @@
 
 ## Scope and dependency
 
-The publishing flag selects project-local Maven SCM integration. Its SCM collector
-requires `gradle-info-plugin` 17.1.0 or newer, which is included in this plugin's
-dependencies. Both the publishing and info flags must be enabled for strict
-Isolated Projects support.
+The publishing flag selects project-local Maven SCM integration, using the included
+`gradle-info-plugin` 17.1.1 dependency. Both the publishing and info flags must be
+enabled for strict Isolated Projects support.
 
 Upgrading from the previously bundled info-plugin 16 also brings the
 [info-plugin 17 dependency-reporting changes](https://github.com/nebula-plugins/gradle-info-plugin/releases/tag/v17.0.0).

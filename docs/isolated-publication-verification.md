@@ -10,7 +10,7 @@ is absent or false.
 
 This guide covers publication verification. The same flag also selects an
 [experimental project-local SCM path](isolated-scm.md), backed by the included
-info-plugin 17.1.0 dependency. Inherited developer contacts,
+info-plugin 17.1.1 dependency. Inherited developer contacts,
 shadow-component detection, and other publishing integrations still require their
 own isolated-projects adoption work.
 
