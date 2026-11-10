@@ -48,6 +48,16 @@ task createClasspathManifest {
     }
 }
 
+// TestKit loads the released release plugin alongside the publishing plugin under test.
+// This configuration never contributes to the published plugin's runtime classpath.
+configurations {
+    releaseCompatibility {
+        canBeConsumed = false
+        canBeResolved = true
+        resolutionStrategy.activateDependencyLocking()
+    }
+}
+
 dependencies {
     implementation 'com.netflix.nebula:gradle-info-plugin:17.1.1'
     implementation 'com.netflix.nebula:gradle-contacts-plugin:8.2.0'
@@ -57,6 +67,7 @@ dependencies {
     testImplementation gradleTestKit()
     // Generate disposable fixture keys and verify actual published OpenPGP signatures.
     testImplementation 'org.bouncycastle:bcpg-jdk18on:1.81'
+    releaseCompatibility 'com.netflix.nebula:nebula-release-plugin:21.2.0'
     testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
     testImplementation 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
     testImplementation 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
@@ -265,10 +276,18 @@ gradlePlugin {
 
 tasks.withType(Test).configureEach {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    timeout = java.time.Duration.ofMinutes(20)
     // Gradle 9.0 compatibility fixtures need a supported JVM even when CI tests on Java 25.
     systemProperty 'publishing.verificationTestJavaHome', javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(17)
     }.get().metadata.installationPath.asFile.absolutePath
+    inputs.files(configurations.releaseCompatibility)
+    systemProperty 'publishing.releaseTestClasspath', configurations.releaseCompatibility.asPath
+    // Bound each Jupiter invocation, including parameterized TestKit cases. On timeout,
+    // Jupiter prints the test JVM's threads; CI also retains the TestKit daemon logs.
+    systemProperty 'junit.jupiter.execution.timeout.test.method.default', '5 m'
+    systemProperty 'junit.jupiter.execution.timeout.testtemplate.method.default', '5 m'
+    systemProperty 'junit.jupiter.execution.timeout.threaddump.enabled', 'true'
 }
 
 testing {
