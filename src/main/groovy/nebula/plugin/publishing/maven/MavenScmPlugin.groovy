@@ -37,7 +37,7 @@ import org.gradle.api.publish.maven.MavenPublication
  * <p>With {@code nebula.publishing.isolatedProjectsSupport=true}, reads only the
  * current project's extension and wires origin providers lazily into native POM
  * properties. Also enable {@code nebula.info.isolatedProjectsSupport=true} in an
- * info-plugin version supporting isolated SCM collection. Apply both plugins
+ * info-plugin version 17.1.0 or newer. Apply both plugins
  * locally; root SCM overrides are not inherited in this mode.</p>
  *
  * <p>The default path retains root metadata reuse and eager origin conversion.</p>

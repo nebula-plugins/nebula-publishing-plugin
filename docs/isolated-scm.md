@@ -1,14 +1,17 @@
 # Experimental project-local Maven SCM metadata
 
-## Status and release prerequisite
+## Scope and dependency
 
-This branch adds project-local SCM integration to the publishing flag. Strict
-Isolated Projects support also requires the corresponding SCM collector update in
-`gradle-info-plugin` ([upstream PR](https://github.com/nebula-plugins/gradle-info-plugin/pull/131)).
-The current production lock remains at 16.0.0, which does not
-implement that collector path. Keep this change in draft until a release containing
-the upstream implementation is available, then update the dependency lock and make
-the strict SCM tests unconditional before merging.
+The publishing flag selects project-local Maven SCM integration, using the included
+`gradle-info-plugin` 17.1.1 dependency. Both the publishing and info flags must be
+enabled for strict Isolated Projects support.
+
+Upgrading from the previously bundled info-plugin 16 also brings the
+[info-plugin 17 dependency-reporting changes](https://github.com/nebula-plugins/gradle-info-plugin/releases/tag/v17.0.0).
+Legacy dependency maps are read-only and project-local, and legacy report reads
+under configuration cache require migration to report task outputs. Those upstream
+changes apply independently of the SCM flags; account for them when upgrading or
+choosing a publishing-plugin release version.
 
 No settings helper, new artifact, or manually maintained project list is needed.
 The full Maven publishing facade still needs separate validation and migration of
@@ -16,8 +19,7 @@ inherited developer contacts, Shadow integration, and other components.
 
 ## Adoption
 
-After adopting an info-plugin release with isolated SCM collection, enable both
-flags build-wide in the root `gradle.properties`:
+Enable both flags build-wide in the root `gradle.properties`:
 
 ```properties
 nebula.publishing.isolatedProjectsSupport=true
@@ -63,23 +65,19 @@ Enable Gradle's mode separately, using the tested Gradle 9.x command:
   --configuration-cache --configuration-cache-problems=fail
 ```
 
-## Combined-source validation before the upstream release
+## Validation against released dependencies
 
-Build the patched info-plugin checkout with its ordinary `jar` task. Then provide
-that implementation JAR to the publishing tests:
+Run the SCM integration suite with the standard released dependency classpath:
 
 ```shell
 ./gradlew test --tests nebula.plugin.publishing.maven.IsolatedMavenScmTest \
-  -Ppublishing.scmInfoPluginJar=/absolute/path/to/gradle-info-plugin-implementation.jar \
   --no-configuration-cache --max-workers=2
 ```
 
-This substitutes the JAR only in these TestKit fixtures. It does not change the
-published dependency, production lock, or normal regression tests. No artifact is
-published. Without the property, the SCM tests run ordinary configuration-cache
-checks against the locked release; cases requiring upstream local-provider behavior
-are explicitly skipped. With the property, every SCM case runs and flag-on fixtures
-enable strict Isolated Projects.
+All SCM cases run in the normal test suite without a local JAR override or a
+prerelease opt-in. Flag-on fixtures enable strict Isolated Projects and fail on
+configuration-cache problems. The flag-off fixture verifies legacy root inheritance
+with ordinary configuration cache. No artifact is published by these tests.
 
 The fixtures cover Gradle 9.0.0 and 9.2.1 on Java 17, cold/warm cache reuse,
 root-plus-child and child-only plugin application, local and late overrides,

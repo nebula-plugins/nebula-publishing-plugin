@@ -3,14 +3,12 @@ package nebula.plugin.publishing.maven;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,10 +19,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Runs ordinary cache checks with the locked dependency, and strict isolation with
- * the upstream SCM implementation supplied by publishing.scmInfoPluginJar.
- */
+/** Strict SCM isolation and cache checks against the released plugin dependencies. */
 class IsolatedMavenScmTest {
     private static final String ORIGIN = "git@example.org:team/shared.git";
     private static final String POM = "generatePomFileForLibraryPublication";
@@ -52,8 +47,6 @@ class IsolatedMavenScmTest {
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "publishing.scmInfoPluginJar", matches = ".+",
-            disabledReason = "Requires upstream project-local SCM providers; see docs/isolated-scm.md")
     void rootOverrideDoesNotLeakIntoChild() throws Exception {
         fixture(true);
         repository(project(), ORIGIN);
@@ -63,8 +56,6 @@ class IsolatedMavenScmTest {
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "publishing.scmInfoPluginJar", matches = ".+",
-            disabledReason = "Requires upstream project-local SCM providers; see docs/isolated-scm.md")
     void nestedRepositoryUsesItsOwnOrigin() throws Exception {
         fixture(true);
         repository(project(), ORIGIN);
@@ -76,8 +67,6 @@ class IsolatedMavenScmTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"9.0.0", "9.2.1"})
-    @EnabledIfSystemProperty(named = "publishing.scmInfoPluginJar", matches = ".+",
-            disabledReason = "Requires upstream cache-safe local fallback; see docs/isolated-scm.md")
     void noGitFallbackSurvivesCacheReuse(String version) throws Exception {
         fixture(true);
         checkTwice(version, ":api:" + POM, ":platform:app:" + POM);
@@ -140,22 +129,13 @@ class IsolatedMavenScmTest {
     private BuildResult run(String version, boolean isolated, String... tasks) {
         List<String> args = new ArrayList<>(List.of(tasks));
         args.addAll(List.of("--configuration-cache", "--configuration-cache-problems=fail", "--parallel", "--max-workers=2",
-                "-Dorg.gradle.unsafe.isolated-projects=" + (isolated && upstreamInfoJar() != null),
+                "-Dorg.gradle.unsafe.isolated-projects=" + isolated,
                 "-Dorg.gradle.java.home=" + System.getProperty("publishing.verificationTestJavaHome"), "--stacktrace"));
         Map<String, String> environment = new HashMap<>(System.getenv());
         for (String name : List.of("GIT_COMMIT", "P4CONFIG", "P4CLIENT", "WORKSPACE", "P4_CHANGELIST")) environment.remove(name);
-        GradleRunner runner = GradleRunner.create().withProjectDir(project().toFile()).withPluginClasspath();
-        if (upstreamInfoJar() != null) {
-            List<File> classpath = new ArrayList<>(runner.getPluginClasspath());
-            classpath.removeIf(file -> file.getName().startsWith("gradle-info-plugin-"));
-            classpath.add(new File(upstreamInfoJar()));
-            runner.withPluginClasspath(classpath);
-        }
-        return runner.withGradleVersion(version)
+        return GradleRunner.create().withProjectDir(project().toFile()).withPluginClasspath().withGradleVersion(version)
                 .withEnvironment(environment).withArguments(args).build();
     }
-
-    private static String upstreamInfoJar() { return System.getProperty("publishing.scmInfoPluginJar"); }
 
     private void fixture(boolean root) throws IOException {
         write("settings.gradle", "rootProject.name='scm-fixture'\ninclude 'api', 'platform:app'\n");

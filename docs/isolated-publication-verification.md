@@ -9,8 +9,8 @@ implementation remains unchanged when `nebula.publishing.isolatedProjectsSupport
 is absent or false.
 
 This guide covers publication verification. The same flag also selects an
-[experimental project-local SCM path](isolated-scm.md), which requires an upstream
-info-plugin update before strict isolation is usable. Inherited developer contacts,
+[experimental project-local SCM path](isolated-scm.md), backed by the included
+info-plugin 17.1.1 dependency. Inherited developer contacts,
 shadow-component detection, and other publishing integrations still require their
 own isolated-projects adoption work.
 

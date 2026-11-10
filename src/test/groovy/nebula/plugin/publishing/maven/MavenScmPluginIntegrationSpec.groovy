@@ -36,6 +36,7 @@ class MavenScmPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
     }
 
     def 'scm info is present in pom'() {
+        initializeGitRepository('https://example.org/team/scmpomtest.git')
         buildFile << """
             apply plugin: 'com.netflix.nebula.info'
         """.stripIndent()
@@ -45,7 +46,7 @@ class MavenScmPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
 
         then:
         def pom = new XmlSlurper().parse(new File(projectDir, 'build/publications/nebula/pom-default.xml'))
-        pom.url.text().startsWith('https://github.com/')
-        pom.url.text().endsWith('nebula-publishing-plugin')
+        pom.url.text() == 'https://example.org/team/scmpomtest'
+        pom.scm.url.text() == 'https://example.org/team/scmpomtest.git'
     }
 }

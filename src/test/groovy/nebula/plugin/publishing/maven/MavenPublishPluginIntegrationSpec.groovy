@@ -190,6 +190,7 @@ class MavenPublishPluginIntegrationSpec extends BaseIntegrationTestKitSpec {
      * @param signPublication whether to configure in-memory signing for the custom publication
      */
     private void configureAggregatePublishing(boolean signPublication) {
+        initializeGitRepository('https://example.org/team/mavenpublishingtest.git')
         def graph = new DependencyGraphBuilder()
                 .addModule('test:a:0.0.1')
                 .build()
