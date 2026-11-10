@@ -24,6 +24,19 @@ import org.gradle.api.publish.PublicationContainer
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 
+/**
+ * Adds the contacts plugin's resolved contacts to Maven developer metadata.
+ *
+ * <p>Parent inheritance remains enabled by default. For strict Isolated Projects,
+ * configure {@code contacts.inheritFromParent.set(false)} locally, using the
+ * included contacts plugin 8.2.0 or newer. A shared project convention can supply
+ * each project's complete contacts. The publishing isolation flag does not change
+ * this independent ownership policy.</p>
+ *
+ * <p>Declare contacts during project evaluation, before the contacts plugin's first
+ * accessor call caches its resolved list. Developer entries preserve contact order,
+ * prefer GitHub over Twitter for the ID, and include all declared roles.</p>
+ */
 class MavenDeveloperPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {

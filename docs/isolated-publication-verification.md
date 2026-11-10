@@ -10,9 +10,9 @@ is absent or false.
 
 This guide covers publication verification. The same flag also selects an
 [experimental project-local SCM path](isolated-scm.md), backed by the included
-info-plugin 17.1.1 dependency. Inherited developer contacts,
-shadow-component detection, and other publishing integrations still require their
-own isolated-projects adoption work.
+info-plugin 17.1.1 dependency. See the [project-local publishing guide](isolated-publishing.md)
+for local developer contacts, Shadow artifact replacement and full Maven/Ivy
+Java-library publishing validation.
 
 ## Adoption
 
