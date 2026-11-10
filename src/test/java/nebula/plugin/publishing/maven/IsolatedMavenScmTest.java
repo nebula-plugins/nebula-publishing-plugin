@@ -26,7 +26,7 @@ class IsolatedMavenScmTest {
     @TempDir Path directory;
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,true", "9.0.0,false", "9.2.1,true", "9.2.1,false"})
+    @CsvSource({"9.0.0,true", "9.0.0,false", "9.2.1,true", "9.2.1,false", "9.9.0,true", "9.9.0,false"})
     void sharedRepositorySupportsRootAndChildOnlyApplication(String version, boolean root) throws Exception {
         fixture(root);
         repository(project(), ORIGIN);
@@ -66,7 +66,7 @@ class IsolatedMavenScmTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.9.0"})
     void noGitFallbackSurvivesCacheReuse(String version) throws Exception {
         fixture(true);
         checkTwice(version, ":api:" + POM, ":platform:app:" + POM);

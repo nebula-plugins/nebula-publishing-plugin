@@ -6,6 +6,33 @@ facade also supports Java-platform BOMs. Plugins and metadata are configured in
 each project, usually through a shared project
 convention. No settings helper or manually maintained module list is required.
 
+## Recommended Gradle version
+
+Prefer **Gradle 9.9.0 or newer** when enabling experimental Isolated Projects
+publishing. The plugin's supported release line remains Gradle 9.x; the
+compatibility suite retains its earlier-version cases and adds 9.9.0 coverage.
+
+Gradle 9.8.2 can intermittently stall during parallel isolated-project
+configuration, before publication tasks start. Local BOM fixtures showed the
+daemon waiting in `TaskPathProjectEvaluator.scheduleProjectsJustInTime` with idle
+configuration workers. This matches the failure family of
+[Gradle #39040](https://github.com/gradle/gradle/issues/39040), also reported in
+[#39388](https://github.com/gradle/gradle/issues/39388). The scheduler fix in
+[Gradle PR #39113](https://github.com/gradle/gradle/pull/39113) is included in the
+released Gradle 9.9.0.
+
+The full BOM fixture passed 12 repeated cold publications on 9.9.0. Gradle's
+plugin-free composite reproducer also stalled on 9.8.2 with two workers and
+completed on 9.9.0. The BOM fixture has a single build with nested projects;
+the upstream reproducer has an included plugin build. The exact trigger in
+the BOM fixture remains unproven.
+
+Increasing the worker limit can help builds temporarily pinned to 9.8.x; three
+workers completed the investigated fixtures. That is not a universal minimum,
+because the upstream condition depends on nested build concurrency. Prefer the
+released scheduler fix. The plugin does not select an internal alternate
+scheduler or retry failures, and the feature flags remain default-off.
+
 ## Opt-ins
 
 Set the publishing and info properties in the root `gradle.properties`:
@@ -191,33 +218,34 @@ disposable local Maven/Ivy repositories.
 
 Coverage includes:
 
-- Developer POMs on Gradle 9.0.0 and 9.2.1: root/child and child-only application,
-  nested projects, empty contacts, both plugin orders, multiple roles, changed local
-  metadata, deleted-output regeneration, legacy inherited contacts, and strict
-  rejection of unmigrated inheritance.
-- Full Maven and Ivy Java-library publishing on Gradle 9.0.0 and 9.2.1 with info
-  17.1.1, contacts 8.2.0, project dependencies, local external dependencies, local
-  SCM overrides, ownership and late broker metadata. Gradle 9.2.1 also covers the
-  publishing facades without info applied.
+- Developer POMs on Gradle 9.0.0, 9.2.1 and 9.9.0: root/child and child-only
+  application, nested projects, empty contacts and multiple roles. Gradle 9.2.1
+  also checks changed local metadata, deleted-output regeneration, legacy inherited
+  contacts, and strict rejection of unmigrated inheritance.
+- Full Maven and Ivy Java-library publishing on Gradle 9.0.0, 9.2.1 and 9.9.0
+  with info 17.1.1, contacts 8.2.0, project dependencies, local external
+  dependencies, local SCM overrides, ownership and late broker metadata. Gradle
+  9.2.1 and 9.9.0 also cover the publishing facades without info applied.
 - Shadow 8.3.9 and 9.3.1 on Gradle 9.2.1: normal plus Shadow JARs, replacement
   JARs, Maven Shadow-component selection, Ivy publication, and artifact contents.
   Replacement is also exercised on Gradle 9.0.0. Gradle 9.2.1 checks renamed main
   JAR outputs, preservation of additional artifacts, and dependency-resolution-free
-  `help`.
-- Maven Java-platform BOMs on Gradle 9.0.0, 9.2.1 and 9.8.2: nested projects,
+  `help`. Gradle 9.9.0 also covers Shadow 9.3.1 with both publishing facades,
+  normal and replacement JARs, and Maven component selection.
+- Maven Java-platform BOMs on Gradle 9.0.0, 9.2.1, 9.8.2 and 9.9.0: nested projects,
   constraints, imported platforms, POM/module metadata, consumer dependency versions,
   changed constraints, deleted-metadata regeneration and dependency-resolution-free
   `help`. The optional Shadow-component flag is absent in these fixtures.
-- Signed Maven/Ivy libraries on Gradle 9.0.0, 9.2.1 and 9.8.2: compiled classes,
+- Signed Maven/Ivy libraries on Gradle 9.0.0, 9.2.1, 9.8.2 and 9.9.0: compiled classes,
   sources, Javadoc and metadata, with cryptographic verification of every detached
   signature. Keys are generated in disposable fixtures without external GPG or a
   user keyring. Gradle 9.2.1 also checks changed sources, re-signing, deleted-output
   regeneration and dependency-resolution-free `help`.
-- Maven/Ivy WAR publication on Gradle 9.0.0, 9.2.1 and 9.8.2: web content,
+- Maven/Ivy WAR publication on Gradle 9.0.0, 9.2.1, 9.8.2 and 9.9.0: web content,
   compiled classes, packaged/excluded dependencies and descriptor packaging.
   Gradle 9.2.1 also checks snapshot dependency rejection before upload on cold and
   warm configuration caches.
-- Combined release/publishing on Gradle 9.0.0, 9.2.1 and 9.8.2: mutable and
+- Combined release/publishing on Gradle 9.0.0, 9.2.1, 9.8.2 and 9.9.0: mutable and
   immutable snapshot workflows, signed Maven and Ivy publications, Git-inferred
   versions, final-status publication without tagging, project dependency coordinates,
   metadata and cold/warm caches.

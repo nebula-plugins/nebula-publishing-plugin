@@ -41,7 +41,7 @@ class IsolatedReleasePublishingTest {
 
     @ParameterizedTest
     @CsvSource({"9.0.0,snapshot", "9.0.0,devSnapshot", "9.2.1,snapshot", "9.2.1,devSnapshot",
-            "9.8.2,snapshot", "9.8.2,devSnapshot"})
+            "9.8.2,snapshot", "9.8.2,devSnapshot", "9.9.0,snapshot", "9.9.0,devSnapshot"})
     void releaseWorkflowsPublishCommonInferredVersionsAndReuseCache(String gradle, String workflow) throws Exception {
         fixture();
         BuildResult cold = run(gradle, false, ":" + workflow, "recordVersion", IMMUTABLE);
@@ -71,7 +71,7 @@ class IsolatedReleasePublishingTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1", "9.8.2"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.8.2", "9.9.0"})
     void finalStatusPublishesSignedInferredVersionWithoutTagging(String gradle) throws Exception {
         fixture();
         for (int attempt = 0; attempt < 2; attempt++) {

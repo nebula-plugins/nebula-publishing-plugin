@@ -166,9 +166,12 @@ for legacy/custom report tasks; the experimental root report sets it automatical
 
 The current release line targets Gradle 9.x, as established in the
 [22.0.0 breaking-change notes](https://github.com/nebula-plugins/nebula-publishing-plugin/releases/tag/v22.0.0).
-Compatibility tests cover Gradle 9.0.0 and 9.2.1 in ordinary and isolated
+Compatibility tests cover Gradle 9.0.0, 9.2.1 and 9.9.0 in ordinary and isolated
 configuration-cache modes. Java 17 runs these fixtures even when the outer test suite
 runs on Java 25. The wrapper remains unchanged.
+
+Prefer Gradle 9.9.0+ when adopting the experimental mode; see the
+[scheduler limitation and version recommendation](isolated-publishing.md#recommended-gradle-version).
 
 TestKit uses disposable local Maven/Ivy repositories, strict configuration-cache
 checks, parallel execution, and real invalid dependencies. Coverage includes cache

@@ -351,11 +351,16 @@ Maven SCM lookup and isolated Shadow artifact replacement. The independent info
 and contacts opt-ins are described in the
 [project-local publishing guide](docs/isolated-publishing.md).
 
+Prefer **Gradle 9.9.0+** for this experimental mode. Earlier versions can encounter
+a parallel configuration scheduler stall; see the
+[Gradle version recommendation](docs/isolated-publishing.md#recommended-gradle-version).
+
 The same opt-in path covers Maven Java-platform BOMs, signed Maven/Ivy libraries
 with source and Javadoc artifacts, and Maven/Ivy WAR publication. These scenarios
 are tested with strict isolation and configuration-cache reuse on Gradle 9.0.0,
-9.2.1 and 9.8.2. BOM constraints are published but are not independently checked by
-the runtime-dependency verification policy; see the guide for scope and examples.
+9.2.1, 9.8.2 and 9.9.0. BOM constraints are published but are not independently
+checked by the runtime-dependency verification policy; see the guide for scope
+and examples.
 
 The integration suite also combines the released release plugin 21.2.0 with signed
 Maven/Ivy snapshot publishing, checking Git-inferred versions and cache reuse.

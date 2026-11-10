@@ -27,7 +27,8 @@ class IsolatedPublishingFacadeTest {
 
     @ParameterizedTest
     @CsvSource({"9.0.0,maven,true", "9.0.0,ivy,true", "9.2.1,maven,true", "9.2.1,ivy,true",
-            "9.2.1,maven,false", "9.2.1,ivy,false"})
+            "9.2.1,maven,false", "9.2.1,ivy,false",
+            "9.9.0,maven,true", "9.9.0,ivy,true", "9.9.0,maven,false", "9.9.0,ivy,false"})
     void publishesWithStrictIsolationAndCacheReuse(String version, String format, boolean info) throws Exception {
         fixture(format, info, "", false, false);
         checkTwice(version, publishTask(format));
@@ -40,7 +41,9 @@ class IsolatedPublishingFacadeTest {
             "9.2.1,maven,9.3.1,false,false", "9.2.1,maven,9.3.1,true,false", "9.2.1,maven,9.3.1,true,true",
             "9.2.1,ivy,9.3.1,false,false", "9.2.1,ivy,9.3.1,true,false",
             "9.0.0,maven,8.3.9,true,false", "9.0.0,ivy,8.3.9,true,false",
-            "9.0.0,maven,9.3.1,true,true", "9.0.0,ivy,9.3.1,true,false"})
+            "9.0.0,maven,9.3.1,true,true", "9.0.0,ivy,9.3.1,true,false",
+            "9.9.0,maven,9.3.1,false,false", "9.9.0,maven,9.3.1,true,false", "9.9.0,maven,9.3.1,true,true",
+            "9.9.0,ivy,9.3.1,false,false", "9.9.0,ivy,9.3.1,true,false"})
     void publishesShadowArtifactsWithStrictIsolation(String version, String format, String shadow, boolean jarDisabled,
                                                     boolean component) throws Exception {
         fixture(format, true, shadow, jarDisabled, component);

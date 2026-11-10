@@ -34,7 +34,7 @@ class IsolatedPublicationTypesTest {
     @TempDir Path directory;
 
     @ParameterizedTest
-    @ValueSource(strings = {"9.0.0", "9.2.1", "9.8.2"})
+    @ValueSource(strings = {"9.0.0", "9.2.1", "9.8.2", "9.9.0"})
     void bomPublishesConstraintsAndImportedPlatformWithCacheReuse(String version) throws Exception {
         bomFixture();
         checkTwice(version, () -> assertBom("1.0"), ":catalog:bom:" + MAVEN_TASK, ":api:" + MAVEN_TASK);
@@ -67,7 +67,8 @@ class IsolatedPublicationTypesTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,maven", "9.0.0,ivy", "9.2.1,maven", "9.2.1,ivy", "9.8.2,maven", "9.8.2,ivy"})
+    @CsvSource({"9.0.0,maven", "9.0.0,ivy", "9.2.1,maven", "9.2.1,ivy", "9.8.2,maven", "9.8.2,ivy",
+            "9.9.0,maven", "9.9.0,ivy"})
     void publishesSignedLibrarySourcesJavadocAndMetadata(String version, String format) throws Exception {
         TestSigningKeys keys = signedLibraryFixture(format);
         checkTwice(version, () -> assertSignedLibrary(format, keys, "one"), publishTask("api", format));
@@ -104,7 +105,8 @@ class IsolatedPublicationTypesTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"9.0.0,maven", "9.0.0,ivy", "9.2.1,maven", "9.2.1,ivy", "9.8.2,maven", "9.8.2,ivy"})
+    @CsvSource({"9.0.0,maven", "9.0.0,ivy", "9.2.1,maven", "9.2.1,ivy", "9.8.2,maven", "9.8.2,ivy",
+            "9.9.0,maven", "9.9.0,ivy"})
     void publishesWarComponentWithCacheReuse(String version, String format) throws Exception {
         warFixture(format);
         checkTwice(version, () -> assertWar(format), publishTask("apps:web", format));
