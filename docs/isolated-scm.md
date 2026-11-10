@@ -14,8 +14,8 @@ changes apply independently of the SCM flags; account for them when upgrading or
 choosing a publishing-plugin release version.
 
 No settings helper, new artifact, or manually maintained project list is needed.
-The full Maven publishing facade still needs separate validation and migration of
-inherited developer contacts, Shadow integration, and other components.
+For full Maven/Ivy Java-library publishing, local developer contacts and Shadow
+adoption, see the [project-local publishing guide](isolated-publishing.md).
 
 ## Adoption
 

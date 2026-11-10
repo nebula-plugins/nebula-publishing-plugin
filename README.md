@@ -187,6 +187,11 @@ Adds scm block to the pom. Tries to use the the info-scm plugin from [gradle-inf
 
 When [Gradle Contacts](https://github.com/nebula-plugins/gradle-contacts-plugin) plugin is applied, it will take the configured contacts and add them to the POM file. 
 
+For strict Isolated Projects, the included contacts plugin 8.2.0 supports
+`contacts.inheritFromParent.set(false)`. Declare complete contacts locally through
+a project convention. The publishing isolation flag does not change contact
+inheritance. See the [project-local publishing guide](docs/isolated-publishing.md).
+
 Example, given:
 
 ```
@@ -341,8 +346,10 @@ through Gradle's immutable isolated views; project conventions apply verificatio
 locally to every project, including the root. No settings helper or module-list
 property is required. See the
 [adoption guide and design](docs/isolated-publication-verification.md) for configuration,
-the publishing gate, and tested Gradle limitations. This flag currently covers
-publication verification only.
+the publishing gate, and tested Gradle limitations. This flag also selects local
+Maven SCM lookup and isolated Shadow artifact replacement. The independent info
+and contacts opt-ins are described in the
+[project-local publishing guide](docs/isolated-publishing.md).
 
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
