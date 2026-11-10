@@ -60,7 +60,7 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
     }
 
     private void configurePublication(MavenPublication publication, Project p) {
-        def useShadowComponent = p.findProperty('nebula.publishing.features.detectShadowComponent.enabled')?.toBoolean() ?: false
+        def useShadowComponent = shadowComponentEnabled(p)
 
         if (p.ext.get(MAVEN_WAR)) {
             publication.from p.components.web
@@ -71,5 +71,16 @@ class MavenNebulaPublishPlugin implements Plugin<Project> {
         } else if (p.ext.get(MAVEN_JAR)) {
             publication.from p.components.java
         }
+    }
+
+    /** In isolated mode an absent flag must not trigger ancestor project property lookup. */
+    private static boolean shadowComponentEnabled(Project project) {
+        String propertyName = 'nebula.publishing.features.detectShadowComponent.enabled'
+        if (project.providers.gradleProperty('nebula.publishing.isolatedProjectsSupport')
+                .map { Boolean.parseBoolean(it) }.getOrElse(false)) {
+            return project.providers.gradleProperty(propertyName)
+                    .map { Boolean.parseBoolean(it) }.getOrElse(false)
+        }
+        project.findProperty(propertyName)?.toBoolean() ?: false
     }
 }

@@ -351,6 +351,12 @@ Maven SCM lookup and isolated Shadow artifact replacement. The independent info
 and contacts opt-ins are described in the
 [project-local publishing guide](docs/isolated-publishing.md).
 
+The same opt-in path covers Maven Java-platform BOMs, signed Maven/Ivy libraries
+with source and Javadoc artifacts, and Maven/Ivy WAR publication. These scenarios
+are tested with strict isolation and configuration-cache reuse on Gradle 9.0.0,
+9.2.1 and 9.8.2. BOM constraints are published but are not independently checked by
+the runtime-dependency verification policy; see the guide for scope and examples.
+
 Creates a task which runs before actual publication into repositories. It catches some known bad patters so you can make explicit decision dependency by dependency.
 
 #### Usage

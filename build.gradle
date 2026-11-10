@@ -55,6 +55,8 @@ dependencies {
     testImplementation enforcedPlatform("com.fasterxml.jackson:jackson-bom:2.9.10.+")
 
     testImplementation gradleTestKit()
+    // Generate disposable fixture keys and verify actual published OpenPGP signatures.
+    testImplementation 'org.bouncycastle:bcpg-jdk18on:1.81'
     testImplementation 'com.netflix.nebula:gradle-dependency-lock-plugin:latest.release'
     testImplementation 'com.netflix.nebula:gradle-resolution-rules-plugin:latest.release'
     testImplementation 'com.netflix.nebula:nebula-dependency-recommender:latest.release'
