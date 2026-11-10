@@ -8,9 +8,11 @@ to a Maven or Ivy repository verifies the whole build before uploading. The defa
 implementation remains unchanged when `nebula.publishing.isolatedProjectsSupport`
 is absent or false.
 
-This feature covers publication verification only. Inherited developer contacts,
-SCM configuration, shadow-component detection, and other publishing integrations
-require their own isolated-projects adoption work.
+This guide covers publication verification. The same flag also selects an
+[experimental project-local SCM path](isolated-scm.md), which requires an upstream
+info-plugin update before strict isolation is usable. Inherited developer contacts,
+shadow-component detection, and other publishing integrations still require their
+own isolated-projects adoption work.
 
 ## Adoption
 
