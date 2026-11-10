@@ -270,6 +270,12 @@ tasks.withType(Test).configureEach {
     systemProperty 'publishing.verificationTestJavaHome', javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(17)
     }.get().metadata.installationPath.asFile.absolutePath
+    // Prerelease cross-repository validation; does not replace production dependencies.
+    def scmInfoJar = providers.gradleProperty('publishing.scmInfoPluginJar')
+    if (scmInfoJar.present) {
+        inputs.file(scmInfoJar).withPropertyName('scmInfoPluginJar')
+        systemProperty 'publishing.scmInfoPluginJar', file(scmInfoJar.get()).absolutePath
+    }
 }
 
 testing {
